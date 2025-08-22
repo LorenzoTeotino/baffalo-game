@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Baffalo – Sardegna Game</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="bar">
+      <button id="btnBack" class="back hidden" aria-label="Indietro">← Indietro</button>
+      <h1 id="title">Home</h1>
+      <span style="margin-left:auto" id="connBadge" class="badge">offline…</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="view-home" class="view active">
+      <div class="grid">
+        <div class="tile" data-open="descrizione">
+          <h3>Descrizione</h3>
+          <div class="center"><div class="title">DESCRIZIONE</div></div>
+        </div>
+        <div class="tile locked" id="tile-punteggi" data-open="punteggi">
+          <h3>Punteggi Baffalo</h3>
+          <div class="center"><div class="title">PUNTEGGI</div></div>
+        </div>
+        <div class="tile locked" id="tile-spritz" data-open="spritz">
+          <h3>Spritzettino</h3>
+          <div class="center"><div class="title">SPRITZ</div></div>
+        </div>
+        <div class="tile locked" id="tile-classifica" data-open="classifica">
+          <h3>Classifica</h3>
+          <div class="center"><div class="title">CLASSIFICA</div></div>
+        </div>
+        <div class="tile locked" id="tile-regole" data-open="regole">
+          <h3>Regole</h3>
+          <div class="center"><div class="title">REGOLE</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DESCRIZIONE -->
+    <section id="view-descrizione" class="view">
+      <div class="stack">
+        <div class="card">
+          <h2>Come funziona</h2>
+          <p>Benvenuti nel gioco del <strong>Baffalo</strong> per il viaggio in Sardegna. All'inizio vedi solo questo tile. Quando premi <em>Ho capito</em>, si sbloccheranno gli altri.</p>
+          <div class="actions">
+            <button class="btn primary" id="btnUnlock">Ho capito, sblocca</button>
+            <button class="btn" data-open="home">Torna alla Home</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PUNTEGGI -->
+    <section id="view-punteggi" class="view">
+      <div class="stack">
+        <div class="card">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between">
+            <div class="pill">Io sono: <strong id="meLabel">—</strong></div>
+            <div class="pill">L'altro: <strong id="otherLabel">—</strong></div>
+          </div>
+          <div class="stack" style="margin-top:12px">
+            <div>
+              <div class="muted">Scegli TE</div>
+              <div id="meList" class="players"></div>
+            </div>
+            <div>
+              <div class="muted">Scegli L'ALTRO</div>
+              <div id="otherList" class="players"></div>
+            </div>
+          </div>
+          <div class="controls">
+            <button id="btnBaffaloPreso" class="good" disabled>✅ Baffalo preso</button>
+            <button id="btnBaffaloSbagliato" class="bad" disabled>❌ Baffalo sbagliato</button>
+            <button id="btnPlus" class="good" disabled>+1 a me</button>
+            <button id="btnMinus" class="bad" disabled>−1 a me</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Ultimi eventi</h3>
+          <div id="feed"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLASSIFICA -->
+    <section id="view-classifica" class="view">
+      <div id="board" class="stack"></div>
+    </section>
+
+    <!-- SPRITZ -->
+    <section id="view-spritz" class="view">
+      <div class="card">
+        <h2>Spritzettino 🍹</h2>
+        <p class="muted">Mini-gioco/bonus (placeholder).</p>
+      </div>
+    </section>
+
+    <!-- REGOLE -->
+    <section id="view-regole" class="view">
+      <div class="card">
+        <h2>Regole del Baffalo</h2>
+        <ul>
+          <li>Baffalo preso: +3 al chiamante, −3 all'altro.</li>
+          <li>Baffalo sbagliato: −3 al chiamante, +3 all'altro.</li>
+          <li>Bottoni +1/−1 per casi vari.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" class="toast hidden">ok</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js"></script>
+
+<script src="app.js"></script>
+</body>
+</html>
