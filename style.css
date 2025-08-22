@@ -1,0 +1,34 @@
+:root{
+  --bg:#0a0a0a; --card:#111; --ink:#fff; --muted:#9aa0a6;
+  --accent:#39FF14; --danger:#ff4747; --border:#2a2a2a;
+  --radius:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui}
+.app{max-width:720px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+header{position:sticky;top:0;background:rgba(10,10,10,.9);border-bottom:1px solid var(--border)}
+.bar{display:flex;align-items:center;gap:10px;padding:12px}
+.back{border:1px solid var(--border);background:#0f0f0f;color:var(--ink);border-radius:12px;padding:8px 12px}
+.hidden{display:none!important}
+main{flex:1;padding:16px}
+.grid{display:grid;gap:14px}
+.tile{border:1px solid var(--border);border-radius:var(--radius);padding:16px;background:var(--card);min-height:140px;display:flex;flex-direction:column}
+.tile h3{margin:0 0 8px;font-size:14px;color:#e5e5e5}
+.tile .center{flex:1;display:grid;place-items:center}
+.tile .title{font-size:28px;letter-spacing:6px;font-weight:800}
+.tile.locked{filter:grayscale(.8);opacity:.7}
+.tile.locked:after{content:"🔒";position:absolute;top:10px;right:10px;font-size:12px;color:var(--muted)}
+.view{display:none}
+.view.active{display:block}
+.card{border:1px solid var(--border);border-radius:16px;background:#0f0f0f;padding:12px;margin-bottom:12px}
+.players{display:flex;flex-wrap:wrap;gap:8px}
+.player{padding:10px;border:1px solid var(--border);border-radius:12px;background:#141414;cursor:pointer}
+.player.active{outline:2px solid var(--accent)}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.controls button{padding:14px;border-radius:14px;border:1px solid var(--border);background:#141414;color:#fff;font-weight:700}
+.controls button.good{background:#102c10}
+.controls button.bad{background:#2c1010}
+.row{display:flex;justify-content:space-between;border:1px solid var(--border);border-radius:12px;padding:10px;margin:6px 0}
+.badge{background:#1b1b1b;border-radius:999px;padding:4px 10px;font-size:12px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#161616;border:1px solid var(--border);border-radius:999px;padding:10px 14px;z-index:60}
+.muted{color:var(--muted)}
