@@ -36,14 +36,6 @@ a.tile, a.tile:visited {
   transform: scale(1.02);
 }
 
-/* logo (tile opzionale) */
-.tile img.logo {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: contain; display: block;
-  filter: contrast(1.05) saturate(1.05) brightness(.92);
-  transform: scale(1.02);
-}
-
 /* ombre */
 .tile::before {
   content: "";
@@ -55,12 +47,15 @@ a.tile, a.tile:visited {
   pointer-events: none;
 }
 
-/* Titolo sulle tile della home */
+/* Titolo sulle tile della home (identico al tuo) */
 .tile h3 {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  margin: 0; padding: 0 8px; text-transform: uppercase; font-style: italic;
-  font-weight: 900; letter-spacing: 1.2px; font-size: clamp(22px, 6.2vw, 40px);
-  color: #fff; -webkit-text-stroke: 1.4px rgba(0,0,0,.75);
+  margin: 0; padding: 0 8px;
+  text-transform: uppercase; font-style: italic;
+  font-weight: 900; letter-spacing: 1.2px;
+  font-size: clamp(22px, 6.2vw, 40px);
+  color: #fff;
+  -webkit-text-stroke: 1.4px rgba(0,0,0,.75);
   text-shadow: 0 2px 0 rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.65);
   text-align: center; line-height: 1.05;
 }
@@ -68,16 +63,6 @@ a.tile, a.tile:visited {
 
 .tile:active { transform: scale(.995); }
 .tile:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 2px; }
-
-/* ---- LOGO come tile (opzionale margine interno) ---- */
-.tile--logo::before { content: none; }
-.tile--logo .logo{
-  position: absolute;
-  inset: 6%;
-  width: auto; height: auto;
-  object-fit: contain;
-  transform: none; filter: none; background: transparent;
-}
 
 /* =======================
    Navigazione senza JS
@@ -109,7 +94,6 @@ a.tile, a.tile:visited {
 }
 .detail .detail-wrap,
 .detail .detail-header{ position:relative; z-index:1; }
-
 .detail .detail-wrap{ padding:16px; }
 
 /* Header sticky scuro */
@@ -122,7 +106,7 @@ a.tile, a.tile:visited {
   border-bottom:1px solid rgba(255,255,255,.10);
   margin:-16px -16px 12px;
   padding:12px 16px;
-  min-height:64px;                   /* spazio per il titolo centrato */
+  min-height:64px;
 }
 
 /* Bottone indietro */
@@ -139,12 +123,10 @@ a.tile, a.tile:visited {
 .hero-title{
   position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
   margin:0;
-  text-transform:uppercase;
-  font-style:italic;
+  text-transform:uppercase; font-style:italic;
   font-weight:900; letter-spacing:1px;
   font-size:clamp(22px, 5.6vw, 32px);
-  color:#fff;
-  -webkit-text-stroke:0; text-shadow:none;
+  color:#fff; -webkit-text-stroke:0; text-shadow:none;
   text-align:center; pointer-events:none; width:80%;
 }
 
@@ -161,18 +143,3 @@ a.tile, a.tile:visited {
 .menu-list li:last-child{ border-bottom:0; }
 .menu-list .name{ font-weight:800; letter-spacing:.2px; color:#fff; }
 .menu-list .price{ font-weight:900; color:#fff; }
-
-/* Pill tabs (se in futuro servono) */
-.subtabs{
-  display:flex; gap:8px; padding: 2px 0 10px; margin: 2px 0 12px;
-  overflow-x:auto; -webkit-overflow-scrolling: touch;
-}
-.subtabs::-webkit-scrollbar{ display:none; }
-.tab{
-  display:inline-block; padding: 8px 12px;
-  border:1px solid rgba(255,255,255,.25); border-radius:999px;
-  font-weight:800; letter-spacing:.3px; background: transparent; color:#fff;
-  white-space: nowrap;
-}
-.tab:focus-visible{ outline:2px solid rgba(255,255,255,.45); outline-offset:2px; }
-.tab.active{ background:#fff; color:#000; border-color:#fff; }
