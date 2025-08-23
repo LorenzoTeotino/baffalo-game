@@ -55,55 +55,71 @@ async function ensureInitialScores(){
 }
 
 /* 6) Render Classifica stile "corsa" */
-function renderBoard(scoresObj){
-  const board = $("#board");
-  if (!board) return;
+function renderRace(scoresObj){
+  const race = $("#race");
+  if (!race) return;
 
   const arr = Object.entries(scoresObj||{})
     .map(([name, pts]) => ({ name, pts: Number(pts)||0 }))
     .sort((a,b) => (b.pts - a.pts) || a.name.localeCompare(b.name));
 
-  // Calcolo range per progress (gestisce anche negativi)
+  // Range dinamico (gestisce negativi). Se tutti uguali → 50%
   const values = arr.map(x => x.pts);
-  const min = Math.min(...values, 0); // includi 0 per non mostrare tutto > 50 quando tutti positivi
+  const min = Math.min(...values, 0);
   const max = Math.max(...values, 0);
   const span = (max - min) || 1;
+  const pct = v => Math.max(6, Math.min(94, Math.round(100*(v - min)/span))); // 6%..94%
 
-  // percentuale 10..100 per visibilità anche del più basso
-  const pct = v => Math.max(10, Math.round(90 * (v - min) / span) + 10);
-
-  board.innerHTML = arr.map((it, idx) => {
+  race.innerHTML = arr.map((it, idx) => {
     const rank = idx + 1;
-    const w = pct(it.pts);
-    const rankClass =
-      rank === 1 ? "bg-rank-1" :
-      rank === 2 ? "bg-rank-2" :
-      rank === 3 ? "bg-rank-3" : "bg-rank-n";
+    const left = pct(it.pts);
+    const rankCls = rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
+    const jockeyRank = rank<=3 ? `rank-${rank}` : 'rank-n';
+    const aria = `${it.name} ha ${it.pts} punti`;
 
     return `
-      <div class="lb-item">
-        <div class="lb-head">
-          <div class="lb-rank">${rank}</div>
-          <div class="lb-name">${it.name}</div>
-          <div class="lb-score">${it.pts}</div>
+      <div class="lane">
+        <div class="lane-head">
+          <div class="rank-badge ${rankCls}">${rank}</div>
+          <div class="lb-name fw-bold">${it.name}</div>
+          <div class="lb-score fw-bold">${it.pts}</div>
         </div>
-        <div class="lb-progress">
-          <div class="progress">
-            <div class="progress-bar ${rankClass}" role="progressbar" style="width:${w}%"></div>
-          </div>
+        <div class="track">
+          <div class="finish"><i class="bi bi-trophy-fill"></i></div>
+          <button class="jockey ${jockeyRank}" style="left:${left}%"
+                  data-name="${it.name}" data-pts="${it.pts}"
+                  aria-label="${aria}" title="${aria}">🐎</button>
         </div>
       </div>
     `;
   }).join("");
+
+  // click su cavallo → toast coi punti
+  race.querySelectorAll(".jockey").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const name = btn.dataset.name;
+      const pts  = toInt(btn.dataset.pts, 0);
+      showScoreToast(`${name}: ${pts} punto${Math.abs(pts)===1?'':'i'}`);
+    });
+  });
 }
 
-/* 7) Transazione punteggio */
+/* 7) Toast Bootstrap per i punteggi */
+let toastRef;
+function showScoreToast(text){
+  const el = $("#scoreToast");
+  $("#scoreToastBody").textContent = text;
+  if (!toastRef) toastRef = new bootstrap.Toast(el);
+  toastRef.show();
+}
+
+/* 8) Transazione punteggio */
 function applyDelta(player, delta){
   if (!player) return;
   db.ref("scores/"+player).transaction(cur => (Number(cur)||0) + toInt(delta,0));
 }
 
-/* 8) Feedback: ripple + (se disponibile) vibrazione + beep */
+/* 9) Feedback: ripple + (se disponibile) vibrazione + beep */
 function rippleAt(btn, event){
   const rect = btn.getBoundingClientRect();
   const client = event.changedTouches ? event.changedTouches[0] : event;
@@ -117,15 +133,11 @@ function rippleAt(btn, event){
   btn.appendChild(span);
   setTimeout(() => span.remove(), 520);
 }
-
-// Vibrazione: su iPhone non funziona (API non supportata)
 function haptics(kind){
-  if (!('vibrate' in navigator)) return;
+  if (!('vibrate' in navigator)) return;     // iPhone: no vibrazione via web
   if (kind === 'penalty') navigator.vibrate([50, 40, 50]);
   else navigator.vibrate(25);
 }
-
-// Beep semplice (rispetta il silenzioso su iPhone)
 let audioCtx;
 function ensureAudioCtx(){
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -147,11 +159,9 @@ function beep(freq=880, durationMs=90){
     osc.stop(t0 + durationMs/1000);
   }catch(e){}
 }
-function audioFeedback(kind){
-  if (kind === 'penalty') beep(240, 120); else beep(880, 90);
-}
+function audioFeedback(kind){ if (kind === 'penalty') beep(240, 120); else beep(880, 90); }
 
-/* 9) Click handler */
+/* 10) Click handler punteggi */
 function onScoreButtonClick(e){
   const btn = e.currentTarget;
   const me = btn.dataset.me || null;
@@ -164,23 +174,26 @@ function onScoreButtonClick(e){
   if (target) applyDelta(target, deltaTarget);
 
   const kind = btn.classList.contains('penalty') ? 'penalty' : 'win';
-  haptics(kind);         // su iPhone non vibra, su Android sì
-  audioFeedback(kind);   // beep breve
-  rippleAt(btn, e);      // ripple visuale
+  haptics(kind);       // su iPhone non vibra; Android sì
+  audioFeedback(kind); // beep breve
+  rippleAt(btn, e);    // ripple visuale
 }
 
-/* 10) Reset DEV */
+/* 11) Reset DEV */
 async function resetScores(){
   const players = collectPlayersFromDOM();
   const zero = {}; players.forEach(p => zero[p]=0);
   await db.ref("scores").set(zero);
 }
 
-/* 11) Bind + Realtime */
+/* 12) Bind + Realtime */
 function bindUI(){
   $$(".score-btn").forEach(btn => btn.addEventListener("click", onScoreButtonClick));
-  db.ref("scores").on("value", snap => renderBoard(snap.val()||{}));
 
+  // Realtime → render corsa
+  db.ref("scores").on("value", snap => renderRace(snap.val()||{}));
+
+  // Bottone DEV
   const resetBtn = $("#resetScores");
   if (resetBtn){
     resetBtn.addEventListener("click", async () => {
@@ -189,7 +202,7 @@ function bindUI(){
   }
 }
 
-/* 12) Boot */
+/* 13) Boot */
 async function boot(){
   await ensureInitialScores();
   bindUI();
