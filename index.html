@@ -31,8 +31,8 @@
         <h3><span class="line">Punteggi</span><span class="line">Baffalo</span></h3>
       </a>
 
-      <!-- SPRITZETTINO -->
-      <a class="tile" href="#spritzettino">
+      <!-- SPRITZETTINO (apre la scheda di Lorenzo) -->
+      <a class="tile" href="#spritz-lorenzo">
         <img class="photo" src="img/spritz.jpg" alt="Spritzettino">
         <h3>Spritzettino</h3>
       </a>
@@ -43,8 +43,8 @@
         <h3>Classifica</h3>
       </a>
 
-      <!-- REGOLE -->
-      <a class="tile" href="#regole">
+      <!-- REGOLE (apre la scheda Baffalo) -->
+      <a class="tile" href="#regole-baffalo">
         <img class="photo" src="img/regole.jpg" alt="Regole">
         <h3>Regole</h3>
       </a>
@@ -52,8 +52,6 @@
   </section>
 
   <!-- ========== DESCRIZIONE: 4 sezioni (pills sotto header, titolo fisso) ========== -->
-
-  <!-- Lorenzo -->
   <section id="descrizione-lorenzo" class="view detail descrizione" aria-labelledby="tit-descrizione-lorenzo">
     <header class="detail-header">
       <a class="back" href="#home" aria-label="Torna alle categorie">←</a>
@@ -70,7 +68,6 @@
     </div>
   </section>
 
-  <!-- Matteo -->
   <section id="descrizione-matteo" class="view detail descrizione" aria-labelledby="tit-descrizione-matteo">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -83,11 +80,9 @@
         <a class="tab" href="#descrizione-ilaria">Ilaria</a>
         <a class="tab" href="#descrizione-sara">Sara</a>
       </nav>
-      <!-- contenuto Matteo -->
     </div>
   </section>
 
-  <!-- Ilaria -->
   <section id="descrizione-ilaria" class="view detail descrizione" aria-labelledby="tit-descrizione-ilaria">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -100,11 +95,9 @@
         <a class="tab active" href="#descrizione-ilaria">Ilaria</a>
         <a class="tab" href="#descrizione-sara">Sara</a>
       </nav>
-      <!-- contenuto Ilaria -->
     </div>
   </section>
 
-  <!-- Sara -->
   <section id="descrizione-sara" class="view detail descrizione" aria-labelledby="tit-descrizione-sara">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -117,13 +110,10 @@
         <a class="tab" href="#descrizione-ilaria">Ilaria</a>
         <a class="tab active" href="#descrizione-sara">Sara</a>
       </nav>
-      <!-- contenuto Sara -->
     </div>
   </section>
 
   <!-- ========== PUNTEGGI BAFFALO: 4 sezioni (pills sotto header, titolo fisso) ========== -->
-
-  <!-- Lorenzo -->
   <section id="punteggi-lorenzo" class="view detail punteggi" aria-labelledby="tit-punteggi-lorenzo">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -140,7 +130,6 @@
     </div>
   </section>
 
-  <!-- Matteo -->
   <section id="punteggi-matteo" class="view detail punteggi" aria-labelledby="tit-punteggi-matteo">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -153,11 +142,9 @@
         <a class="tab" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
-      <!-- contenuto Punteggi Matteo -->
     </div>
   </section>
 
-  <!-- Ilaria -->
   <section id="punteggi-ilaria" class="view detail punteggi" aria-labelledby="tit-punteggi-ilaria">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -170,11 +157,9 @@
         <a class="tab active" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
-      <!-- contenuto Punteggi Ilaria -->
     </div>
   </section>
 
-  <!-- Sara -->
   <section id="punteggi-sara" class="view detail punteggi" aria-labelledby="tit-punteggi-sara">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -187,20 +172,72 @@
         <a class="tab" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab active" href="#punteggi-sara">Sara</a>
       </nav>
-      <!-- contenuto Punteggi Sara -->
     </div>
   </section>
 
-  <!-- ==================== ALTRE SOTTOPAGINE (minimali) ==================== -->
-
-  <section id="spritzettino" class="view detail" aria-label="Spritzettino">
+  <!-- ========== SPRITZETTINO: 4 sezioni (pills sotto header, titolo fisso) ========== -->
+  <section id="spritz-lorenzo" class="view detail spritz" aria-labelledby="tit-spritz-lorenzo">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
-      <h1 class="hero-title">Spritzettino</h1>
+      <h1 id="tit-spritz-lorenzo" class="hero-title">Spritzettino</h1>
     </header>
-    <div class="detail-wrap"></div>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie spritzettino">
+        <a class="tab active" href="#spritz-lorenzo">Lorenzo</a>
+        <a class="tab" href="#spritz-matteo">Matteo</a>
+        <a class="tab" href="#spritz-ilaria">Ilaria</a>
+        <a class="tab" href="#spritz-sara">Sara</a>
+      </nav>
+      <!-- contenuto Spritz Lorenzo -->
+    </div>
   </section>
 
+  <section id="spritz-matteo" class="view detail spritz" aria-labelledby="tit-spritz-matteo">
+    <header class="detail-header">
+      <a class="back" href="#home">←</a>
+      <h1 id="tit-spritz-matteo" class="hero-title">Spritzettino</h1>
+    </header>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie spritzettino">
+        <a class="tab" href="#spritz-lorenzo">Lorenzo</a>
+        <a class="tab active" href="#spritz-matteo">Matteo</a>
+        <a class="tab" href="#spritz-ilaria">Ilaria</a>
+        <a class="tab" href="#spritz-sara">Sara</a>
+      </nav>
+    </div>
+  </section>
+
+  <section id="spritz-ilaria" class="view detail spritz" aria-labelledby="tit-spritz-ilaria">
+    <header class="detail-header">
+      <a class="back" href="#home">←</a>
+      <h1 id="tit-spritz-ilaria" class="hero-title">Spritzettino</h1>
+    </header>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie spritzettino">
+        <a class="tab" href="#spritz-lorenzo">Lorenzo</a>
+        <a class="tab" href="#spritz-matteo">Matteo</a>
+        <a class="tab active" href="#spritz-ilaria">Ilaria</a>
+        <a class="tab" href="#spritz-sara">Sara</a>
+      </nav>
+    </div>
+  </section>
+
+  <section id="spritz-sara" class="view detail spritz" aria-labelledby="tit-spritz-sara">
+    <header class="detail-header">
+      <a class="back" href="#home">←</a>
+      <h1 id="tit-spritz-sara" class="hero-title">Spritzettino</h1>
+    </header>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie spritzettino">
+        <a class="tab" href="#spritz-lorenzo">Lorenzo</a>
+        <a class="tab" href="#spritz-matteo">Matteo</a>
+        <a class="tab" href="#spritz-ilaria">Ilaria</a>
+        <a class="tab active" href="#spritz-sara">Sara</a>
+      </nav>
+    </div>
+  </section>
+
+  <!-- ==================== CLASSIFICA (minimale) ==================== -->
   <section id="classifica" class="view detail" aria-label="Classifica">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
@@ -209,12 +246,33 @@
     <div class="detail-wrap"></div>
   </section>
 
-  <section id="regole" class="view detail" aria-label="Regole">
+  <!-- ========== REGOLE: 2 sezioni (pills sotto header) ========== -->
+  <section id="regole-baffalo" class="view detail regole" aria-labelledby="tit-regole-baffalo">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
-      <h1 class="hero-title">Regole</h1>
+      <h1 id="tit-regole-baffalo" class="hero-title">Regole</h1>
     </header>
-    <div class="detail-wrap"></div>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Selettore regole">
+        <a class="tab active" href="#regole-baffalo">Baffalo</a>
+        <a class="tab" href="#regole-spritz">Spritzettino</a>
+      </nav>
+      <!-- regole del Baffalo -->
+    </div>
+  </section>
+
+  <section id="regole-spritz" class="view detail regole" aria-labelledby="tit-regole-spritz">
+    <header class="detail-header">
+      <a class="back" href="#home">←</a>
+      <h1 id="tit-regole-spritz" class="hero-title">Regole</h1>
+    </header>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Selettore regole">
+        <a class="tab" href="#regole-baffalo">Baffalo</a>
+        <a class="tab active" href="#regole-spritz">Spritzettino</a>
+      </nav>
+      <!-- regole di Spritzettino -->
+    </div>
   </section>
 
 </main>
