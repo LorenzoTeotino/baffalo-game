@@ -18,23 +18,19 @@ const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const toInt = (v, fb=0) => { const n = parseInt(v,10); return Number.isFinite(n) ? n : fb; };
 
-/* ===== Routing: una pagina alla volta ===== */
+/* ===== Routing ===== */
 function showByHash(){
   const id = (location.hash || '#home').slice(1);
   $$('.view').forEach(v => v.classList.remove('active'));
-  const el = document.getElementById(id) || document.getElementById('home');
-  el.classList.add('active');
+  (document.getElementById(id) || document.getElementById('home')).classList.add('active');
 }
 window.addEventListener('hashchange', showByHash);
 document.addEventListener('DOMContentLoaded', showByHash);
 
-/* ===== Init /scores se manca ===== */
+/* ===== Init /scores ===== */
 function collectPlayersFromDOM(){
   const s = new Set();
-  $$('.score-btn').forEach(b => {
-    if (b.dataset.me) s.add(b.dataset.me);
-    if (b.dataset.target) s.add(b.dataset.target);
-  });
+  $$('.score-btn').forEach(b => { if (b.dataset.me) s.add(b.dataset.me); if (b.dataset.target) s.add(b.dataset.target); });
   return Array.from(s);
 }
 async function ensureInitialScores(){
@@ -43,21 +39,16 @@ async function ensureInitialScores(){
   if (!snap.exists()){
     const init = {}; players.forEach(p => init[p]=0); await ref.set(init);
   }else{
-    const val = snap.val()||{}; let changed=false;
-    players.forEach(p => { if (typeof val[p] !== 'number'){ val[p]=0; changed=true; } });
-    if (changed) await ref.set(val);
+    const v = snap.val()||{}; let changed=false;
+    players.forEach(p => { if (typeof v[p] !== 'number'){ v[p]=0; changed=true; } });
+    if (changed) await ref.set(v);
   }
 }
 
-/* ===== Pedine personalizzate ===== */
-const TOKEN = {
-  "Lorenzo":"👑",
-  "Matteo":"🎾",   // pallina
-  "Sara":"🏐",
-  "Ilaria":"🍹"
-};
+/* ===== Pedine (emoji) ===== */
+const TOKEN = { Lorenzo:"👑", Matteo:"🎾", Sara:"🏐", Ilaria:"🍹" };
 
-/* ===== Toast punteggi (riuso anche in corsa) ===== */
+/* ===== Toast ===== */
 let toastRef;
 function showScoreToast(txt){
   const el = $('#scoreToast'); if (!el) return;
@@ -66,26 +57,21 @@ function showScoreToast(txt){
   toastRef.show();
 }
 
-/* ===== Corsa / Classifica ===== */
+/* ===== Classifica ===== */
 function renderRace(scoresObj){
   const race = $('#race'); if (!race) return;
-  const arr = Object.entries(scoresObj||{})
-    .map(([name,pts])=>({name,pts:Number(pts)||0}))
-    .sort((a,b)=>(b.pts-a.pts)||a.name.localeCompare(b.name));
+  const arr = Object.entries(scoresObj||{}).map(([name,pts])=>({name,pts:Number(pts)||0}))
+               .sort((a,b)=>(b.pts-a.pts)||a.name.localeCompare(b.name));
 
-  const values = arr.map(x=>x.pts);
-  const min = Math.min(...values,0), max = Math.max(...values,0);
-  const span = (max-min) || 1;
-  const pct = v => Math.max(6, Math.min(94, Math.round(100*(v-min)/span))); // 6..94%
+  const vals = arr.map(x=>x.pts), min = Math.min(...vals,0), max = Math.max(...vals,0);
+  const span = (max-min)||1, pct = v => Math.max(6, Math.min(94, Math.round(100*(v-min)/span)));
 
-  race.innerHTML = arr.map((it,idx)=>{
-    const rank = idx+1;
-    const left = pct(it.pts);
+  race.innerHTML = arr.map((it,i)=>{
+    const rank=i+1, left=pct(it.pts);
     const rankCls = rank===1?'rank-1':rank===2?'rank-2':rank===3?'rank-3':'';
-    const jockeyRank = rank<=3 ? `rank-${rank}` : 'rank-n';
-    const trophy = rank===1 ? `<i class="bi bi-trophy-fill trophy ms-1"></i>` : '';
+    const jockeyRank = rank<=3?`rank-${rank}`:'rank-n';
+    const trophy = rank===1?`<i class="bi bi-trophy-fill trophy ms-1"></i>`:'';
     const aria = `${it.name} ha ${it.pts} punti`;
-
     return `
       <div class="lane">
         <div class="lane-head">
@@ -95,11 +81,11 @@ function renderRace(scoresObj){
         </div>
         <div class="track">
           <button class="jockey ${jockeyRank}" style="left:${left}%"
-                  data-name="${it.name}" data-pts="${it.pts}"
-                  aria-label="${aria}" title="${aria}">${TOKEN[it.name]||"🐎"}</button>
+            data-name="${it.name}" data-pts="${it.pts}" aria-label="${aria}" title="${aria}">
+            ${TOKEN[it.name]||"🐎"}
+          </button>
         </div>
-      </div>
-    `;
+      </div>`;
   }).join('');
 
   race.querySelectorAll('.jockey').forEach(btn=>{
@@ -109,110 +95,79 @@ function renderRace(scoresObj){
     });
   });
 
-  renderDevForm(arr); // aggiorna form DEV
+  renderDevForm(arr);
 }
 
-/* ===== Audio + Haptics + Ripple (feedback) ===== */
-// iPhone: Web Vibration API non supportata → la vibrazione funzionerà su Android.
-// Su iOS resta beep + ripple.
+/* ===== Feedback (audio+ripple+haptics) ===== */
 let audioCtx;
-function ensureAudioCtx(){
-  try{
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-  }catch(e){}
-}
-function beep(freq=880, durationMs=90){
+function ensureAudioCtx(){ try{ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }catch(e){} }
+function beep(freq=880, ms=90){
   try{
     ensureAudioCtx();
-    const t0 = audioCtx.currentTime;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, t0);
-    gain.gain.setValueAtTime(0.0001, t0);
-    gain.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + durationMs/1000);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start();
-    osc.stop(t0 + durationMs/1000);
+    const t0=audioCtx.currentTime, o=audioCtx.createOscillator(), g=audioCtx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(freq,t0);
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(0.16,t0+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+ms/1000);
+    o.connect(g).connect(audioCtx.destination); o.start(); o.stop(t0+ms/1000);
   }catch(e){}
 }
 function audioFeedback(kind){ kind==='penalty' ? beep(240,120) : beep(880,90); }
-
-function haptics(kind){
-  if (!('vibrate' in navigator)) return; // iOS non vibra via web
-  if (kind==='penalty') navigator.vibrate([50,40,50]);
-  else navigator.vibrate(25);
-}
-
+function haptics(kind){ if('vibrate' in navigator){ kind==='penalty'?navigator.vibrate([50,40,50]):navigator.vibrate(25); } }
 function rippleAt(btn, ev){
-  const rect = btn.getBoundingClientRect();
-  const pt = ev.changedTouches ? ev.changedTouches[0] : ev;
-  const x = (pt.clientX || pt.pageX) - rect.left;
-  const y = (pt.clientY || pt.pageY) - rect.top;
-  const s = document.createElement('span');
-  s.className = 'ripple';
-  s.style.left = (x-8)+'px';
-  s.style.top  = (y-8)+'px';
-  s.style.width = s.style.height = '16px';
-  btn.appendChild(s);
-  setTimeout(()=>s.remove(), 520);
+  const rect=btn.getBoundingClientRect(), pt=ev.changedTouches?ev.changedTouches[0]:ev;
+  const x=(pt.clientX||pt.pageX)-rect.left, y=(pt.clientY||pt.pageY)-rect.top;
+  const s=document.createElement('span'); s.className='ripple'; s.style.left=(x-8)+'px'; s.style.top=(y-8)+'px'; s.style.width=s.style.height='16px';
+  btn.appendChild(s); setTimeout(()=>s.remove(),520);
 }
 
-/* ===== Punteggi (baffalo) ===== */
-function applyDelta(player,delta){
-  if (!player) return;
-  db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+toInt(delta,0));
-}
+/* ===== Baffalo: bottone → aggiorna punteggi ===== */
+function applyDelta(player,delta){ if(!player) return; db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+toInt(delta,0)); }
 function onScoreButtonClick(e){
-  const b = e.currentTarget;
-  const me=b.dataset.me, target=b.dataset.target;
+  const b=e.currentTarget, me=b.dataset.me, target=b.dataset.target;
   const dMe=toInt(b.dataset.deltaMe,0), dT=toInt(b.dataset.deltaTarget,0);
-  if (!me) return;
-
-  // feedback prima (così è percepito immediatamente)
-  const kind = b.classList.contains('penalty') ? 'penalty' : 'win';
-  rippleAt(b, e);
-  haptics(kind);
-  audioFeedback(kind);
-
-  // applica punteggi
-  applyDelta(me,dMe);
-  if (target) applyDelta(target,dT);
+  if(!me) return;
+  const kind=b.classList.contains('penalty')?'penalty':'win';
+  rippleAt(b,e); haptics(kind); audioFeedback(kind);
+  applyDelta(me,dMe); if(target) applyDelta(target,dT);
 }
 
-/* ===== Dev: form modifica manuale + reset ===== */
+/* ===== Abbellimento bottoni Baffalo (token + markup) ===== */
+function decorateButtons(){
+  $$('.score-btn').forEach(b=>{
+    // Decidi quale emoji mostrare: target per win, una X per penalty
+    const token = b.classList.contains('penalty') ? '❌' : (TOKEN[b.dataset.target] || '🎯');
+    const label = b.textContent.trim();
+    b.innerHTML = `<span class="token">${token}</span><span class="label">${label}</span>`;
+  });
+}
+
+/* ===== Dev ===== */
 function renderDevForm(sorted){
-  const form = $('#devForm'); if (!form) return;
+  const form = $('#devForm'); if(!form) return;
   form.innerHTML = sorted.map(it=>`
     <div class="input-group mb-2">
       <span class="input-group-text">${it.name}</span>
       <input type="number" class="form-control" name="${it.name}" value="${it.pts}" inputmode="numeric">
-    </div>
-  `).join('');
+    </div>`).join('');
   form.addEventListener('submit', async ev=>{
     ev.preventDefault();
-    const data = new FormData(form); const obj={};
-    for(const [k,v] of data.entries()) obj[k]=toInt(v,0);
-    if (confirm('Salvare i punteggi inseriti?')) await db.ref('scores').update(obj);
+    const data=new FormData(form); const obj={}; for(const [k,v] of data.entries()) obj[k]=toInt(v,0);
+    if(confirm('Salvare i punteggi inseriti?')) await db.ref('scores').update(obj);
   }, { once:true });
 }
 async function resetScores(){
-  const snap = await db.ref('scores').get(); const v = snap.val()||{};
-  const zero={}; Object.keys(v).forEach(k=>zero[k]=0);
+  const snap=await db.ref('scores').get(); const v=snap.val()||{}; const zero={}; Object.keys(v).forEach(k=>zero[k]=0);
   await db.ref('scores').set(zero);
 }
 
 /* ===== Bind & Boot ===== */
 function bindUI(){
+  decorateButtons();
   $$('.score-btn').forEach(b=>b.addEventListener('click', onScoreButtonClick));
   db.ref('scores').on('value', s=>renderRace(s.val()||{}));
-  const resetBtn = $('#resetScores');
-  if (resetBtn) resetBtn.addEventListener('click', async ()=>{
-    if (confirm('Azzero davvero tutti i punteggi?')) await resetScores();
-  });
+  const resetBtn=$('#resetScores');
+  if(resetBtn) resetBtn.addEventListener('click', async ()=>{ if(confirm('Azzero davvero tutti i punteggi?')) await resetScores(); });
 }
 async function boot(){ await ensureInitialScores(); bindUI(); showByHash(); }
 document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
-
