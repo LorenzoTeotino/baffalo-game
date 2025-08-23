@@ -192,5 +192,5 @@ a.tile, a.tile:visited {
 }
 
 /* Piccolo distacco subito sotto le pills nella pagina Descrizione */
-.descrizione .subtabs + * { margin-top: 4px; }
+.descrizione .subtabs { margin-top: 4px; }
 
