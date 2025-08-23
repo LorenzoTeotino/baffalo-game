@@ -47,7 +47,7 @@ a.tile, a.tile:visited {
   pointer-events: none;
 }
 
-/* Titolo sulle tile della home — STESSO STILE DEL MENU DIGITALE */
+/* Titolo sulle tile della home */
 .tile h3 {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   margin: 0; padding: 0 8px;
