@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baffalo – Sardegna Game</title>
 
-  <!-- Font per i titoli delle tile -->
+  <!-- Font per i titoli sulle tile -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
@@ -19,15 +19,14 @@
   <!-- ==================== HOME (tile con foto) ==================== -->
   <section id="home" class="view default" aria-label="Categorie">
     <div class="stack">
-
-      <!-- DESCRIZIONE (apre Lorenzo come default) -->
+      <!-- DESCRIZIONE (apre la scheda di Lorenzo) -->
       <a class="tile" href="#descrizione-lorenzo">
         <img class="photo" src="img/descrizione.jpg" alt="Descrizione">
         <h3>Descrizione</h3>
       </a>
 
-      <!-- PUNTEGGI BAFFALO -->
-      <a class="tile" href="#punteggi-baffalo">
+      <!-- PUNTEGGI BAFFALO (apre la scheda di Lorenzo) -->
+      <a class="tile" href="#punteggi-lorenzo">
         <img class="photo" src="img/baffalo.jpg" alt="Punteggi Baffalo">
         <h3><span class="line">Punteggi</span><span class="line">Baffalo</span></h3>
       </a>
@@ -49,11 +48,10 @@
         <img class="photo" src="img/regole.jpg" alt="Regole">
         <h3>Regole</h3>
       </a>
-
     </div>
   </section>
 
-  <!-- ========== DESCRIZIONE: 4 sezioni, pills sotto l’header, titolo fisso ========== -->
+  <!-- ========== DESCRIZIONE: 4 sezioni (pills sotto header, titolo fisso) ========== -->
 
   <!-- Lorenzo -->
   <section id="descrizione-lorenzo" class="view detail descrizione" aria-labelledby="tit-descrizione-lorenzo">
@@ -75,7 +73,7 @@
   <!-- Matteo -->
   <section id="descrizione-matteo" class="view detail descrizione" aria-labelledby="tit-descrizione-matteo">
     <header class="detail-header">
-      <a class="back" href="#home" aria-label="Torna alle categorie">←</a>
+      <a class="back" href="#home">←</a>
       <h1 id="tit-descrizione-matteo" class="hero-title">Descrizione</h1>
     </header>
     <div class="detail-wrap">
@@ -92,7 +90,7 @@
   <!-- Ilaria -->
   <section id="descrizione-ilaria" class="view detail descrizione" aria-labelledby="tit-descrizione-ilaria">
     <header class="detail-header">
-      <a class="back" href="#home" aria-label="Torna alle categorie">←</a>
+      <a class="back" href="#home">←</a>
       <h1 id="tit-descrizione-ilaria" class="hero-title">Descrizione</h1>
     </header>
     <div class="detail-wrap">
@@ -109,7 +107,7 @@
   <!-- Sara -->
   <section id="descrizione-sara" class="view detail descrizione" aria-labelledby="tit-descrizione-sara">
     <header class="detail-header">
-      <a class="back" href="#home" aria-label="Torna alle categorie">←</a>
+      <a class="back" href="#home">←</a>
       <h1 id="tit-descrizione-sara" class="hero-title">Descrizione</h1>
     </header>
     <div class="detail-wrap">
@@ -123,15 +121,77 @@
     </div>
   </section>
 
-  <!-- ==================== ALTRE SOTTOPAGINE (minimali) ==================== -->
+  <!-- ========== PUNTEGGI BAFFALO: 4 sezioni (pills sotto header, titolo fisso) ========== -->
 
-  <section id="punteggi-baffalo" class="view detail" aria-label="Punteggi Baffalo">
+  <!-- Lorenzo -->
+  <section id="punteggi-lorenzo" class="view detail punteggi" aria-labelledby="tit-punteggi-lorenzo">
     <header class="detail-header">
       <a class="back" href="#home">←</a>
-      <h1 class="hero-title">Punteggi Baffalo</h1>
+      <h1 id="tit-punteggi-lorenzo" class="hero-title">Punteggi Baffalo</h1>
     </header>
-    <div class="detail-wrap"></div>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie punteggi">
+        <a class="tab active" href="#punteggi-lorenzo">Lorenzo</a>
+        <a class="tab" href="#punteggi-matteo">Matteo</a>
+        <a class="tab" href="#punteggi-ilaria">Ilaria</a>
+        <a class="tab" href="#punteggi-sara">Sara</a>
+      </nav>
+      <!-- contenuto Punteggi Lorenzo -->
+    </div>
   </section>
+
+  <!-- Matteo -->
+  <section id="punteggi-matteo" class="view detail punteggi" aria-labelledby="tit-punteggi-matteo">
+    <header class="detail-header">
+      <a class="back" href="#home">←</a>
+      <h1 id="tit-punteggi-matteo" class="hero-title">Punteggi Baffalo</h1>
+    </header>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie punteggi">
+        <a class="tab" href="#punteggi-lorenzo">Lorenzo</a>
+        <a class="tab active" href="#punteggi-matteo">Matteo</a>
+        <a class="tab" href="#punteggi-ilaria">Ilaria</a>
+        <a class="tab" href="#punteggi-sara">Sara</a>
+      </nav>
+      <!-- contenuto Punteggi Matteo -->
+    </div>
+  </section>
+
+  <!-- Ilaria -->
+  <section id="punteggi-ilaria" class="view detail punteggi" aria-labelledby="tit-punteggi-ilaria">
+    <header class="detail-header">
+      <a class="back" href="#home">←</a>
+      <h1 id="tit-punteggi-ilaria" class="hero-title">Punteggi Baffalo</h1>
+    </header>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie punteggi">
+        <a class="tab" href="#punteggi-lorenzo">Lorenzo</a>
+        <a class="tab" href="#punteggi-matteo">Matteo</a>
+        <a class="tab active" href="#punteggi-ilaria">Ilaria</a>
+        <a class="tab" href="#punteggi-sara">Sara</a>
+      </nav>
+      <!-- contenuto Punteggi Ilaria -->
+    </div>
+  </section>
+
+  <!-- Sara -->
+  <section id="punteggi-sara" class="view detail punteggi" aria-labelledby="tit-punteggi-sara">
+    <header class="detail-header">
+      <a class="back" href="#home">←</a>
+      <h1 id="tit-punteggi-sara" class="hero-title">Punteggi Baffalo</h1>
+    </header>
+    <div class="detail-wrap">
+      <nav class="subtabs" aria-label="Sottocategorie punteggi">
+        <a class="tab" href="#punteggi-lorenzo">Lorenzo</a>
+        <a class="tab" href="#punteggi-matteo">Matteo</a>
+        <a class="tab" href="#punteggi-ilaria">Ilaria</a>
+        <a class="tab active" href="#punteggi-sara">Sara</a>
+      </nav>
+      <!-- contenuto Punteggi Sara -->
+    </div>
+  </section>
+
+  <!-- ==================== ALTRE SOTTOPAGINE (minimali) ==================== -->
 
   <section id="spritzettino" class="view detail" aria-label="Spritzettino">
     <header class="detail-header">
