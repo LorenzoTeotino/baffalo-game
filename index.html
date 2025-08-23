@@ -10,8 +10,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap (per utilità e feeling) -->
+  <!-- Bootstrap & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <!-- Stili dell'app -->
   <link rel="stylesheet" href="style.css" />
@@ -28,9 +29,10 @@
         <h3>Descrizione</h3>
       </a>
 
+      <!-- SOLO “Baffalo” -->
       <a class="tile" href="#punteggi-lorenzo">
-        <img class="photo" src="img/baffalo.jpg" alt="Punteggi Baffalo">
-        <h3><span class="line">Punteggi</span><span class="line">Baffalo</span></h3>
+        <img class="photo" src="img/baffalo.jpg" alt="Baffalo">
+        <h3>Baffalo</h3>
       </a>
 
       <a class="tile" href="#spritz-lorenzo">
@@ -52,10 +54,7 @@
 
   <!-- ==================== DESCRIZIONE (4 pills) ==================== -->
   <section id="descrizione-lorenzo" class="view detail descrizione">
-    <header class="detail-header">
-      <a class="back" href="#home">←</a>
-      <h1 class="hero-title">Descrizione</h1>
-    </header>
+    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Descrizione</h1></header>
     <div class="detail-wrap">
       <nav class="subtabs" aria-label="Sottocategorie descrizione">
         <a class="tab active" href="#descrizione-lorenzo">Lorenzo</a>
@@ -63,7 +62,6 @@
         <a class="tab" href="#descrizione-ilaria">Ilaria</a>
         <a class="tab" href="#descrizione-sara">Sara</a>
       </nav>
-      <!-- contenuti descrizione -->
     </div>
   </section>
 
@@ -103,11 +101,13 @@
     </div>
   </section>
 
-  <!-- ==================== PUNTEGGI BAFFALO (4 pills + 4 bottoni) ==================== -->
-  <!-- Regola: PRESA = +3 a me / −2 al target | ERRORE = −2 a me -->
+  <!-- ==================== BAFFALO (4 pills + 4 bottoni) ==================== -->
+  <!-- Regola (immutata nei data-*): PRESA = +3 a me / −2 al target | ERRORE = −2 a me -->
+  <!-- Testo dei bottoni SEMPLIFICATO: “a NOME” e “Ho sbagliato” -->
+
   <!-- Lorenzo -->
   <section id="punteggi-lorenzo" class="view detail punteggi">
-    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggi Baffalo</h1></header>
+    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Baffalo</h1></header>
     <div class="detail-wrap">
       <nav class="subtabs" aria-label="Pills punteggi">
         <a class="tab active" href="#punteggi-lorenzo">Lorenzo</a>
@@ -116,17 +116,21 @@
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
       <div class="score-grid">
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Lorenzo" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Matteo</span><span class="delta">+3 a me / −2 a Matteo</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Lorenzo" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Matteo</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Lorenzo" data-target="Sara" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Sara</span><span class="delta">+3 a me / −2 a Sara</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Lorenzo" data-target="Sara" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Sara</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Lorenzo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Ilaria</span><span class="delta">+3 a me / −2 a Ilaria</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Lorenzo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Ilaria</span>
         </button>
-        <button class="score-btn penalty btn btn-lg w-100 py-4" data-me="Lorenzo" data-delta-me="-2">
-          <span class="who">Ho sbagliato</span><span class="delta">−2 a me</span>
+        <button class="score-btn penalty btn btn-lg w-100 py-4"
+          data-me="Lorenzo" data-delta-me="-2">
+          <span class="who">Ho sbagliato</span>
         </button>
       </div>
     </div>
@@ -134,7 +138,7 @@
 
   <!-- Matteo -->
   <section id="punteggi-matteo" class="view detail punteggi">
-    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggi Baffalo</h1></header>
+    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Baffalo</h1></header>
     <div class="detail-wrap">
       <nav class="subtabs" aria-label="Pills punteggi">
         <a class="tab" href="#punteggi-lorenzo">Lorenzo</a>
@@ -143,17 +147,21 @@
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
       <div class="score-grid">
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Matteo" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Lorenzo</span><span class="delta">+3 a me / −2 a Lorenzo</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Matteo" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Lorenzo</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Matteo" data-target="Sara" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Sara</span><span class="delta">+3 a me / −2 a Sara</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Matteo" data-target="Sara" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Sara</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Matteo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Ilaria</span><span class="delta">+3 a me / −2 a Ilaria</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Matteo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Ilaria</span>
         </button>
-        <button class="score-btn penalty btn btn-lg w-100 py-4" data-me="Matteo" data-delta-me="-2">
-          <span class="who">Ho sbagliato</span><span class="delta">−2 a me</span>
+        <button class="score-btn penalty btn btn-lg w-100 py-4"
+          data-me="Matteo" data-delta-me="-2">
+          <span class="who">Ho sbagliato</span>
         </button>
       </div>
     </div>
@@ -161,7 +169,7 @@
 
   <!-- Ilaria -->
   <section id="punteggi-ilaria" class="view detail punteggi">
-    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggi Baffalo</h1></header>
+    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Baffalo</h1></header>
     <div class="detail-wrap">
       <nav class="subtabs" aria-label="Pills punteggi">
         <a class="tab" href="#punteggi-lorenzo">Lorenzo</a>
@@ -170,17 +178,21 @@
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
       <div class="score-grid">
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Ilaria" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Lorenzo</span><span class="delta">+3 a me / −2 a Lorenzo</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Ilaria" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Lorenzo</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Ilaria" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Matteo</span><span class="delta">+3 a me / −2 a Matteo</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Ilaria" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Matteo</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Ilaria" data-target="Sara" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Sara</span><span class="delta">+3 a me / −2 a Sara</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Ilaria" data-target="Sara" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Sara</span>
         </button>
-        <button class="score-btn penalty btn btn-lg w-100 py-4" data-me="Ilaria" data-delta-me="-2">
-          <span class="who">Ho sbagliato</span><span class="delta">−2 a me</span>
+        <button class="score-btn penalty btn btn-lg w-100 py-4"
+          data-me="Ilaria" data-delta-me="-2">
+          <span class="who">Ho sbagliato</span>
         </button>
       </div>
     </div>
@@ -188,7 +200,7 @@
 
   <!-- Sara -->
   <section id="punteggi-sara" class="view detail punteggi">
-    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggi Baffalo</h1></header>
+    <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Baffalo</h1></header>
     <div class="detail-wrap">
       <nav class="subtabs" aria-label="Pills punteggi">
         <a class="tab" href="#punteggi-lorenzo">Lorenzo</a>
@@ -197,17 +209,21 @@
         <a class="tab active" href="#punteggi-sara">Sara</a>
       </nav>
       <div class="score-grid">
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Sara" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Lorenzo</span><span class="delta">+3 a me / −2 a Lorenzo</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Sara" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Lorenzo</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Sara" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Matteo</span><span class="delta">+3 a me / −2 a Matteo</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Sara" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Matteo</span>
         </button>
-        <button class="score-btn win btn btn-lg w-100 py-4" data-me="Sara" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">
-          <span class="who">Ilaria</span><span class="delta">+3 a me / −2 a Ilaria</span>
+        <button class="score-btn win btn btn-lg w-100 py-4"
+          data-me="Sara" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">
+          <span class="who">a Ilaria</span>
         </button>
-        <button class="score-btn penalty btn btn-lg w-100 py-4" data-me="Sara" data-delta-me="-2">
-          <span class="who">Ho sbagliato</span><span class="delta">−2 a me</span>
+        <button class="score-btn penalty btn btn-lg w-100 py-4"
+          data-me="Sara" data-delta-me="-2">
+          <span class="who">Ho sbagliato</span>
         </button>
       </div>
     </div>
@@ -262,11 +278,11 @@
     </div>
   </section>
 
-  <!-- ==================== CLASSIFICA ==================== -->
+  <!-- ==================== CLASSIFICA (stile “corsa”) ==================== -->
   <section id="classifica" class="view detail">
     <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Classifica</h1></header>
     <div class="detail-wrap">
-      <ul id="board" class="menu-list" aria-live="polite" aria-label="Classifica live"></ul>
+      <div id="board" class="leaderboard"></div>
 
       <!-- Bottone DEV (commentalo in produzione) -->
       <button id="resetScores" class="dev-reset btn btn-outline-danger w-100 mt-2" type="button">
@@ -283,7 +299,6 @@
         <a class="tab active" href="#regole-baffalo">Baffalo</a>
         <a class="tab" href="#regole-spritz">Spritzettino</a>
       </nav>
-      <!-- regole del Baffalo -->
     </div>
   </section>
 
@@ -294,13 +309,12 @@
         <a class="tab" href="#regole-baffalo">Baffalo</a>
         <a class="tab active" href="#regole-spritz">Spritzettino</a>
       </nav>
-      <!-- regole di Spritzettino -->
     </div>
   </section>
 
 </main>
 
-<!-- ====== Script: Firebase prima di app.js; Bootstrap opzionale prima o dopo ====== -->
+<!-- ====== Script: Firebase prima di app.js; Bootstrap opzionale ====== -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
