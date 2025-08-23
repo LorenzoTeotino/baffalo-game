@@ -25,7 +25,6 @@ const toInt = (v, fb=0) => { const n = parseInt(v,10); return Number.isFinite(n)
 const PLAYERS = ["Lorenzo","Matteo","Ilaria","Sara"];
 const TOKEN   = { Lorenzo:"👑", Matteo:"🎾", Sara:"🏐", Ilaria:"🍹" };
 
-/* time & format */
 function pad(n){ return String(n).padStart(2,'0'); }
 function fmtTS(ts){
   const d = new Date(ts);
@@ -42,16 +41,13 @@ function showByHash(){
   $$('.view').forEach(v => v.classList.remove('active'));
   (document.getElementById(id) || document.getElementById('home')).classList.add('active');
 
-  // attach/detach storico
   if (id.startsWith('storico-')){
-  const slug = id.slice('storico-'.length); // es. "lorenzo"
-  // mappa allo spelling ufficiale in PLAYERS (con la maiuscola)
-  const player = PLAYERS.find(p => p.toLowerCase() === slug.toLowerCase()) || slug;
-  attachHistory(player);
-} else {
-  detachHistory();
-}
-
+    const slug = id.slice('storico-'.length); // es. "lorenzo"
+    const player = PLAYERS.find(p => p.toLowerCase() === slug.toLowerCase()) || slug;
+    attachHistory(player);
+  } else {
+    detachHistory();
+  }
 }
 window.addEventListener('hashchange', showByHash);
 document.addEventListener('DOMContentLoaded', showByHash);
@@ -114,16 +110,15 @@ function renderRace(scoresObj){
       </div>`;
   }).join('');
 
-  // Click su nome/corsia → storico
+  // click su corsia/nome → storico (minuscolo per l'id)
   race.querySelectorAll('[data-open-history]').forEach(el=>{
-  el.addEventListener('click', ()=>{
-    const player = el.getAttribute('data-open-history');
-    location.hash = `#storico-${player.toLowerCase()}`;
+    el.addEventListener('click', ()=>{
+      const player = el.getAttribute('data-open-history');
+      location.hash = `#storico-${player.toLowerCase()}`;
+    });
   });
-});
 
-
-  // Click sulla pedina → toast punti (come prima)
+  // click pedina → toast
   race.querySelectorAll('.jockey').forEach(btn=>{
     btn.addEventListener('click', (ev)=>{
       ev.stopPropagation();
@@ -132,7 +127,7 @@ function renderRace(scoresObj){
     });
   });
 
-  renderDevForm(arr); // 🚧 DEV – form per modificare manualmente i punteggi
+  renderDevForm(arr); // 🚧 DEV
 }
 
 /* =========================================================
@@ -188,7 +183,6 @@ function detachHistory(){
 
 function attachHistory(player){
   detachHistory();
-  // ascolta ultimi 200 eventi, in pagina mostriamo dal più recente
   histRef = db.ref('history/'+player).limitToLast(200);
   histRef.on('value', snap=>{
     renderHistory(player, snap.val()||{});
@@ -215,7 +209,7 @@ function renderHistory(player, obj){
 }
 
 /* =========================================================
-   Baffalo – pulsanti punteggio diretto (con log storico)
+   Baffalo – pulsanti punteggio diretto (con log)
 ========================================================= */
 function applyDelta(player,delta){
   if (!player) return;
@@ -230,11 +224,9 @@ function onScoreButtonClick(e){
 
   rippleAt(b,e); flashGray(b); haptics(kind); audioFeedback(kind);
 
-  // Applica punteggi
   applyDelta(me,dMe);
   if (target) applyDelta(target,dT);
 
-  // Log storico: descrizioni chiare
   if (kind==='penalty'){
     if (dMe!==0) logHistory(me, dMe, `Baffalo sbagliato`, 'baffalo');
   } else {
@@ -256,7 +248,7 @@ function decorateBaffaloButtons(){
 /* =========================================================
    Spritzettino – stato giornaliero + liquidazione (con log)
 ========================================================= */
-function dateKey(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
+function dateKey(d){ const y=d.getFullYear(), m=String(d.getMonth()+1) .padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
 function todayKey(){ return dateKey(new Date()); }
 function keyAddDays(key, delta){
   const [y,m,d]=key.split('-').map(Number);
@@ -301,30 +293,24 @@ function onSpritzClick(e){
   audioFeedback(type==='no' ? 'penalty' : 'win');
   haptics(type==='no' ? 'penalty' : 'win');
 
-  // marca come usato oggi (idempotente)
   ref.transaction(v => v ? v : true);
 }
 
-/* ===== Liquidazione SOLO "ieri" (una volta per player) + LOG storico =====
-   Regole (cambia qui i numeri se vuoi):
-   - se NON chiami  => -1
-   - se NON usi NO  => +2
-   - se usi NO      => -2
-*/
+/* ===== Liquidazione SOLO "ieri" (una volta per player) + LOG storico ===== */
 async function settleSpritz(){
-  const yKey = keyAddDays(todayKey(), -1);     // ieri (YYYY-MM-DD)
+  const yKey = keyAddDays(todayKey(), -1);
 
   const settledSnap = await db.ref('spritz/settled').get();
   const settled = settledSnap.val() || {};
 
   const daySnap = await db.ref(`spritz/days/${yKey}`).get();
-  const dayState = daySnap.val() || {};        // { Nome: {call:true/no:true}, ... }
+  const dayState = daySnap.val() || {};
 
   const updates = {};
   for (const player of PLAYERS){
-    if (settled[player] === yKey) continue;    // già liquidato ieri
+    if (settled[player] === yKey) continue;
 
-    const st = dayState[player] || {};         // se mancante: giorno silenzioso
+    const st = dayState[player] || {};
     let delta = 0;
     let parts = [];
 
@@ -336,11 +322,10 @@ async function settleSpritz(){
       await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
     }
 
-    // Log storico Spritz (ieri)
     const txt = `Spritz (ieri ${yKey}): ${parts.join('; ')} → totale ${delta>0?`+${delta}`:delta}`;
     await logHistory(player, delta, txt, 'spritz');
 
-    updates[player] = yKey;                    // marca "ieri liquidato"
+    updates[player] = yKey;
   }
 
   if (Object.keys(updates).length){
@@ -380,6 +365,14 @@ async function resetScores(){
 }
 
 /* =========================================================
+   🚧 DEV: Storico – cancella tutto per un giocatore
+   (usare i bottoni con data-history-dev="clear" nell'HTML Storico)
+========================================================= */
+async function deleteHistory(player){
+  await db.ref('history/'+player).remove();
+}
+
+/* =========================================================
    🚧 DEV: Spritz – reset tasti di OGGI
 ========================================================= */
 async function resetSpritzToday(player){
@@ -387,7 +380,7 @@ async function resetSpritzToday(player){
 }
 async function resetSpritzTodayAll(){
   const updates={}; PLAYERS.forEach(p=>updates[p]=null);
-  await db.ref(`spritz/days/${todayKey()}`).update(updates); // null = delete
+  await db.ref(`spritz/days/${todayKey()}`).update(updates);
 }
 
 /* =========================================================
@@ -402,7 +395,7 @@ function bindUI(){
   attachSpritzListener();
   $$('[data-spritz]').forEach(b=>b.addEventListener('click', onSpritzClick));
 
-  // 🚧 Spritz DEV – associa i pulsanti di reset
+  // 🚧 Spritz DEV – associa pulsanti di reset
   $$('[data-spritz-dev="me"]').forEach(b=>{
     b.addEventListener('click', async ()=>{
       const me=b.dataset.me;
@@ -412,6 +405,17 @@ function bindUI(){
   $$('[data-spritz-dev="all"]').forEach(b=>{
     b.addEventListener('click', async ()=>{
       if(confirm('Resetto i tasti di OGGI per TUTTI?')) await resetSpritzTodayAll();
+    });
+  });
+
+  // 🚧 Storico DEV – cancella storico giocatore
+  $$('[data-history-dev="clear"]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const player=b.dataset.player;
+      if(!player) return;
+      if(confirm(`⚠️ ATTENZIONE\nCancello TUTTO lo storico di ${player}?\nOperazione irreversibile.`)){
+        await deleteHistory(player);
+      }
     });
   });
 
@@ -425,7 +429,7 @@ function bindUI(){
 
 async function boot(){
   await ensureInitialScores();
-  await settleSpritz();   // calcola SOLO il giorno precedente
+  await settleSpritz();
   bindUI();
   showByHash();
 }
