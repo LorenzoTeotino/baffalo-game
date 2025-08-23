@@ -52,7 +52,6 @@ function showScoreToast(txt){
   toastRef = toastRef || new bootstrap.Toast(el);
   toastRef.show();
 }
-
 function renderRace(scoresObj){
   const race = $('#race'); if (!race) return;
   const arr = Object.entries(scoresObj||{}).map(([name,pts])=>({name,pts:Number(pts)||0}))
@@ -139,7 +138,6 @@ function decorateBaffaloButtons(){
 }
 
 /* ===== Spritzettino ===== */
-/* Date helpers (chiave locale YYYY-MM-DD) */
 function dateKey(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
 function todayKey(){ return dateKey(new Date()); }
 function keyAddDays(key, delta){
@@ -148,7 +146,6 @@ function keyAddDays(key, delta){
   return dateKey(dt);
 }
 
-/* UI: blocca/sblocca i due pulsanti di oggi in base allo stato nel DB */
 let spritzRef=null, currentDay=todayKey();
 function updateSpritzUI(dayState){
   PLAYERS.forEach(p=>{
@@ -158,11 +155,9 @@ function updateSpritzUI(dayState){
       const used = !!st[type];
       btn.disabled = used;
       btn.classList.toggle('used', used);
-      // icone e label
-      const base = type==='call' ? '🍹 Ho chiamato' : '🚫 Ho usato NO';
       const done = type==='call' ? '🍹 Chiamata usata' : '🚫 NO usato';
-      const html = `<span class="token">${type==='call'?'🍹':'🚫'}</span><span class="label">${used?done:base}</span>`;
-      btn.innerHTML = html;
+      const base = type==='call' ? '🍹 Ho chiamato' : '🚫 Ho usato NO';
+      btn.innerHTML = `<span class="token">${type==='call'?'🍹':'🚫'}</span><span class="label">${used?done:base}</span>`;
     });
   });
 }
@@ -171,20 +166,14 @@ function attachSpritzListener(){
   spritzRef = db.ref(`spritz/days/${currentDay}`);
   spritzRef.on('value', s=>updateSpritzUI(s.val()||{}));
 }
-
-/* Click sui due bottoni (idempotente) */
 function onSpritzClick(e){
-  const b=e.currentTarget; const player=b.dataset.me; const type=b.dataset.spritz; // "call" | "no"
+  const b=e.currentTarget; const player=b.dataset.me; const type=b.dataset.spritz;
   const ref = db.ref(`spritz/days/${todayKey()}/${player}/${type}`);
   rippleAt(b,e); audioFeedback(type==='no'?'penalty':'win'); haptics(type==='no'?'penalty':'win');
-  ref.transaction(v => v ? v : true); // se già true non cambia nulla
+  ref.transaction(v => v ? v : true);
 }
 
-/* Liquidazione giornaliera:
-   per ogni giorno non chiuso fino a ieri:
-   - se non ha fatto "call" → -1
-   - se ha usato "no" → -2, altrimenti +2
-*/
+/* Liquidazione giornaliera */
 async function settleSpritz(){
   const daysSnap = await db.ref('spritz/days').get();
   const days = daysSnap.val() || {};
@@ -192,19 +181,17 @@ async function settleSpritz(){
   const settled = settledSnap.val() || {};
   const yesterday = keyAddDays(todayKey(), -1);
 
-  // prendi tutte le date presenti (<= ieri) e ordinale
   const keys = Object.keys(days).filter(k => k <= yesterday).sort();
   if (!keys.length) return;
 
   for (const player of PLAYERS){
-    // ultima data chiusa per player
     const last = settled[player] || null;
     for (const day of keys){
       if (last && day <= last) continue;
       const st = (days[day] && days[day][player]) || {};
       let delta = 0;
-      if (!st.call) delta += -1;      // NON ha chiamato
-      delta += st.no ? -2 : +2;       // NO usato → -2, altrimenti +2
+      if (!st.call) delta += -1;   // NON ha chiamato
+      delta += st.no ? -2 : +2;    // NO usato → -2, altrimenti +2
       if (delta !== 0) await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
       settled[player] = day;
     }
@@ -212,17 +199,17 @@ async function settleSpritz(){
   await db.ref('spritz/settled').set(settled);
 }
 
-/* Controllo cambio giorno (se l’app resta aperta) */
+/* Se l’app resta aperta, controlla il nuovo giorno */
 setInterval(async ()=>{
   const k = todayKey();
   if (k !== currentDay){
     await settleSpritz();
     currentDay = k;
-    attachSpritzListener();           // ascolta i bottoni del nuovo giorno
+    attachSpritzListener();
   }
 }, 60000);
 
-/* ===== Dev: form e reset ===== */
+/* ===== DEV: classifica ===== */
 function renderDevForm(sorted){
   const form = $('#devForm'); if(!form) return;
   form.innerHTML = sorted.map(it=>`
@@ -241,26 +228,48 @@ async function resetScores(){
   await db.ref('scores').set(zero);
 }
 
+/* ===== DEV: spritz – reset tasti di OGGI ===== */
+async function resetSpritzToday(player){
+  await db.ref(`spritz/days/${todayKey()}/${player}`).remove();
+}
+async function resetSpritzTodayAll(){
+  const updates={}; PLAYERS.forEach(p=>updates[p]=null);
+  await db.ref(`spritz/days/${todayKey()}`).update(updates); // null = delete
+}
+
 /* ===== Bind & Boot ===== */
 function bindUI(){
   decorateBaffaloButtons();
   $$('.score-btn.win, .score-btn.penalty').forEach(b=>b.addEventListener('click', onScoreButtonClick));
 
-  // Spritz
+  // Spritz normale
   attachSpritzListener();
   $$('[data-spritz]').forEach(b=>b.addEventListener('click', onSpritzClick));
+
+  // Spritz DEV
+  $$('[data-spritz-dev="me"]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      const me=b.dataset.me;
+      if(confirm(`Resetto i tasti di OGGI per ${me}?`)) await resetSpritzToday(me);
+    });
+  });
+  $$('[data-spritz-dev="all"]').forEach(b=>{
+    b.addEventListener('click', async ()=>{
+      if(confirm('Resetto i tasti di OGGI per TUTTI?')) await resetSpritzTodayAll();
+    });
+  });
 
   // Classifica realtime
   db.ref('scores').on('value', s=>renderRace(s.val()||{}));
 
-  // DEV reset
+  // DEV classifica reset
   const resetBtn=$('#resetScores');
   if(resetBtn) resetBtn.addEventListener('click', async ()=>{ if(confirm('Azzero davvero tutti i punteggi?')) await resetScores(); });
 }
 
 async function boot(){
   await ensureInitialScores();
-  await settleSpritz();   // chiudi ieri (o giorni arretrati)
+  await settleSpritz();   // chiudi ieri/arretrati
   bindUI();
   showByHash();
 }
