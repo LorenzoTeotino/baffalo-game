@@ -1,8 +1,10 @@
 /* ==========================================================
-   BAFFALO – APP.JS (Firebase + logica punteggi + reset DEV)
+   BAFFALO – App logic (Firebase + pulsanti + feedback)
+   iPhone: niente vibrazione hardware (API non supportata).
+   Fornisco ripple + micro-animazione + beep (se suoneria attiva).
    ========================================================== */
 
-/* 1) Firebase config (la tua) */
+/* 1) Firebase config (tua) */
 const firebaseConfig = {
   apiKey: "AIzaSyCc7BW6hHPx5MFcRXBmfJ5MC40j_qtQ5CA",
   authDomain: "baffaloenonsolo.firebaseapp.com",
@@ -22,9 +24,12 @@ firebase.auth().signInAnonymously().catch(console.error);
 /* 3) Helpers */
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
-const toInt = (v, fb=0) => Number.isFinite(parseInt(v,10)) ? parseInt(v,10) : fb;
+const toInt = (v, fb=0) => {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : fb;
+};
 
-/* 4) Trova i giocatori leggendo i data-* dei bottoni */
+/* 4) Estrai i giocatori dai bottoni presenti nel DOM */
 function collectPlayersFromDOM(){
   const set = new Set();
   $$(".score-btn").forEach(btn => {
@@ -34,7 +39,7 @@ function collectPlayersFromDOM(){
   return Array.from(set);
 }
 
-/* 5) Inizializza /scores se vuoto o se mancano giocatori */
+/* 5) Assicura /scores con tutti i player a 0 se mancano */
 async function ensureInitialScores(){
   const players = collectPlayersFromDOM();
   if (!players.length) return;
@@ -51,7 +56,7 @@ async function ensureInitialScores(){
   }
 }
 
-/* 6) Render Classifica ordinata */
+/* 6) Render Classifica live */
 function renderBoard(scores){
   const board = $("#board");
   if (!board) return;
@@ -67,52 +72,104 @@ function renderBoard(scores){
   board.innerHTML = rows;
 }
 
-/* 7) Variazioni punteggio con transaction */
+/* 7) Transazione punteggio */
 function applyDelta(player, delta){
   if (!player) return;
   db.ref("scores/"+player).transaction(cur => (Number(cur)||0) + toInt(delta,0));
 }
 
-/* 8) Click su qualsiasi .score-btn -> applica i delta */
+/* 8) Feedback: ripple + animazione + (se possibile) vibrazione/suono */
+function rippleAt(btn, event){
+  const rect = btn.getBoundingClientRect();
+  const client = event.changedTouches ? event.changedTouches[0] : event;
+  const x = (client.clientX || client.pageX) - rect.left;
+  const y = (client.clientY || client.pageY) - rect.top;
+  const span = document.createElement('span');
+  span.className = 'ripple';
+  span.style.left = (x - 8) + 'px';
+  span.style.top  = (y - 8) + 'px';
+  span.style.width = span.style.height = '16px';
+  btn.appendChild(span);
+  setTimeout(() => span.remove(), 520);
+}
+
+// Haptics: iOS Safari non supporta navigator.vibrate; Android sì.
+function haptics(kind){
+  if (!('vibrate' in navigator)) return; // su iPhone non farà nulla
+  if (kind === 'penalty') navigator.vibrate([50, 40, 50]);
+  else navigator.vibrate(25);
+}
+
+// Web Audio beep (se suoneria attiva). Su iOS serve un gesto utente: qui c'è.
+let audioCtx;
+function ensureAudioCtx(){
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+function beep(freq=880, durationMs=90){
+  try{
+    ensureAudioCtx();
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + durationMs/1000);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(t0 + durationMs/1000);
+  }catch(e){ /* no-op se bloccato */ }
+}
+function audioFeedback(kind){
+  if (/iphone|ipad|ipod/i.test(navigator.userAgent)){
+    // su iPhone rispetta muto/suoneria: se muto, non sentirai
+  }
+  if (kind === 'penalty') beep(240, 120); else beep(880, 90);
+}
+
+/* 9) Click handler dei bottoni .score-btn */
 function onScoreButtonClick(e){
   const btn = e.currentTarget;
   const me = btn.dataset.me || null;
   const target = btn.dataset.target || null;
   const deltaMe = toInt(btn.dataset.deltaMe, 0);
   const deltaTarget = toInt(btn.dataset.deltaTarget, 0);
-
   if (!me) return;
+
+  // Applica punteggi
   applyDelta(me, deltaMe);
   if (target) applyDelta(target, deltaTarget);
+
+  // Feedback UI (funziona subito; vibrazione solo dove supportata)
+  const kind = btn.classList.contains('penalty') ? 'penalty' : 'win';
+  haptics(kind);
+  audioFeedback(kind);
+  rippleAt(btn, e);
 }
 
-/* 9) Reset DEV: azzera tutti i punteggi a 0 */
+/* 10) Reset DEV */
 async function resetScores(){
   const players = collectPlayersFromDOM();
   const zero = {}; players.forEach(p => zero[p]=0);
   await db.ref("scores").set(zero);
 }
 
-/* 10) Bind UI + realtime */
+/* 11) Bind + Realtime */
 function bindUI(){
-  // Bottoni punteggio
   $$(".score-btn").forEach(btn => btn.addEventListener("click", onScoreButtonClick));
-
-  // Realtime classifica
   db.ref("scores").on("value", snap => renderBoard(snap.val()||{}));
 
-  // Bottone DEV azzera
   const resetBtn = $("#resetScores");
   if (resetBtn){
     resetBtn.addEventListener("click", async () => {
-      if (confirm("Azzero davvero tutti i punteggi?")) {
-        await resetScores();
-      }
+      if (confirm("Azzero davvero tutti i punteggi?")) await resetScores();
     });
   }
 }
 
-/* 11) Boot */
+/* 12) Boot */
 async function boot(){
   await ensureInitialScores();
   bindUI();
