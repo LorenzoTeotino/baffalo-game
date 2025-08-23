@@ -1,306 +1,136 @@
-/* ===========================
-   RESET & BASE (global)
-   - Tipografia, colori e comportamento generale dell'app
-   =========================== */
-
-/* Box model coerente e rimozione del flash blu al tap su mobile */
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-/* Altezza piena e prevenzione dello scroll orizzontale accidentale */
-html, body { height: 100%; overflow-x: hidden; }
-
-/* Tema scuro e font Montserrat */
-body {
-  margin: 0;
-  background: #000;
-  color: #fff;
-  font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+/* ===== Base ===== */
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; overflow-x:hidden; }
+body{
+  margin:0; background:#000; color:#fff;
+  font-family:Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
+a{ color:inherit; text-decoration:none; }
+.phone-frame{ max-width:520px; margin:0 auto; background:#000; }
 
-/* Link “neutri” (usati anche come tile) */
-a { color: inherit; text-decoration: none; }
-
-/* Contenitore centrale stile “telefono” su desktop */
-.phone-frame { max-width: 520px; margin: 0 auto; background: #000; }
-
-
-
-/* ================================================
-   HOME — elenco verticale di tile fotografiche
-   - Ogni .tile è una card 16:9 con titolo centrale
-   ================================================ */
-
-/* Pila verticale con spazio e padding laterale */
-.stack { display: flex; flex-direction: column; gap: 14px; padding: 14px; }
-
-/* Card cliccabile con rapporto 16:9 e bordo sottile */
-a.tile, a.tile:visited {
-  position: relative; display: block; width: 100%;
-  aspect-ratio: 16/9;
-  height: clamp(200px, 52vw, 420px);
-  overflow: hidden; color: inherit; border-radius: 0;
-  border: 1px solid rgba(255,255,255,.25);
-  background: #000;
+/* ===== Home: tile fotografiche ===== */
+.stack{ display:flex; flex-direction:column; gap:14px; padding:14px; }
+a.tile, a.tile:visited{
+  position:relative; display:block; width:100%;
+  aspect-ratio:16/9; height:clamp(200px,52vw,420px);
+  overflow:hidden; border:1px solid rgba(255,255,255,.25); background:#000;
 }
-
-/* Immagine di sfondo della tile (cover + boost cromatico) */
-.tile img.photo {
-  position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: cover; display: block;
-  filter: contrast(1.05) saturate(1.05) brightness(.92);
-  transform: scale(1.02);
+.tile img.photo{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  filter:contrast(1.05) saturate(1.05) brightness(.92); transform:scale(1.02);
 }
-
-/* Velo scuro sopra la foto per aumentare il contrasto del titolo */
-.tile::before {
-  content: "";
-  position: absolute; inset: 0;
+.tile::before{
+  content:""; position:absolute; inset:0;
   background:
     linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.55)),
     radial-gradient(80% 80% at 50% 20%, rgba(0,0,0,0) 0%, rgba(0,0,0,.45) 100%);
-  mix-blend-mode: multiply;
-  pointer-events: none;
+  mix-blend-mode:multiply; pointer-events:none;
 }
-
-/* Titolo centrale delle tile: maiuscolo, corsivo, bold con contorno/ombra */
-.tile h3 {
-  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  margin: 0; padding: 0 8px;
-  text-transform: uppercase; font-style: italic;
-  font-weight: 900; letter-spacing: 1.2px;
-  font-size: clamp(22px, 6.2vw, 40px);
-  color: #fff;
-  -webkit-text-stroke: 1.4px rgba(0,0,0,.75);
-  text-shadow: 0 2px 0 rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.65);
-  text-align: center; line-height: 1.05;
+.tile h3{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  margin:0; padding:0 8px; text-transform:uppercase; font-style:italic;
+  font-weight:900; letter-spacing:1.2px; font-size:clamp(22px,6.2vw,40px);
+  color:#fff; -webkit-text-stroke:1.4px rgba(0,0,0,.75);
+  text-shadow:0 2px 0 rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.65);
+  text-align:center; line-height:1.05;
 }
+.tile h3 .line{ display:block; }
+.tile:active{ transform:scale(.995); }
+.tile:focus-visible{ outline:2px solid rgba(255,255,255,.6); outline-offset:2px; }
 
-/* Forza la seconda riga dove serve (es. “Punteggi / Baffalo”) */
-.tile h3 .line { display: block; }
+/* ===== Navigazione senza JS (hash) ===== */
+.view{ display:none; }
+#home.view.default{ display:block; }
+:target.view{ display:block; }
+:target.view ~ #home.view.default{ display:none; }
 
-/* Feedback al tap e focus visibile per accessibilità */
-.tile:active { transform: scale(.995); }
-.tile:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 2px; }
-
-
-
-/* ==========================================
-   NAVIGAZIONE SENZA JS con :target
-   - Home visibile di default
-   ========================================== */
-
-/* Tutte le view partono nascoste */
-.view { display: none; }
-
-/* Home visibile finché non c'è un :target */
-#home.view.default { display: block; }
-
-/* Mostra la sezione il cui id è nel frammento dell’URL */
-:target.view { display: block; }
-
-/* Nasconde la home quando è attiva una sottopagina */
-:target.view ~ #home.view.default { display: none; }
-
-
-
-/* ==========================================================
-   DETTAGLIO — barra alta con back + titolo centrale fisso
-   - Le pills stanno SOTTO l’header per evitare sovrapposizioni
-   ========================================================== */
-
-/* Corpo pagina secondaria */
-.detail { background:#000; color:#fff; min-height:100dvh; }
-
-/* Header sticky con back a sinistra e titolo centrato assoluto */
+/* ===== Detail: header + titolo ===== */
+.detail{ background:#000; color:#fff; min-height:100dvh; }
 .detail-header{
-  position:sticky; top:0; z-index:10;
-  display:flex; align-items:center; gap:12px;
-  background:rgba(0,0,0,.85);
-  -webkit-backdrop-filter:saturate(180%) blur(6px);
-  backdrop-filter:saturate(180%) blur(6px);
-  border-bottom:1px solid rgba(255,255,255,.10);
-  padding:12px 16px;
-  min-height:64px;
+  position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:12px;
+  background:rgba(0,0,0,.85); -webkit-backdrop-filter:saturate(180%) blur(6px);
+  backdrop-filter:saturate(180%) blur(6px); border-bottom:1px solid rgba(255,255,255,.10);
+  padding:12px 16px; min-height:64px;
 }
-
-/* Bottone “←” rotondo con area di tap comoda */
 .detail-header .back{
-  display:inline-grid; place-items:center;
-  width:40px; height:40px;
-  color:#fff;
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:999px;
+  display:inline-grid; place-items:center; width:40px; height:40px;
+  color:#fff; border:1px solid rgba(255,255,255,.25); border-radius:999px;
 }
-.detail-header .back:focus-visible{
-  outline:2px solid rgba(255,255,255,.45); outline-offset:2px;
-}
-
-/* Titolo centrale fisso (non cambia con la pill) */
+.detail-header .back:focus-visible{ outline:2px solid rgba(255,255,255,.45); outline-offset:2px; }
 .hero-title{
-  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
-  margin:0;
-  text-transform:uppercase; font-style:italic;
-  font-weight:900; letter-spacing:1px;
-  font-size:clamp(22px, 5.6vw, 32px);
-  color:#fff;
-  -webkit-text-stroke:0; text-shadow:none;
-  text-align:center; pointer-events:none; width:80%;
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  margin:0; text-transform:uppercase; font-style:italic; font-weight:900; letter-spacing:1px;
+  font-size:clamp(22px,5.6vw,32px); color:#fff; text-align:center; pointer-events:none; width:80%;
 }
-
-/* Wrapper del contenuto sotto l’header */
 .detail-wrap{ padding:0 14px 16px; }
 
-
-
-/* ======================================================
-   SUBTABS (pills) — riga di selezione persone / modalità
-   - Riutilizzate in .descrizione, .punteggi, .spritz e .regole
-   ====================================================== */
-
-/* Contenitore orizzontale delle pill con scroll laterale */
+/* ===== Subtabs (pills) ===== */
 .subtabs{
-  display:flex; gap:8px;
-  padding: 2px 0 10px;      /* respiro interno compatto */
-  margin: 2px 0 12px;       /* distacco minimo dal contenuto seguente */
-  overflow-x:auto;
-  -webkit-overflow-scrolling: touch;
+  display:flex; gap:8px; padding:2px 0 10px; margin:2px 0 12px;
+  overflow-x:auto; -webkit-overflow-scrolling:touch;
 }
-
-/* Nasconde la scrollbar sui browser WebKit */
 .subtabs::-webkit-scrollbar{ display:none; }
-
-/* Singola pill: chip con bordo chiaro e testo bold bianco */
 .tab{
-  display:inline-block;
-  padding: 8px 12px;
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:999px;
-  font-weight:800; letter-spacing:.3px;
-  background: transparent;
-  color:#fff;
-  white-space: nowrap;
+  display:inline-block; padding:8px 12px; border:1px solid rgba(255,255,255,.25);
+  border-radius:999px; font-weight:800; letter-spacing:.3px; background:transparent; color:#fff; white-space:nowrap;
 }
-
-/* Evidenziazione per tastiera */
 .tab:focus-visible{ outline:2px solid rgba(255,255,255,.45); outline-offset:2px; }
+.tab.active{ background:#fff; color:#000; border-color:#fff; }
+.descrizione .detail-header,
+.punteggi .detail-header,
+.spritz .detail-header,
+.regole .detail-header{ margin-bottom:12px; }
 
-/* Stato attivo: pill bianca con testo nero (contrasto alto) */
-.tab.active{
-  background:#fff;
-  color:#000;
-  border-color:#fff;
-}
-
-/* Spazio tra titolo e pills, uniforme in tutte le sezioni con subtabs */
-.descrizione .detail-header { margin-bottom: 12px; }
-.punteggi    .detail-header { margin-bottom: 12px; }
-.spritz      .detail-header { margin-bottom: 12px; }
-.regole      .detail-header { margin-bottom: 12px; }
-
-
-
-/* ======================================================
-   PUNTEGGI — griglia e bottoni grandi per assegnare punti
-   ====================================================== */
-
+/* ===== Bottoni Punteggi (look fico) ===== */
 .score-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:14px;
-  padding: 8px 0 18px;
+  display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:8px 0 18px;
 }
-
-/* Bottone base molto leggibile, con gradiente e shadow soft */
 .score-btn{
+  position:relative;
   display:flex; flex-direction:column; justify-content:center; align-items:center;
-  min-height:96px;
-  border:1px solid rgba(255,255,255,.18);
-  border-radius:16px;
-  background: linear-gradient(180deg, #1a1a1a, #0f0f0f);
-  color:#fff;
-  font-weight:800;
-  text-align:center;
-  padding:16px 12px;
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.08) inset,
-    0 8px 24px rgba(0,0,0,.35);
-  transition: transform .06s ease, box-shadow .12s ease, filter .12s ease;
+  min-height:96px; border:0; border-radius:16px; padding:18px 14px;
+  font-weight:800; text-align:center; color:#fff;
+  background:linear-gradient(180deg,#1b1b1b,#0f0f0f);
+  box-shadow:0 10px 28px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset;
+  transition:transform .06s ease, box-shadow .12s ease, filter .12s ease;
 }
-.score-btn:active{
-  transform: translateY(1px) scale(.995);
-  box-shadow:
-    0 0 0 rgba(255,255,255,0) inset,
-    0 4px 16px rgba(0,0,0,.45);
-}
-.score-btn:focus-visible{
-  outline:2px solid rgba(255,255,255,.45); outline-offset:2px;
-}
-
-/* Varianti colore: vittoria / errore */
+.score-btn:active{ transform:translateY(1px) scale(.995); box-shadow:0 6px 18px rgba(0,0,0,.45); }
+.score-btn:focus-visible{ outline:2px solid rgba(255,255,255,.45); outline-offset:2px; }
 .score-btn.win{
-  background: linear-gradient(180deg, #164a22, #0e3017);
-  border-color: rgba(46, 255, 170, .35);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.06) inset,
-    0 10px 28px rgba(0, 160, 90, .25);
+  background:linear-gradient(180deg,#0f6f3a,#0a4a29);
+  box-shadow:0 10px 28px rgba(0,180,110,.28), 0 1px 0 rgba(255,255,255,.06) inset;
 }
 .score-btn.penalty{
-  background: linear-gradient(180deg, #4a1616, #2f0f0f);
-  border-color: rgba(255, 90, 90, .35);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,.06) inset,
-    0 10px 28px rgba(255, 50, 50, .22);
+  background:linear-gradient(180deg,#7a1f1f,#4a1313);
+  box-shadow:0 10px 28px rgba(255,60,60,.25), 0 1px 0 rgba(255,255,255,.06) inset;
 }
+.score-btn .who{ font-size:22px; letter-spacing:.2px; text-shadow:0 1px 0 rgba(0,0,0,.45); }
+.score-btn .delta{ margin-top:8px; font-size:14px; opacity:.95; }
 
-/* Testi interni: target in grande + riepilogo punteggi */
-.score-btn .who{
-  font-size:22px;
-  letter-spacing:.2px;
-  text-shadow: 0 1px 0 rgba(0,0,0,.45);
+/* Ripple visuale */
+.score-btn .ripple{
+  position:absolute; border-radius:999px; transform:scale(0);
+  background:rgba(255,255,255,.35); pointer-events:none; animation:ripple .5s ease-out forwards;
 }
-.score-btn .delta{
-  margin-top:8px;
-  font-size:14px;
-  opacity:.95;
-}
+@keyframes ripple{ to{ transform:scale(18); opacity:0; } }
 
-/* Responsive: a colonna sugli schermi più stretti */
-@media (max-width:360px){
-  .score-grid{ grid-template-columns:1fr; }
-}
+/* Responsive */
+@media(max-width:360px){ .score-grid{ grid-template-columns:1fr; } }
 
-/* =========================================
-   Bottone DEV per azzerare i punteggi
-   ========================================= */
-.dev-reset{
-  display:block;
-  width:100%;
-  margin-top:12px;
-  padding:12px 14px;
-  border-radius:12px;
-  border:1px dashed rgba(255,80,80,.55);
-  background: linear-gradient(180deg, #2a0f0f, #1b0a0a);
-  color:#fff;
-  font-weight:900;
-  letter-spacing:.3px;
-}
-.dev-reset:active{ transform: translateY(1px); }
-.dev-reset:focus-visible{ outline:2px solid rgba(255,120,120,.6); outline-offset:2px; }
-
-/* ==============================================
-   LISTE “piatte” usate anche per la Classifica
-   ============================================== */
-
-/* Lista semplice a righe con bordo inferiore */
-.menu-list{
-  list-style:none; padding:0; margin:4px 0 24px;
-  background:transparent; border:0; border-radius:0;
-}
+/* ===== Lista (usata dalla classifica) ===== */
+.menu-list{ list-style:none; padding:0; margin:4px 0 24px; background:transparent; border:0; border-radius:0; }
 .menu-list li{
   display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
-  padding:14px 0;
-  border-bottom:1px solid rgba(255,255,255,.12);
+  padding:14px 0; border-bottom:1px solid rgba(255,255,255,.12);
 }
 .menu-list li:last-child{ border-bottom:0; }
 .menu-list .name{ font-weight:800; letter-spacing:.2px; color:#fff; }
 .menu-list .price{ font-weight:900; color:#fff; }
+
+/* ===== Bottone DEV reset ===== */
+.dev-reset{
+  border-radius:12px; border:1px dashed rgba(255,80,80,.55);
+  background:linear-gradient(180deg,#2a0f0f,#1b0a0a); color:#fff; font-weight:900; letter-spacing:.3px;
+}
+.dev-reset:active{ transform:translateY(1px); }
+.dev-reset:focus-visible{ outline:2px solid rgba(255,120,120,.6); outline-offset:2px; }
