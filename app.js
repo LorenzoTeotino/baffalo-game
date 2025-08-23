@@ -110,7 +110,6 @@ function renderRace(scoresObj){
       </div>`;
   }).join('');
 
-  // click su corsia/nome → storico (minuscolo per l'id)
   race.querySelectorAll('[data-open-history]').forEach(el=>{
     el.addEventListener('click', ()=>{
       const player = el.getAttribute('data-open-history');
@@ -118,7 +117,6 @@ function renderRace(scoresObj){
     });
   });
 
-  // click pedina → toast
   race.querySelectorAll('.jockey').forEach(btn=>{
     btn.addEventListener('click', (ev)=>{
       ev.stopPropagation();
@@ -183,22 +181,29 @@ function detachHistory(){
 
 function attachHistory(player){
   detachHistory();
+  // prendi ultime 200 voci con CHIAVE
   histRef = db.ref('history/'+player).limitToLast(200);
   histRef.on('value', snap=>{
-    renderHistory(player, snap.val()||{});
+    const rows = [];
+    snap.forEach(child => {
+      const v = child.val() || {};
+      rows.push({ key: child.key, ...v });
+    });
+    renderHistory(player, rows);
   });
 }
 
-function renderHistory(player, obj){
+function renderHistory(player, rows){
   const list = document.getElementById('history-'+player.toLowerCase());
   if (!list) return;
-  const rows = Object.values(obj).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  rows.sort((a,b)=>(b.ts||0)-(a.ts||0));
   list.innerHTML = rows.map(e=>{
     const signClass = e.delta>0?'h-pos':(e.delta<0?'h-neg':'h-zero');
     const signText  = (e.delta>0?'+':'') + (e.delta||0);
     const when = e.ts ? fmtTS(e.ts) : '';
     return `
-      <li class="history-item">
+      <li class="history-item" data-key="${e.key||''}">
+        <input type="checkbox" class="form-check-input h-check" />
         <div class="h-delta ${signClass}">${signText}</div>
         <div class="h-text">
           <div>${e.text||''}</div>
@@ -206,6 +211,14 @@ function renderHistory(player, obj){
         </div>
       </li>`;
   }).join('') || `<li class="history-item"><div class="h-delta h-zero">0</div><div class="h-text">Nessuna voce ancora</div></li>`;
+}
+
+/* Batch delete di righe selezionate */
+async function deleteHistoryEntries(player, keys){
+  if (!keys || !keys.length) return;
+  const updates = {};
+  keys.forEach(k => updates[`history/${player}/${k}`] = null);
+  await db.ref().update(updates);
 }
 
 /* =========================================================
@@ -365,11 +378,27 @@ async function resetScores(){
 }
 
 /* =========================================================
-   🚧 DEV: Storico – cancella tutto per un giocatore
-   (usare i bottoni con data-history-dev="clear" nell'HTML Storico)
+   🚧 DEV: Storico – selezione/elimina righe
 ========================================================= */
-async function deleteHistory(player){
-  await db.ref('history/'+player).remove();
+function sectionPlayer(section){
+  return section.getAttribute('data-player') || (section.id||'').replace('storico-','');
+}
+
+function toggleHistorySelection(section, on){
+  section.classList.toggle('history-dev-on', on);
+}
+function selectAllRows(section, checked){
+  section.querySelectorAll('.history-item .h-check').forEach(ch => (ch.checked = !!checked));
+}
+async function deleteSelectedRows(section){
+  const player = sectionPlayer(section);
+  const keys = Array.from(section.querySelectorAll('.history-item .h-check:checked'))
+    .map(ch => ch.closest('.history-item')?.getAttribute('data-key'))
+    .filter(Boolean);
+  if(!keys.length){ alert('Nessuna riga selezionata'); return; }
+  if(confirm(`Elimino ${keys.length} riga/e dallo storico di ${player}?`)){
+    await deleteHistoryEntries(player, keys);
+  }
 }
 
 /* =========================================================
@@ -408,14 +437,26 @@ function bindUI(){
     });
   });
 
-  // 🚧 Storico DEV – cancella storico giocatore
-  $$('[data-history-dev="clear"]').forEach(b=>{
-    b.addEventListener('click', async ()=>{
-      const player=b.dataset.player;
-      if(!player) return;
-      if(confirm(`⚠️ ATTENZIONE\nCancello TUTTO lo storico di ${player}?\nOperazione irreversibile.`)){
-        await deleteHistory(player);
-      }
+  // 🚧 Storico DEV – toolbar (toggle/select/delete)
+  document.querySelectorAll('.view.detail.storico').forEach(section=>{
+    // toggle selezione
+    section.querySelectorAll('[data-history-dev="toggle"]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const on = !section.classList.contains('history-dev-on');
+        toggleHistorySelection(section, on);
+        btn.textContent = on ? 'Disattiva selezione righe [DEV]' : 'Attiva selezione righe [DEV]';
+      });
+    });
+    // select all / none
+    section.querySelectorAll('[data-history-dev="select-all"]').forEach(btn=>{
+      btn.addEventListener('click', ()=> selectAllRows(section, true));
+    });
+    section.querySelectorAll('[data-history-dev="select-none"]').forEach(btn=>{
+      btn.addEventListener('click', ()=> selectAllRows(section, false));
+    });
+    // delete selected
+    section.querySelectorAll('[data-history-dev="delete-selected"]').forEach(btn=>{
+      btn.addEventListener('click', ()=> deleteSelectedRows(section));
     });
   });
 
@@ -429,7 +470,7 @@ function bindUI(){
 
 async function boot(){
   await ensureInitialScores();
-  await settleSpritz();
+  await settleSpritz();   // calcola SOLO il giorno precedente
   bindUI();
   showByHash();
 }
