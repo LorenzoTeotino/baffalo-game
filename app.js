@@ -1,5 +1,5 @@
 /* ==========================================================
-   BAFFALO – App logic (Firebase + pulsanti + feedback + classifica "corsa")
+   BAFFALO – App logic (Firebase + pulsanti + feedback + corsa con pedine)
    ========================================================== */
 
 /* 1) Firebase config */
@@ -54,7 +54,15 @@ async function ensureInitialScores(){
   }
 }
 
-/* 6) Render Classifica stile "corsa" */
+/* 6) Mapping pedine per giocatore */
+const TOKEN = {
+  "Lorenzo": "👑",
+  "Matteo":  "🎾",   // padel approx
+  "Sara":    "🏐",
+  "Ilaria":  "🍹"
+};
+
+/* 7) Render Classifica stile "corsa" con pedine + coppa solo al primo */
 function renderRace(scoresObj){
   const race = $("#race");
   if (!race) return;
@@ -63,7 +71,7 @@ function renderRace(scoresObj){
     .map(([name, pts]) => ({ name, pts: Number(pts)||0 }))
     .sort((a,b) => (b.pts - a.pts) || a.name.localeCompare(b.name));
 
-  // Range dinamico (gestisce negativi). Se tutti uguali → 50%
+  // Range dinamico (gestisce negativi)
   const values = arr.map(x => x.pts);
   const min = Math.min(...values, 0);
   const max = Math.max(...values, 0);
@@ -77,24 +85,27 @@ function renderRace(scoresObj){
     const jockeyRank = rank<=3 ? `rank-${rank}` : 'rank-n';
     const aria = `${it.name} ha ${it.pts} punti`;
 
+    // Coppa solo al primo
+    const trophy = rank===1 ? `<i class="bi bi-trophy-fill trophy ms-1"></i>` : "";
+
     return `
       <div class="lane">
         <div class="lane-head">
           <div class="rank-badge ${rankCls}">${rank}</div>
-          <div class="lb-name fw-bold">${it.name}</div>
+          <div class="lb-name fw-bold">${it.name} ${trophy}</div>
           <div class="lb-score fw-bold">${it.pts}</div>
+          <div class="text-muted small"></div>
         </div>
         <div class="track">
-          <div class="finish"><i class="bi bi-trophy-fill"></i></div>
           <button class="jockey ${jockeyRank}" style="left:${left}%"
                   data-name="${it.name}" data-pts="${it.pts}"
-                  aria-label="${aria}" title="${aria}">🐎</button>
+                  aria-label="${aria}" title="${aria}">${TOKEN[it.name] || "🐎"}</button>
         </div>
       </div>
     `;
   }).join("");
 
-  // click su cavallo → toast coi punti
+  // click su pedina → toast coi punti
   race.querySelectorAll(".jockey").forEach(btn => {
     btn.addEventListener("click", () => {
       const name = btn.dataset.name;
@@ -102,9 +113,12 @@ function renderRace(scoresObj){
       showScoreToast(`${name}: ${pts} punto${Math.abs(pts)===1?'':'i'}`);
     });
   });
+
+  // Aggiorna (o crea) il form DEV con i valori attuali
+  renderDevForm(arr);
 }
 
-/* 7) Toast Bootstrap per i punteggi */
+/* 8) Toast Bootstrap per i punteggi */
 let toastRef;
 function showScoreToast(text){
   const el = $("#scoreToast");
@@ -113,13 +127,13 @@ function showScoreToast(text){
   toastRef.show();
 }
 
-/* 8) Transazione punteggio */
+/* 9) Transazione punteggio */
 function applyDelta(player, delta){
   if (!player) return;
   db.ref("scores/"+player).transaction(cur => (Number(cur)||0) + toInt(delta,0));
 }
 
-/* 9) Feedback: ripple + (se disponibile) vibrazione + beep */
+/* 10) Feedback: ripple + (se disponibile) vibrazione + beep */
 function rippleAt(btn, event){
   const rect = btn.getBoundingClientRect();
   const client = event.changedTouches ? event.changedTouches[0] : event;
@@ -161,7 +175,7 @@ function beep(freq=880, durationMs=90){
 }
 function audioFeedback(kind){ if (kind === 'penalty') beep(240, 120); else beep(880, 90); }
 
-/* 10) Click handler punteggi */
+/* 11) Click handler punteggi (Baffalo) */
 function onScoreButtonClick(e){
   const btn = e.currentTarget;
   const me = btn.dataset.me || null;
@@ -179,21 +193,49 @@ function onScoreButtonClick(e){
   rippleAt(btn, e);    // ripple visuale
 }
 
-/* 11) Reset DEV */
+/* 12) Dev: form modifica manuale punteggi */
+function renderDevForm(sortedArray){
+  const form = $("#devForm");
+  if (!form) return;
+  form.innerHTML = sortedArray.map(it => `
+    <div class="input-group mb-2">
+      <span class="input-group-text">${it.name}</span>
+      <input type="number" class="form-control" name="${it.name}" value="${it.pts}" inputmode="numeric">
+    </div>
+  `).join("");
+
+  // bind submit (una sola volta per render)
+  form.addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const data = new FormData(form);
+    const obj = {};
+    for (const [k, v] of data.entries()){
+      obj[k] = toInt(v, 0);
+    }
+    if (confirm("Salvare i punteggi inseriti?")) {
+      await db.ref("scores").update(obj);
+      showScoreToast("Punteggi aggiornati (DEV)");
+    }
+  }, { once: true });
+}
+
+/* 13) Dev: azzera punteggi */
 async function resetScores(){
-  const players = collectPlayersFromDOM();
-  const zero = {}; players.forEach(p => zero[p]=0);
+  const playersSnap = await db.ref("scores").get();
+  const val = playersSnap.val() || {};
+  const zero = {};
+  Object.keys(val).forEach(p => zero[p]=0);
   await db.ref("scores").set(zero);
 }
 
-/* 12) Bind + Realtime */
+/* 14) Bind + Realtime */
 function bindUI(){
   $$(".score-btn").forEach(btn => btn.addEventListener("click", onScoreButtonClick));
 
   // Realtime → render corsa
   db.ref("scores").on("value", snap => renderRace(snap.val()||{}));
 
-  // Bottone DEV
+  // Bottone DEV reset
   const resetBtn = $("#resetScores");
   if (resetBtn){
     resetBtn.addEventListener("click", async () => {
@@ -202,7 +244,7 @@ function bindUI(){
   }
 }
 
-/* 13) Boot */
+/* 15) Boot */
 async function boot(){
   await ensureInitialScores();
   bindUI();
