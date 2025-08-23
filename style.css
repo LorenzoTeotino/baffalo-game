@@ -41,7 +41,7 @@ a.tile, a.tile:visited {
   pointer-events: none;
 }
 
-/* Titolo sulle tile (identico al tuo menu) */
+/* Titolo sulle tile */
 .tile h3 {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   margin: 0; padding: 0 8px;
