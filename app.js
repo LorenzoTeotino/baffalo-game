@@ -1,10 +1,8 @@
 /* ==========================================================
-   BAFFALO – App logic (Firebase + pulsanti + feedback)
-   iPhone: niente vibrazione hardware (API non supportata).
-   Fornisco ripple + micro-animazione + beep (se suoneria attiva).
+   BAFFALO – App logic (Firebase + pulsanti + feedback + classifica "corsa")
    ========================================================== */
 
-/* 1) Firebase config (tua) */
+/* 1) Firebase config */
 const firebaseConfig = {
   apiKey: "AIzaSyCc7BW6hHPx5MFcRXBmfJ5MC40j_qtQ5CA",
   authDomain: "baffaloenonsolo.firebaseapp.com",
@@ -22,14 +20,14 @@ const db = firebase.database();
 firebase.auth().signInAnonymously().catch(console.error);
 
 /* 3) Helpers */
-const $ = s => document.querySelector(s);
+const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const toInt = (v, fb=0) => {
   const n = parseInt(v, 10);
   return Number.isFinite(n) ? n : fb;
 };
 
-/* 4) Estrai i giocatori dai bottoni presenti nel DOM */
+/* 4) Estrai giocatori dai bottoni presenti */
 function collectPlayersFromDOM(){
   const set = new Set();
   $$(".score-btn").forEach(btn => {
@@ -56,20 +54,47 @@ async function ensureInitialScores(){
   }
 }
 
-/* 6) Render Classifica live */
-function renderBoard(scores){
+/* 6) Render Classifica stile "corsa" */
+function renderBoard(scoresObj){
   const board = $("#board");
   if (!board) return;
-  const rows = Object.entries(scores||{})
+
+  const arr = Object.entries(scoresObj||{})
     .map(([name, pts]) => ({ name, pts: Number(pts)||0 }))
-    .sort((a,b) => (b.pts - a.pts) || a.name.localeCompare(b.name))
-    .map((item,i) => `
-      <li>
-        <span class="name">${i+1}. ${item.name}</span>
-        <span class="price">${item.pts}</span>
-      </li>
-    `).join("");
-  board.innerHTML = rows;
+    .sort((a,b) => (b.pts - a.pts) || a.name.localeCompare(b.name));
+
+  // Calcolo range per progress (gestisce anche negativi)
+  const values = arr.map(x => x.pts);
+  const min = Math.min(...values, 0); // includi 0 per non mostrare tutto > 50 quando tutti positivi
+  const max = Math.max(...values, 0);
+  const span = (max - min) || 1;
+
+  // percentuale 10..100 per visibilità anche del più basso
+  const pct = v => Math.max(10, Math.round(90 * (v - min) / span) + 10);
+
+  board.innerHTML = arr.map((it, idx) => {
+    const rank = idx + 1;
+    const w = pct(it.pts);
+    const rankClass =
+      rank === 1 ? "bg-rank-1" :
+      rank === 2 ? "bg-rank-2" :
+      rank === 3 ? "bg-rank-3" : "bg-rank-n";
+
+    return `
+      <div class="lb-item">
+        <div class="lb-head">
+          <div class="lb-rank">${rank}</div>
+          <div class="lb-name">${it.name}</div>
+          <div class="lb-score">${it.pts}</div>
+        </div>
+        <div class="lb-progress">
+          <div class="progress">
+            <div class="progress-bar ${rankClass}" role="progressbar" style="width:${w}%"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
 }
 
 /* 7) Transazione punteggio */
@@ -78,7 +103,7 @@ function applyDelta(player, delta){
   db.ref("scores/"+player).transaction(cur => (Number(cur)||0) + toInt(delta,0));
 }
 
-/* 8) Feedback: ripple + animazione + (se possibile) vibrazione/suono */
+/* 8) Feedback: ripple + (se disponibile) vibrazione + beep */
 function rippleAt(btn, event){
   const rect = btn.getBoundingClientRect();
   const client = event.changedTouches ? event.changedTouches[0] : event;
@@ -93,14 +118,14 @@ function rippleAt(btn, event){
   setTimeout(() => span.remove(), 520);
 }
 
-// Haptics: iOS Safari non supporta navigator.vibrate; Android sì.
+// Vibrazione: su iPhone non funziona (API non supportata)
 function haptics(kind){
-  if (!('vibrate' in navigator)) return; // su iPhone non farà nulla
+  if (!('vibrate' in navigator)) return;
   if (kind === 'penalty') navigator.vibrate([50, 40, 50]);
   else navigator.vibrate(25);
 }
 
-// Web Audio beep (se suoneria attiva). Su iOS serve un gesto utente: qui c'è.
+// Beep semplice (rispetta il silenzioso su iPhone)
 let audioCtx;
 function ensureAudioCtx(){
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -120,16 +145,13 @@ function beep(freq=880, durationMs=90){
     osc.connect(gain).connect(audioCtx.destination);
     osc.start();
     osc.stop(t0 + durationMs/1000);
-  }catch(e){ /* no-op se bloccato */ }
+  }catch(e){}
 }
 function audioFeedback(kind){
-  if (/iphone|ipad|ipod/i.test(navigator.userAgent)){
-    // su iPhone rispetta muto/suoneria: se muto, non sentirai
-  }
   if (kind === 'penalty') beep(240, 120); else beep(880, 90);
 }
 
-/* 9) Click handler dei bottoni .score-btn */
+/* 9) Click handler */
 function onScoreButtonClick(e){
   const btn = e.currentTarget;
   const me = btn.dataset.me || null;
@@ -138,15 +160,13 @@ function onScoreButtonClick(e){
   const deltaTarget = toInt(btn.dataset.deltaTarget, 0);
   if (!me) return;
 
-  // Applica punteggi
   applyDelta(me, deltaMe);
   if (target) applyDelta(target, deltaTarget);
 
-  // Feedback UI (funziona subito; vibrazione solo dove supportata)
   const kind = btn.classList.contains('penalty') ? 'penalty' : 'win';
-  haptics(kind);
-  audioFeedback(kind);
-  rippleAt(btn, e);
+  haptics(kind);         // su iPhone non vibra, su Android sì
+  audioFeedback(kind);   // beep breve
+  rippleAt(btn, e);      // ripple visuale
 }
 
 /* 10) Reset DEV */
@@ -175,4 +195,3 @@ async function boot(){
   bindUI();
 }
 document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", boot) : boot();
-
