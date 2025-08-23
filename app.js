@@ -1,4 +1,6 @@
-/* ===== Firebase ===== */
+/* =========================================================
+   Firebase
+========================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyCc7BW6hHPx5MFcRXBmfJ5MC40j_qtQ5CA",
   authDomain: "baffaloenonsolo.firebaseapp.com",
@@ -13,7 +15,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 firebase.auth().signInAnonymously().catch(console.error);
 
-/* ===== Utility ===== */
+/* =========================================================
+   Utils & Costanti
+========================================================= */
 const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const toInt = (v, fb=0) => { const n = parseInt(v,10); return Number.isFinite(n) ? n : fb; };
@@ -21,7 +25,9 @@ const toInt = (v, fb=0) => { const n = parseInt(v,10); return Number.isFinite(n)
 const PLAYERS = ["Lorenzo","Matteo","Ilaria","Sara"];
 const TOKEN   = { Lorenzo:"👑", Matteo:"🎾", Sara:"🏐", Ilaria:"🍹" };
 
-/* ===== Routing ===== */
+/* =========================================================
+   Router (una vista alla volta, via hash)
+========================================================= */
 function showByHash(){
   const id = (location.hash || '#home').slice(1);
   $$('.view').forEach(v => v.classList.remove('active'));
@@ -30,21 +36,25 @@ function showByHash(){
 window.addEventListener('hashchange', showByHash);
 document.addEventListener('DOMContentLoaded', showByHash);
 
-/* ===== Scores init ===== */
+/* =========================================================
+   Inizializzazione punteggi
+========================================================= */
 async function ensureInitialScores(){
   const ref = db.ref('scores');
   const s = await ref.get();
   if (!s.exists()){
     const init={}; PLAYERS.forEach(p=>init[p]=0);
     await ref.set(init);
-  }else{
+  } else {
     const v=s.val()||{}; let changed=false;
     PLAYERS.forEach(p=>{ if(typeof v[p]!=='number'){ v[p]=0; changed=true; } });
     if (changed) await ref.set(v);
   }
 }
 
-/* ===== Classifica (corsa) ===== */
+/* =========================================================
+   Classifica (corsa)
+========================================================= */
 let toastRef;
 function showScoreToast(txt){
   const el = $('#scoreToast'); if (!el) return;
@@ -52,12 +62,15 @@ function showScoreToast(txt){
   toastRef = toastRef || new bootstrap.Toast(el);
   toastRef.show();
 }
+
 function renderRace(scoresObj){
   const race = $('#race'); if (!race) return;
   const arr = Object.entries(scoresObj||{}).map(([name,pts])=>({name,pts:Number(pts)||0}))
                .sort((a,b)=>(b.pts-a.pts)||a.name.localeCompare(b.name));
+
   const vals = arr.map(x=>x.pts), min = Math.min(...vals,0), max = Math.max(...vals,0);
-  const span = (max-min)||1, pct = v => Math.max(6, Math.min(94, Math.round(100*(v-min)/span)));
+  const span = (max-min)||1;
+  const pct = v => Math.max(6, Math.min(94, Math.round(100*(v-min)/span)));
 
   race.innerHTML = arr.map((it,i)=>{
     const rank=i+1, left=pct(it.pts);
@@ -91,9 +104,16 @@ function renderRace(scoresObj){
   renderDevForm(arr);
 }
 
-/* ===== Feedback (audio + ripple + haptics) ===== */
+/* =========================================================
+   Feedback: audio, aptico, ripple & flash
+========================================================= */
 let audioCtx;
-function ensureAudioCtx(){ try{ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }catch(e){} }
+function ensureAudioCtx(){
+  try{
+    if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+  }catch(e){}
+}
 function beep(freq=880, ms=90){
   try{
     ensureAudioCtx();
@@ -118,19 +138,23 @@ function flashGray(btn){
   setTimeout(()=>btn.classList.remove('flash'), 180);
 }
 
-/* ===== Punteggi diretti (Baffalo) ===== */
+/* =========================================================
+   Baffalo – pulsanti punteggio diretto
+========================================================= */
 function applyDelta(player,delta){
   if (!player) return;
   db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+toInt(delta,0));
 }
+
 function onScoreButtonClick(e){
   const b=e.currentTarget, me=b.dataset.me, target=b.dataset.target;
   const dMe=toInt(b.dataset.deltaMe,0), dT=toInt(b.dataset.deltaTarget,0);
   if(!me) return;
   const kind=b.classList.contains('penalty')?'penalty':'win';
-  rippleAt(b,e); haptics(kind); audioFeedback(kind);
+  rippleAt(b,e); flashGray(b); haptics(kind); audioFeedback(kind);
   applyDelta(me,dMe); if(target) applyDelta(target,dT);
 }
+
 function decorateBaffaloButtons(){
   $$('.score-btn.win, .score-btn.penalty').forEach(b=>{
     if (b.dataset.decorated) return;
@@ -141,7 +165,9 @@ function decorateBaffaloButtons(){
   });
 }
 
-/* ===== Spritzettino ===== */
+/* =========================================================
+   Spritzettino – stato giornaliero + liquidazione
+========================================================= */
 function dateKey(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
 function todayKey(){ return dateKey(new Date()); }
 function keyAddDays(key, delta){
@@ -151,6 +177,7 @@ function keyAddDays(key, delta){
 }
 
 let spritzRef=null, currentDay=todayKey();
+
 function updateSpritzUI(dayState){
   PLAYERS.forEach(p=>{
     const st = (dayState && dayState[p]) || {};
@@ -169,27 +196,28 @@ function updateSpritzUI(dayState){
     });
   });
 }
+
 function attachSpritzListener(){
   if (spritzRef) spritzRef.off();
   spritzRef = db.ref(`spritz/days/${currentDay}`);
   spritzRef.on('value', s=>updateSpritzUI(s.val()||{}));
 }
+
 function onSpritzClick(e){
   const b = e.currentTarget;
   const player = b.dataset.me;
   const type = b.dataset.spritz; // "call" | "no"
   const ref = db.ref(`spritz/days/${todayKey()}/${player}/${type}`);
 
-  // feedback come su Baffalo
-  rippleAt(b, e);
-  flashGray(b);
+  rippleAt(b, e); flashGray(b);
   audioFeedback(type==='no' ? 'penalty' : 'win');
   haptics(type==='no' ? 'penalty' : 'win');
 
-  // segna "usato" il tasto odierno (idempotente)
+  // marca come usato oggi (idempotente)
   ref.transaction(v => v ? v : true);
 }
-/* Liquidazione giornaliera */
+
+/* Liquidazione: calcola i punti dei giorni passati e li accredita */
 async function settleSpritz(){
   const daysSnap = await db.ref('spritz/days').get();
   const days = daysSnap.val() || {};
@@ -206,8 +234,8 @@ async function settleSpritz(){
       if (last && day <= last) continue;
       const st = (days[day] && days[day][player]) || {};
       let delta = 0;
-      if (!st.call) delta += -1;   // NON ha chiamato
-      delta += st.no ? -2 : +2;    // NO usato → -2, altrimenti +2
+      if (!st.call) delta += -1;        // non ha chiamato → -1
+      delta += st.no ? -2 : +2;         // ha usato NO → -2, altrimenti +2
       if (delta !== 0) await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
       settled[player] = day;
     }
@@ -215,7 +243,7 @@ async function settleSpritz(){
   await db.ref('spritz/settled').set(settled);
 }
 
-/* Se l’app resta aperta, controlla il nuovo giorno */
+/* Se l’app resta aperta, passa il giorno → ricalcola listener e liquidazione */
 setInterval(async ()=>{
   const k = todayKey();
   if (k !== currentDay){
@@ -225,7 +253,9 @@ setInterval(async ()=>{
   }
 }, 60000);
 
-/* ===== DEV: classifica ===== */
+/* =========================================================
+   DEV: Classifica (form numerico) + Reset punteggi
+========================================================= */
 function renderDevForm(sorted){
   const form = $('#devForm'); if(!form) return;
   form.innerHTML = sorted.map(it=>`
@@ -244,7 +274,9 @@ async function resetScores(){
   await db.ref('scores').set(zero);
 }
 
-/* ===== DEV: spritz – reset tasti di OGGI ===== */
+/* =========================================================
+   DEV: Spritz – reset tasti di OGGI
+========================================================= */
 async function resetSpritzToday(player){
   await db.ref(`spritz/days/${todayKey()}/${player}`).remove();
 }
@@ -253,8 +285,11 @@ async function resetSpritzTodayAll(){
   await db.ref(`spritz/days/${todayKey()}`).update(updates); // null = delete
 }
 
-/* ===== Bind & Boot ===== */
+/* =========================================================
+   Bind UI & Boot
+========================================================= */
 function bindUI(){
+  // Baffalo
   decorateBaffaloButtons();
   $$('.score-btn.win, .score-btn.penalty').forEach(b=>b.addEventListener('click', onScoreButtonClick));
 
