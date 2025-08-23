@@ -1,126 +1,178 @@
-/* ===== Base ===== */
-:root{
-  --bg:#000; --ink:#fff; --muted:#b8b8b8;
-  --card:#0f0f0f; --border:#222;
-  --good:#102c10; --bad:#2c1010;
-  --accent:#39FF14;
-  --radius:14px;
+/* =======================
+   Reset & base
+======================= */
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow-x: hidden; }
+body {
+  margin: 0;
+  background: #000;               /* sfondo home */
+  color: #fff;
+  font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;
-  color:var(--ink);
-  background:var(--bg);
-  font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+a { color: inherit; text-decoration: none; }
+
+/* Contenitore tipo telefono */
+.phone-frame { max-width: 520px; margin: 0 auto; background: #000; }
+
+/* =======================
+   HOME – tile con foto
+======================= */
+.stack { display: flex; flex-direction: column; gap: 14px; padding: 14px; }
+
+a.tile, a.tile:visited {
+  position: relative; display: block; width: 100%;
+  aspect-ratio: 16/9;
+  height: clamp(200px, 52vw, 420px);
+  overflow: hidden; color: inherit; border-radius: 0;
+  border: 1px solid rgba(255,255,255,.25);
+  background: #000;
 }
-main{display:flex;flex-direction:column}
 
-/* ===== Helpers ===== */
-.hidden{display:none!important}
-.muted{color:var(--muted)}
-.m-top{margin-top:12px}
-.m-bottom-6{margin-bottom:6px}
-.h{margin:0 0 8px 0}
-.stack{display:flex;flex-direction:column;gap:12px}
-.row{display:flex;align-items:center}
-.row.between{justify-content:space-between}
-.wrap{flex-wrap:wrap}
-.gap{gap:10px}
+/* immagine */
+.tile img.photo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  filter: contrast(1.05) saturate(1.05) brightness(.92);
+  transform: scale(1.02);
+}
 
-/* ===== Tiles immagine ===== */
-.view{display:none;padding:8px}
-.view.active{display:block}
+/* logo (tile opzionale) */
+.tile img.logo {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: contain; display: block;
+  filter: contrast(1.05) saturate(1.05) brightness(.92);
+  transform: scale(1.02);
+}
 
-.tile.big{
+/* ombre */
+.tile::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.55)),
+    radial-gradient(80% 80% at 50% 20%, rgba(0,0,0,0) 0%, rgba(0,0,0,.45) 100%);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Titolo sulle tile della home */
+.tile h3 {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  margin: 0; padding: 0 8px; text-transform: uppercase; font-style: italic;
+  font-weight: 900; letter-spacing: 1.2px; font-size: clamp(22px, 6.2vw, 40px);
+  color: #fff; -webkit-text-stroke: 1.4px rgba(0,0,0,.75);
+  text-shadow: 0 2px 0 rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.65);
+  text-align: center; line-height: 1.05;
+}
+.tile h3 .line { display: block; }
+
+.tile:active { transform: scale(.995); }
+.tile:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 2px; }
+
+/* ---- LOGO come tile (opzionale margine interno) ---- */
+.tile--logo::before { content: none; }
+.tile--logo .logo{
+  position: absolute;
+  inset: 6%;
+  width: auto; height: auto;
+  object-fit: contain;
+  transform: none; filter: none; background: transparent;
+}
+
+/* =======================
+   Navigazione senza JS
+======================= */
+.view { display: none; }
+#home.view.default { display: block; }
+:target.view { display: block; }
+:target.view ~ #home.view.default { display: none; }
+
+/* ==============================================
+   DETTAGLIO – Tema scuro con vite traslucida
+============================================== */
+.detail{
+  background:#000; color:#fff;
+  min-height:100dvh;
   position:relative;
-  height:230px;
-  margin:8px;
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  overflow:hidden;
-  background-size:cover;
-  background-position:center;
-  cursor:pointer;
-  user-select:none;
-  -webkit-tap-highlight-color:transparent;
 }
-.tile.big .overlay{
+.detail::before{
+  content:"";
   position:absolute; inset:0;
-  background:linear-gradient(to bottom, rgba(0,0,0,.15), rgba(0,0,0,.55));
-  display:flex; align-items:center; justify-content:center;
-  font-size:30px; font-weight:900; letter-spacing:4px; text-align:center;
+  background-image:url("img/vite-colorata.jpg"); /* opzionale */
+  background-repeat:repeat-y;
+  background-position:center 72px;
+  background-size:min(520px,95%);
+  opacity:.10;
+  filter: invert(1) brightness(.9) contrast(.9);
+  pointer-events:none;
+  z-index:0;
 }
-@media (min-width:540px){
-  .tile.big{height:260px}
-  .tile.big .overlay{font-size:34px}
+.detail .detail-wrap,
+.detail .detail-header{ position:relative; z-index:1; }
+
+.detail .detail-wrap{ padding:16px; }
+
+/* Header sticky scuro */
+.detail-header{
+  position:sticky; top:0;
+  display:flex; align-items:center;
+  background:rgba(0,0,0,.85);
+  -webkit-backdrop-filter:saturate(180%) blur(6px);
+  backdrop-filter:saturate(180%) blur(6px);
+  border-bottom:1px solid rgba(255,255,255,.10);
+  margin:-16px -16px 12px;
+  padding:12px 16px;
+  min-height:64px;                   /* spazio per il titolo centrato */
 }
 
-/* Stato bloccato all'avvio (si sbloccano dopo la descrizione) */
-.tile.locked{filter:grayscale(.6) brightness(.9)}
-.tile.locked .overlay::after{
-  content:" 🔒";
-  font-weight:700; font-size:14px; letter-spacing:0; margin-left:.25rem;
+/* Bottone indietro */
+.detail-header .back{
+  color:#fff;
+  border:1px solid rgba(255,255,255,.25);
+  padding:8px 12px; border-radius:999px;
+}
+.detail-header .back:focus-visible{
+  outline:2px solid rgba(255,255,255,.45); outline-offset:2px;
 }
 
-/* ===== Card / contenitori ===== */
-.card{
-  background:var(--card);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:14px;
+/* Titolo centrato e MAIUSCOLO */
+.hero-title{
+  position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
+  margin:0;
+  text-transform:uppercase;
+  font-style:italic;
+  font-weight:900; letter-spacing:1px;
+  font-size:clamp(22px, 5.6vw, 32px);
+  color:#fff;
+  -webkit-text-stroke:0; text-shadow:none;
+  text-align:center; pointer-events:none; width:80%;
 }
 
-/* ===== Pill, players, controls ===== */
-.pill{
-  display:inline-flex; align-items:center; gap:6px;
-  padding:6px 10px; border:1px solid var(--border);
-  border-radius:999px; background:#141414;
+/* Elenco “piatto” sul nero (riuso per classifica/regole) */
+.menu-list{
+  list-style:none; padding:0; margin:4px 0 24px;
+  background:transparent; border:0; border-radius:0;
 }
-.players{display:flex;flex-wrap:wrap;gap:8px}
-.player{
-  padding:10px 12px; border:1px solid var(--border); border-radius:12px;
-  background:#141414; color:#fff; cursor:pointer;
+.menu-list li{
+  display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,.12);
 }
-.player.active{outline:2px solid var(--accent)}
-.controls{
-  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;
-}
-.controls button{
-  padding:14px; border-radius:12px; border:1px solid var(--border);
-  background:#1a1a1a; color:#fff; font-weight:800; letter-spacing:.2px;
-}
-.controls button.good{background:var(--good)}
-.controls button.bad{background:var(--bad)}
-.controls button:disabled{opacity:.45}
+.menu-list li:last-child{ border-bottom:0; }
+.menu-list .name{ font-weight:800; letter-spacing:.2px; color:#fff; }
+.menu-list .price{ font-weight:900; color:#fff; }
 
-/* ===== Board / feed ===== */
-#board .row{
-  justify-content:space-between;
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:10px 12px;
-  margin:6px 0;
+/* Pill tabs (se in futuro servono) */
+.subtabs{
+  display:flex; gap:8px; padding: 2px 0 10px; margin: 2px 0 12px;
+  overflow-x:auto; -webkit-overflow-scrolling: touch;
 }
-#feed .row{
-  justify-content:space-between;
-  border:1px dashed var(--border);
-  border-radius:10px;
-  padding:8px 10px;
-  margin:6px 0;
+.subtabs::-webkit-scrollbar{ display:none; }
+.tab{
+  display:inline-block; padding: 8px 12px;
+  border:1px solid rgba(255,255,255,.25); border-radius:999px;
+  font-weight:800; letter-spacing:.3px; background: transparent; color:#fff;
+  white-space: nowrap;
 }
-
-/* ===== Buttons / actions ===== */
-.actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-.btn{
-  appearance:none; border:1px solid var(--border); background:#151515;
-  color:#fff; padding:12px 14px; border-radius:12px; font-weight:700; cursor:pointer;
-}
-.btn.primary{background:var(--accent); color:#000; border-color:#00b341}
-
-/* ===== Toast ===== */
-.toast{
-  position:fixed; left:50%; bottom:22px; transform:translateX(-50%);
-  background:#161616; border:1px solid var(--border); color:#fff;
-  border-radius:999px; padding:10px 14px; z-index:60;
-}
+.tab:focus-visible{ outline:2px solid rgba(255,255,255,.45); outline-offset:2px; }
+.tab.active{ background:#fff; color:#000; border-color:#fff; }
