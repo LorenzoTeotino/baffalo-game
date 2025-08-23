@@ -2,119 +2,134 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Baffalo – Sardegna Game</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<main>
 
-  <!-- HOME: tile immagine a tutta larghezza -->
-  <section id="view-home" class="view active" aria-label="Home tiles">
-    <div class="tile big" style="background-image:url('img/descrizione.jpg')" data-open="descrizione">
-      <div class="overlay">DESCRIZIONE</div>
-    </div>
+<main class="phone-frame">
 
-    <div id="tile-punteggi" class="tile big locked" style="background-image:url('img/baffalo.jpg')" data-open="punteggi">
-      <div class="overlay">PUNTEGGI&nbsp;BAFFALO</div>
-    </div>
+  <!-- ==================== HOME ==================== -->
+  <section id="home" class="view default" aria-label="Categorie">
+    <div class="stack">
 
-    <div id="tile-spritz" class="tile big locked" style="background-image:url('img/spritz.jpg')" data-open="spritz">
-      <div class="overlay">SPRITZETTINO</div>
-    </div>
+      <!-- (Opzionale) Logo in cima -->
+      <a class="tile tile--logo" href="#descrizione">
+        <img class="logo" src="img/logo.jpg" alt="Logo">
+      </a>
 
-    <div id="tile-classifica" class="tile big locked" style="background-image:url('img/classifica.jpg')" data-open="classifica">
-      <div class="overlay">CLASSIFICA</div>
-    </div>
+      <!-- DESCRIZIONE -->
+      <a class="tile" href="#descrizione">
+        <img class="photo" src="img/descrizione.jpg" alt="Descrizione">
+        <h3>Descrizione</h3>
+      </a>
 
-    <div id="tile-regole" class="tile big locked" style="background-image:url('img/regole.jpg')" data-open="regole">
-      <div class="overlay">REGOLE</div>
-    </div>
-  </section>
+      <!-- PUNTEGGI BAFFALO -->
+      <a class="tile" href="#punteggi-baffalo">
+        <img class="photo" src="img/baffalo.jpg" alt="Punteggi Baffalo">
+        <h3><span class="line">Punteggi</span><span class="line">Baffalo</span></h3>
+      </a>
 
-  <!-- DESCRIZIONE -->
-  <section id="view-descrizione" class="view" aria-label="Descrizione">
-    <div class="card">
-      <h2 class="h">Come funziona</h2>
-      <p>Questo è il gioco del <strong>Baffalo</strong> per il viaggio in Sardegna. All’inizio è visibile solo la Descrizione. Premi <em>Ho capito</em> per sbloccare gli altri tile.</p>
-      <p class="muted">La classifica si aggiorna in <strong>tempo reale</strong> tra tutti i telefoni.</p>
-      <div class="actions">
-        <button id="btnUnlock" class="btn primary">Ho capito, sblocca</button>
-        <button class="btn" data-open="home">Torna ai tile</button>
-      </div>
-    </div>
-  </section>
+      <!-- SPRITZETTINO -->
+      <a class="tile" href="#spritzettino">
+        <img class="photo" src="img/spritz.jpg" alt="Spritzettino">
+        <h3>Spritzettino</h3>
+      </a>
 
-  <!-- PUNTEGGI BAFFALO -->
-  <section id="view-punteggi" class="view" aria-label="Punteggi Baffalo">
-    <div class="card">
-      <div class="row between wrap gap">
-        <div class="pill">Io sono: <strong id="meLabel">—</strong></div>
-        <div class="pill">L'altro: <strong id="otherLabel">—</strong></div>
-      </div>
+      <!-- CLASSIFICA -->
+      <a class="tile" href="#classifica">
+        <img class="photo" src="img/classifica.jpg" alt="Classifica">
+        <h3>Classifica</h3>
+      </a>
 
-      <div class="stack m-top">
-        <div>
-          <div class="muted m-bottom-6">Scegli TE</div>
-          <div id="meList" class="players"></div>
-        </div>
-        <div>
-          <div class="muted m-bottom-6">Scegli L’ALTRO</div>
-          <div id="otherList" class="players"></div>
-        </div>
-      </div>
+      <!-- REGOLE -->
+      <a class="tile" href="#regole">
+        <img class="photo" src="img/regole.jpg" alt="Regole">
+        <h3>Regole</h3>
+      </a>
 
-      <div class="controls">
-        <button id="btnBaffaloPreso" class="good" disabled>✅ Baffalo preso (+3 / −3)</button>
-        <button id="btnBaffaloSbagliato" class="bad" disabled>❌ Baffalo sbagliato (−3 / +3)</button>
-        <button id="btnPlus" class="good" disabled>+1 a me</button>
-        <button id="btnMinus" class="bad" disabled>−1 a me</button>
-      </div>
-      <p class="muted hint">I bottoni si attivano quando selezioni entrambi i giocatori.</p>
-    </div>
-
-    <div class="card">
-      <h3 class="h">Ultimi eventi</h3>
-      <div id="feed"></div>
     </div>
   </section>
 
-  <!-- CLASSIFICA -->
-  <section id="view-classifica" class="view" aria-label="Classifica">
-    <div id="board" class="stack"></div>
-  </section>
-
-  <!-- SPRITZETTINO -->
-  <section id="view-spritz" class="view" aria-label="Spritzettino">
-    <div class="card">
-      <h2 class="h">Spritzettino 🍹</h2>
-      <p class="muted">Mini-gioco/bonus (placeholder per ora).</p>
+  <!-- ============== DESCRIZIONE (sottopagina) ============== -->
+  <section id="descrizione" class="view detail" aria-label="Descrizione">
+    <header class="detail-header">
+      <a class="back" href="#home">← Indietro</a>
+      <h1 class="hero-title">Descrizione</h1>
+    </header>
+    <div class="detail-wrap">
+      <p>Benvenuti nel gioco del <strong>Baffalo</strong> per il viaggio in Sardegna. Leggi qui come funziona e poi inizia a giocare dai tile della home.</p>
+      <ul class="menu-list">
+        <li><span class="name">Baffalo preso</span><span class="price">+3 / −3</span></li>
+        <li><span class="name">Baffalo sbagliato</span><span class="price">−3 / +3</span></li>
+        <li><span class="name">Azioni rapide</span><span class="price">±1</span></li>
+      </ul>
     </div>
   </section>
 
-  <!-- REGOLE -->
-  <section id="view-regole" class="view" aria-label="Regole">
-    <div class="card">
-      <h2 class="h">Regole del Baffalo</h2>
-      <ul class="rules">
-        <li>Baffalo <strong>preso</strong>: +3 al chiamante, −3 all’altro.</li>
-        <li>Baffalo <strong>sbagliato</strong>: −3 al chiamante, +3 all’altro.</li>
-        <li>Bottoni +1 / −1 per casi extra.</li>
+  <!-- ============ PUNTEGGI BAFFALO (sottopagina) ============ -->
+  <section id="punteggi-baffalo" class="view detail" aria-label="Punteggi Baffalo">
+    <header class="detail-header">
+      <a class="back" href="#home">← Indietro</a>
+      <h1 class="hero-title">Punteggi Baffalo</h1>
+    </header>
+    <div class="detail-wrap">
+      <p class="muted">Qui andrà la UI con i bottoni per assegnare i punti (verrà gestita in JS/Firebase).</p>
+      <ul class="menu-list">
+        <li><span class="name">Seleziona TE e l’ALTRO</span><span class="price">—</span></li>
+        <li><span class="name">Baffalo ✅</span><span class="price">+3 / −3</span></li>
+        <li><span class="name">Baffalo ❌</span><span class="price">−3 / +3</span></li>
+        <li><span class="name">+1 / −1</span><span class="price">±1</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============== SPRITZETTINO (sottopagina) ============== -->
+  <section id="spritzettino" class="view detail" aria-label="Spritzettino">
+    <header class="detail-header">
+      <a class="back" href="#home">← Indietro</a>
+      <h1 class="hero-title">Spritzettino</h1>
+    </header>
+    <div class="detail-wrap">
+      <p class="muted">Sezione bonus/mini-gioco (placeholder).</p>
+    </div>
+  </section>
+
+  <!-- ================== CLASSIFICA (sottopagina) ================== -->
+  <section id="classifica" class="view detail" aria-label="Classifica">
+    <header class="detail-header">
+      <a class="back" href="#home">← Indietro</a>
+      <h1 class="hero-title">Classifica</h1>
+    </header>
+    <div class="detail-wrap">
+      <ul class="menu-list" id="board">
+        <!-- Qui comparirà la classifica live (JS) -->
+        <li><span class="name">Matteo</span><span class="price">0</span></li>
+        <li><span class="name">Sara</span><span class="price">0</span></li>
+        <li><span class="name">Giulia</span><span class="price">0</span></li>
+        <li><span class="name">Luca</span><span class="price">0</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- =================== REGOLE (sottopagina) =================== -->
+  <section id="regole" class="view detail" aria-label="Regole">
+    <header class="detail-header">
+      <a class="back" href="#home">← Indietro</a>
+      <h1 class="hero-title">Regole</h1>
+    </header>
+    <div class="detail-wrap">
+      <ul class="menu-list">
+        <li><span class="name">Baffalo valido durante il brindisi</span><span class="price">—</span></li>
+        <li><span class="name">Preso: +3 al chiamante, −3 all’altro</span><span class="price">+3/−3</span></li>
+        <li><span class="name">Sbagliato: −3 al chiamante, +3 all’altro</span><span class="price">−3/+3</span></li>
+        <li><span class="name">Contestazioni → si rigioca</span><span class="price">🙂</span></li>
       </ul>
     </div>
   </section>
 
 </main>
 
-<!-- Toast -->
-<div id="toast" class="toast hidden" role="status" aria-live="polite">OK</div>
-
-<!-- Firebase SDK (compat) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js"></script>
-
-<!-- La logica sta tutta in app.js -->
-<script src="app.js"></script>
 </body>
 </html>
