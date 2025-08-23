@@ -113,6 +113,10 @@ function rippleAt(btn, ev){
   const s=document.createElement('span'); s.className='ripple'; s.style.left=(x-8)+'px'; s.style.top=(y-8)+'px'; s.style.width=s.style.height='16px';
   btn.appendChild(s); setTimeout(()=>s.remove(),520);
 }
+function flashGray(btn){
+  btn.classList.add('flash');
+  setTimeout(()=>btn.classList.remove('flash'), 180);
+}
 
 /* ===== Punteggi diretti (Baffalo) ===== */
 function applyDelta(player,delta){
@@ -151,13 +155,17 @@ function updateSpritzUI(dayState){
   PLAYERS.forEach(p=>{
     const st = (dayState && dayState[p]) || {};
     $$(`[data-spritz][data-me="${p}"]`).forEach(btn=>{
-      const type = btn.dataset.spritz;         // "call" | "no"
+      const type = btn.dataset.spritz;        // "call" | "no"
       const used = !!st[type];
       btn.disabled = used;
       btn.classList.toggle('used', used);
-      const done = type==='call' ? '🍹 Chiamata usata' : '🚫 NO usato';
-      const base = type==='call' ? '🍹 Ho chiamato' : '🚫 Ho usato NO';
-      btn.innerHTML = `<span class="token">${type==='call'?'🍹':'🚫'}</span><span class="label">${used?done:base}</span>`;
+
+      const token = type==='call' ? '🍹' : '🚫';
+      const txt   = used
+        ? (type==='call' ? 'Spritz chiamato' : 'NO usato')
+        : (type==='call' ? 'Posso chiamare Spritz' : 'Posso usare NO');
+
+      btn.innerHTML = `<span class="token">${token}</span><span class="label">${txt}</span>`;
     });
   });
 }
@@ -167,12 +175,20 @@ function attachSpritzListener(){
   spritzRef.on('value', s=>updateSpritzUI(s.val()||{}));
 }
 function onSpritzClick(e){
-  const b=e.currentTarget; const player=b.dataset.me; const type=b.dataset.spritz;
+  const b = e.currentTarget;
+  const player = b.dataset.me;
+  const type = b.dataset.spritz; // "call" | "no"
   const ref = db.ref(`spritz/days/${todayKey()}/${player}/${type}`);
-  rippleAt(b,e); audioFeedback(type==='no'?'penalty':'win'); haptics(type==='no'?'penalty':'win');
+
+  // feedback come su Baffalo
+  rippleAt(b, e);
+  flashGray(b);
+  audioFeedback(type==='no' ? 'penalty' : 'win');
+  haptics(type==='no' ? 'penalty' : 'win');
+
+  // segna "usato" il tasto odierno (idempotente)
   ref.transaction(v => v ? v : true);
 }
-
 /* Liquidazione giornaliera */
 async function settleSpritz(){
   const daysSnap = await db.ref('spritz/days').get();
