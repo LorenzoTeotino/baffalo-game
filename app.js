@@ -101,7 +101,7 @@ function renderRace(scoresObj){
     });
   });
 
-  renderDevForm(arr);
+  renderDevForm(arr); // 🚧 DEV – form per modificare manualmente i punteggi (vedi funzione sotto)
 }
 
 /* =========================================================
@@ -140,6 +140,8 @@ function flashGray(btn){
 
 /* =========================================================
    Baffalo – pulsanti punteggio diretto
+   ✅ PUNTEGGI MODIFICABILI DALL'HTML:
+   cambia i data-delta-me / data-delta-target nei bottoni (index.html)
 ========================================================= */
 function applyDelta(player,delta){
   if (!player) return;
@@ -217,33 +219,40 @@ function onSpritzClick(e){
   ref.transaction(v => v ? v : true);
 }
 
-// Liquidazione SOLO di "ieri", una volta sola per ciascun giocatore.
-// Regole: se NON chiami -> -1 ; se NON usi NO -> +2 ; se usi NO -> -2
+/* =========================================================
+   🔧 MODIFICA PUNTEGGI SPRITZETTINO QUI
+   (solo GIORNO PRECEDENTE, una volta sola per giocatore)
+   - se NON chiami  => -1 (cambia qui)
+   - se NON usi NO  => +2 (cambia qui)
+   - se usi NO      => -2 (cambia qui)
+   BASTA cambiare i tre numeri nelle righe sotto.
+========================================================= */
 async function settleSpritz(){
-  const yKey = keyAddDays(todayKey(), -1);                   // ieri (YYYY-MM-DD)
+  const yKey = keyAddDays(todayKey(), -1);     // ieri (YYYY-MM-DD)
 
-  // per evitare doppi conteggi: ultima data già liquidata per ogni player
+  // evita doppi conteggi: ultima data già liquidata per ogni player
   const settledSnap = await db.ref('spritz/settled').get();
   const settled = settledSnap.val() || {};
 
-  // stato di ieri (se nessuno ha premuto, non c'è: tratteremo come "silenzioso")
+  // stato di ieri (se nessuno ha premuto -> oggetto vuoto)
   const daySnap = await db.ref(`spritz/days/${yKey}`).get();
-  const dayState = daySnap.val() || {};                      // es: { Lorenzo: {call:true}, ... }
+  const dayState = daySnap.val() || {};        // { Lorenzo: {call:true}, ... }
 
   const updates = {};
   for (const player of PLAYERS){
-    // se questo player ha già liquidato proprio ieri, salta
-    if (settled[player] === yKey) continue;
+    if (settled[player] === yKey) continue;    // già liquidato ieri → salta
 
-    const st = dayState[player] || {};                      // se mancante: giorno "silenzioso"
+    const st = dayState[player] || {};         // se mancante: giorno silenzioso
     let delta = 0;
-    if (!st.call) delta += -1;                              // non ha chiamato -> -1
-    delta += st.no ? -2 : +2;                               // ha usato NO -> -2, altrimenti +2
+
+    // ⚠️ CAMBIA QUI I VALORI SPRITZETTINO ⚠️
+    if (!st.call) delta += -1;                 // NON ha chiamato  → -1  (modifica qui)
+    delta += st.no ? -2 : +2;                  // NO usato → -2 / NON usato → +2  (modifica qui)
 
     if (delta !== 0){
       await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
     }
-    updates[player] = yKey;                                 // marca "ieri liquidato" per questo player
+    updates[player] = yKey;                    // marca "ieri liquidato"
   }
 
   if (Object.keys(updates).length){
@@ -251,7 +260,7 @@ async function settleSpritz(){
   }
 }
 
-/* Se l’app resta aperta, passa il giorno → ricalcola listener e liquidazione */
+/* Se l’app resta aperta, passa il giorno → liquidazione e listener nuovo */
 setInterval(async ()=>{
   const k = todayKey();
   if (k !== currentDay){
@@ -262,10 +271,11 @@ setInterval(async ()=>{
 }, 60000);
 
 /* =========================================================
-   DEV: Classifica (form numerico) + Reset punteggi
+   🚧 DEV: Classifica (form numerico) + Reset punteggi
+   Commenta le chiamate a queste funzioni se vuoi disattivarle.
 ========================================================= */
 function renderDevForm(sorted){
-  const form = $('#devForm'); if(!form) return;
+  const form = $('#devForm'); if(!form) return;   // se non c'è la sezione DEV, esce
   form.innerHTML = sorted.map(it=>`
     <div class="input-group mb-2">
       <span class="input-group-text">${it.name}</span>
@@ -283,7 +293,8 @@ async function resetScores(){
 }
 
 /* =========================================================
-   DEV: Spritz – reset tasti di OGGI
+   🚧 DEV: Spritz – reset tasti di OGGI
+   (usa i bottoni DEV nelle sezioni Spritz dell'HTML)
 ========================================================= */
 async function resetSpritzToday(player){
   await db.ref(`spritz/days/${todayKey()}/${player}`).remove();
@@ -305,7 +316,7 @@ function bindUI(){
   attachSpritzListener();
   $$('[data-spritz]').forEach(b=>b.addEventListener('click', onSpritzClick));
 
-  // Spritz DEV
+  // 🚧 Spritz DEV – associa i pulsanti di reset
   $$('[data-spritz-dev="me"]').forEach(b=>{
     b.addEventListener('click', async ()=>{
       const me=b.dataset.me;
@@ -318,17 +329,17 @@ function bindUI(){
     });
   });
 
-  // Classifica realtime
+  // Realtime classifica
   db.ref('scores').on('value', s=>renderRace(s.val()||{}));
 
-  // DEV classifica reset
+  // 🚧 Classifica DEV – azzera punteggi
   const resetBtn=$('#resetScores');
   if(resetBtn) resetBtn.addEventListener('click', async ()=>{ if(confirm('Azzero davvero tutti i punteggi?')) await resetScores(); });
 }
 
 async function boot(){
   await ensureInitialScores();
-  await settleSpritz();   // chiudi ieri/arretrati
+  await settleSpritz();   // calcola SOLO il giorno precedente
   bindUI();
   showByHash();
 }
