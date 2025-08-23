@@ -18,7 +18,7 @@ const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const toInt = (v, fb=0) => { const n = parseInt(v,10); return Number.isFinite(n) ? n : fb; };
 
-/* ===== Routing: mostra 1 pagina alla volta (niente scroll tra sezioni) ===== */
+/* ===== Routing: una pagina alla volta ===== */
 function showByHash(){
   const id = (location.hash || '#home').slice(1);
   $$('.view').forEach(v => v.classList.remove('active'));
@@ -28,10 +28,13 @@ function showByHash(){
 window.addEventListener('hashchange', showByHash);
 document.addEventListener('DOMContentLoaded', showByHash);
 
-/* ===== Inizializza /scores se manca ===== */
+/* ===== Init /scores se manca ===== */
 function collectPlayersFromDOM(){
   const s = new Set();
-  $$('.score-btn').forEach(b => { if (b.dataset.me) s.add(b.dataset.me); if (b.dataset.target) s.add(b.dataset.target); });
+  $$('.score-btn').forEach(b => {
+    if (b.dataset.me) s.add(b.dataset.me);
+    if (b.dataset.target) s.add(b.dataset.target);
+  });
   return Array.from(s);
 }
 async function ensureInitialScores(){
@@ -48,19 +51,22 @@ async function ensureInitialScores(){
 
 /* ===== Pedine personalizzate ===== */
 const TOKEN = {
-  "Lorenzo": "👑",
-  "Matteo":  "🎾",   // solo pallina da tennis
-  "Sara":    "🏐",
-  "Ilaria":  "🍹"
+  "Lorenzo":"👑",
+  "Matteo":"🎾",   // pallina
+  "Sara":"🏐",
+  "Ilaria":"🍹"
 };
 
-
-/* ===== Render classifica “corsa” con coppa solo al primo ===== */
+/* ===== Toast punteggi (riuso anche in corsa) ===== */
 let toastRef;
 function showScoreToast(txt){
-  const el = $('#scoreToast'); $('#scoreToastBody').textContent = txt;
-  toastRef = toastRef || new bootstrap.Toast(el); toastRef.show();
+  const el = $('#scoreToast'); if (!el) return;
+  $('#scoreToastBody').textContent = txt;
+  toastRef = toastRef || new bootstrap.Toast(el);
+  toastRef.show();
 }
+
+/* ===== Corsa / Classifica ===== */
 function renderRace(scoresObj){
   const race = $('#race'); if (!race) return;
   const arr = Object.entries(scoresObj||{})
@@ -106,6 +112,54 @@ function renderRace(scoresObj){
   renderDevForm(arr); // aggiorna form DEV
 }
 
+/* ===== Audio + Haptics + Ripple (feedback) ===== */
+// iPhone: Web Vibration API non supportata → la vibrazione funzionerà su Android.
+// Su iOS resta beep + ripple.
+let audioCtx;
+function ensureAudioCtx(){
+  try{
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+  }catch(e){}
+}
+function beep(freq=880, durationMs=90){
+  try{
+    ensureAudioCtx();
+    const t0 = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + durationMs/1000);
+    osc.connect(gain).connect(audioCtx.destination);
+    osc.start();
+    osc.stop(t0 + durationMs/1000);
+  }catch(e){}
+}
+function audioFeedback(kind){ kind==='penalty' ? beep(240,120) : beep(880,90); }
+
+function haptics(kind){
+  if (!('vibrate' in navigator)) return; // iOS non vibra via web
+  if (kind==='penalty') navigator.vibrate([50,40,50]);
+  else navigator.vibrate(25);
+}
+
+function rippleAt(btn, ev){
+  const rect = btn.getBoundingClientRect();
+  const pt = ev.changedTouches ? ev.changedTouches[0] : ev;
+  const x = (pt.clientX || pt.pageX) - rect.left;
+  const y = (pt.clientY || pt.pageY) - rect.top;
+  const s = document.createElement('span');
+  s.className = 'ripple';
+  s.style.left = (x-8)+'px';
+  s.style.top  = (y-8)+'px';
+  s.style.width = s.style.height = '16px';
+  btn.appendChild(s);
+  setTimeout(()=>s.remove(), 520);
+}
+
 /* ===== Punteggi (baffalo) ===== */
 function applyDelta(player,delta){
   if (!player) return;
@@ -116,7 +170,16 @@ function onScoreButtonClick(e){
   const me=b.dataset.me, target=b.dataset.target;
   const dMe=toInt(b.dataset.deltaMe,0), dT=toInt(b.dataset.deltaTarget,0);
   if (!me) return;
-  applyDelta(me,dMe); if (target) applyDelta(target,dT);
+
+  // feedback prima (così è percepito immediatamente)
+  const kind = b.classList.contains('penalty') ? 'penalty' : 'win';
+  rippleAt(b, e);
+  haptics(kind);
+  audioFeedback(kind);
+
+  // applica punteggi
+  applyDelta(me,dMe);
+  if (target) applyDelta(target,dT);
 }
 
 /* ===== Dev: form modifica manuale + reset ===== */
