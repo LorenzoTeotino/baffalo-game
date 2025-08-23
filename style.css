@@ -191,9 +191,90 @@ a.tile, a.tile:visited {
   border-color:#fff;
 }
 
-/* Spazio tra titolo e pills:
-   - allineato per tutte le pagine che usano le sottotabs */
+/* Spazio tra titolo e pills, uniforme in tutte le sezioni con subtabs */
 .descrizione .detail-header { margin-bottom: 12px; }
 .punteggi    .detail-header { margin-bottom: 12px; }
 .spritz      .detail-header { margin-bottom: 12px; }
 .regole      .detail-header { margin-bottom: 12px; }
+
+
+
+/* ======================================================
+   PUNTEGGI — griglia e bottoni grandi per assegnare punti
+   - Usata dentro le pagine .punteggi (tutte le pills)
+   ====================================================== */
+
+/* Contenitore a griglia 2×2 dei bottoni punteggio */
+.score-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;  /* due colonne uguali */
+  gap:12px;
+  padding: 6px 0 16px;
+}
+
+/* Bottone base grande e leggibile */
+.score-btn{
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  min-height:88px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:14px;
+  background:#141414;
+  color:#fff;
+  font-weight:800;
+  text-align:center;
+  padding:14px 10px;
+}
+
+/* Stato “presa” (positivo per me, negativo per l’altro) */
+.score-btn.win{
+  background:#103017;             /* verde scuro */
+  border-color:rgba(0,255,120,.25);
+}
+
+/* Stato “errore” (negativo per me) */
+.score-btn.penalty{
+  background:#2b1414;             /* rosso scuro */
+  border-color:rgba(255,80,80,.25);
+}
+
+/* Riga con il nome del bersaglio (grande e chiaro) */
+.score-btn .who{
+  font-size:20px;
+  letter-spacing:.2px;
+}
+
+/* Riga con il dettaglio dei punteggi (+3/−2, ecc.) */
+.score-btn .delta{
+  margin-top:6px;
+  font-size:14px;
+  opacity:.9;
+}
+
+/* Effetto tap e focus accessibile */
+.score-btn:active{ transform:scale(.995); }
+.score-btn:focus-visible{ outline:2px solid rgba(255,255,255,.45); outline-offset:2px; }
+
+/* Responsive: su schermi molto stretti, bottoni a colonna */
+@media (max-width:360px){
+  .score-grid{ grid-template-columns:1fr; }
+}
+
+
+
+/* ==============================================
+   LISTE “piatte” usate anche per la Classifica
+   ============================================== */
+
+/* Lista semplice a righe con bordo inferiore */
+.menu-list{
+  list-style:none; padding:0; margin:4px 0 24px;
+  background:transparent; border:0; border-radius:0;
+}
+.menu-list li{
+  display:grid; grid-template-columns:1fr auto; gap:12px; align-items:center;
+  padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,.12);
+}
+.menu-list li:last-child{ border-bottom:0; }
+.menu-list .name{ font-weight:800; letter-spacing:.2px; color:#fff; }
+.menu-list .price{ font-weight:900; color:#fff; }
