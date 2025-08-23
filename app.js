@@ -25,13 +25,30 @@ const toInt = (v, fb=0) => { const n = parseInt(v,10); return Number.isFinite(n)
 const PLAYERS = ["Lorenzo","Matteo","Ilaria","Sara"];
 const TOKEN   = { Lorenzo:"👑", Matteo:"🎾", Sara:"🏐", Ilaria:"🍹" };
 
+/* time & format */
+function pad(n){ return String(n).padStart(2,'0'); }
+function fmtTS(ts){
+  const d = new Date(ts);
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
 /* =========================================================
    Router (una vista alla volta, via hash)
 ========================================================= */
+let histRef = null;   // listener attivo per storico corrente
+
 function showByHash(){
   const id = (location.hash || '#home').slice(1);
   $$('.view').forEach(v => v.classList.remove('active'));
   (document.getElementById(id) || document.getElementById('home')).classList.add('active');
+
+  // attach/detach storico
+  if (id.startsWith('storico-')){
+    const player = id.replace('storico-','');
+    attachHistory(player);
+  } else {
+    detachHistory();
+  }
 }
 window.addEventListener('hashchange', showByHash);
 document.addEventListener('DOMContentLoaded', showByHash);
@@ -79,13 +96,13 @@ function renderRace(scoresObj){
     const trophy = rank===1?`<i class="bi bi-trophy-fill trophy ms-1"></i>`:'';
     const aria = `${it.name} ha ${it.pts} punti`;
     return `
-      <div class="lane">
-        <div class="lane-head">
+      <div class="lane" data-open-history="${it.name}">
+        <div class="lane-head" title="Apri storico di ${it.name}">
           <div class="rank-badge ${rankCls}">${rank}</div>
           <div class="lb-name fw-bold">${it.name} ${trophy}</div>
           <div class="lb-score fw-bold">${it.pts}</div>
         </div>
-        <div class="track">
+        <div class="track" title="Apri storico di ${it.name}" data-open-history="${it.name}">
           <button class="jockey ${jockeyRank}" style="left:${left}%"
             data-name="${it.name}" data-pts="${it.pts}" aria-label="${aria}" title="${aria}">
             ${TOKEN[it.name]||"🐎"}
@@ -94,14 +111,24 @@ function renderRace(scoresObj){
       </div>`;
   }).join('');
 
+  // Click su nome/corsia → storico
+  race.querySelectorAll('[data-open-history]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const player = el.getAttribute('data-open-history');
+      location.hash = `#storico-${player}`;
+    });
+  });
+
+  // Click sulla pedina → toast punti (come prima)
   race.querySelectorAll('.jockey').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
       const n = btn.dataset.name, p = toInt(btn.dataset.pts,0);
       showScoreToast(`${n}: ${p} punto${Math.abs(p)===1?'':'i'}`);
     });
   });
 
-  renderDevForm(arr); // 🚧 DEV – form per modificare manualmente i punteggi (vedi funzione sotto)
+  renderDevForm(arr); // 🚧 DEV – form per modificare manualmente i punteggi
 }
 
 /* =========================================================
@@ -139,9 +166,52 @@ function flashGray(btn){
 }
 
 /* =========================================================
-   Baffalo – pulsanti punteggio diretto
-   ✅ PUNTEGGI MODIFICABILI DALL'HTML:
-   cambia i data-delta-me / data-delta-target nei bottoni (index.html)
+   STORICO – scrittura & lettura
+========================================================= */
+function logHistory(player, delta, text, source){
+  const entry = {
+    ts: Date.now(),
+    delta: Number(delta)||0,
+    text: String(text||''),
+    src: source||'',
+  };
+  return db.ref('history/'+player).push(entry);
+}
+
+function detachHistory(){
+  if (histRef){ histRef.off(); histRef = null; }
+}
+
+function attachHistory(player){
+  detachHistory();
+  // ascolta ultimi 200 eventi, in pagina mostriamo dal più recente
+  histRef = db.ref('history/'+player).limitToLast(200);
+  histRef.on('value', snap=>{
+    renderHistory(player, snap.val()||{});
+  });
+}
+
+function renderHistory(player, obj){
+  const list = document.getElementById('history-'+player.toLowerCase());
+  if (!list) return;
+  const rows = Object.values(obj).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  list.innerHTML = rows.map(e=>{
+    const signClass = e.delta>0?'h-pos':(e.delta<0?'h-neg':'h-zero');
+    const signText  = (e.delta>0?'+':'') + (e.delta||0);
+    const when = e.ts ? fmtTS(e.ts) : '';
+    return `
+      <li class="history-item">
+        <div class="h-delta ${signClass}">${signText}</div>
+        <div class="h-text">
+          <div>${e.text||''}</div>
+          <div class="h-time">${when}</div>
+        </div>
+      </li>`;
+  }).join('') || `<li class="history-item"><div class="h-delta h-zero">0</div><div class="h-text">Nessuna voce ancora</div></li>`;
+}
+
+/* =========================================================
+   Baffalo – pulsanti punteggio diretto (con log storico)
 ========================================================= */
 function applyDelta(player,delta){
   if (!player) return;
@@ -153,8 +223,20 @@ function onScoreButtonClick(e){
   const dMe=toInt(b.dataset.deltaMe,0), dT=toInt(b.dataset.deltaTarget,0);
   if(!me) return;
   const kind=b.classList.contains('penalty')?'penalty':'win';
+
   rippleAt(b,e); flashGray(b); haptics(kind); audioFeedback(kind);
-  applyDelta(me,dMe); if(target) applyDelta(target,dT);
+
+  // Applica punteggi
+  applyDelta(me,dMe);
+  if (target) applyDelta(target,dT);
+
+  // Log storico: descrizioni chiare
+  if (kind==='penalty'){
+    if (dMe!==0) logHistory(me, dMe, `Baffalo sbagliato`, 'baffalo');
+  } else {
+    if (dMe!==0) logHistory(me, dMe, `Ha chiamato Baffalo a ${target}`, 'baffalo');
+    if (target && dT!==0) logHistory(target, dT, `Ha subito Baffalo da ${me}`, 'baffalo');
+  }
 }
 
 function decorateBaffaloButtons(){
@@ -168,7 +250,7 @@ function decorateBaffaloButtons(){
 }
 
 /* =========================================================
-   Spritzettino – stato giornaliero + liquidazione
+   Spritzettino – stato giornaliero + liquidazione (con log)
 ========================================================= */
 function dateKey(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
 function todayKey(){ return dateKey(new Date()); }
@@ -219,39 +301,41 @@ function onSpritzClick(e){
   ref.transaction(v => v ? v : true);
 }
 
-/* =========================================================
-   🔧 MODIFICA PUNTEGGI SPRITZETTINO QUI
-   (solo GIORNO PRECEDENTE, una volta sola per giocatore)
-   - se NON chiami  => -1 (cambia qui)
-   - se NON usi NO  => +2 (cambia qui)
-   - se usi NO      => -2 (cambia qui)
-   BASTA cambiare i tre numeri nelle righe sotto.
-========================================================= */
+/* ===== Liquidazione SOLO "ieri" (una volta per player) + LOG storico =====
+   Regole (cambia qui i numeri se vuoi):
+   - se NON chiami  => -1
+   - se NON usi NO  => +2
+   - se usi NO      => -2
+*/
 async function settleSpritz(){
   const yKey = keyAddDays(todayKey(), -1);     // ieri (YYYY-MM-DD)
 
-  // evita doppi conteggi: ultima data già liquidata per ogni player
   const settledSnap = await db.ref('spritz/settled').get();
   const settled = settledSnap.val() || {};
 
-  // stato di ieri (se nessuno ha premuto -> oggetto vuoto)
   const daySnap = await db.ref(`spritz/days/${yKey}`).get();
-  const dayState = daySnap.val() || {};        // { Lorenzo: {call:true}, ... }
+  const dayState = daySnap.val() || {};        // { Nome: {call:true/no:true}, ... }
 
   const updates = {};
   for (const player of PLAYERS){
-    if (settled[player] === yKey) continue;    // già liquidato ieri → salta
+    if (settled[player] === yKey) continue;    // già liquidato ieri
 
     const st = dayState[player] || {};         // se mancante: giorno silenzioso
     let delta = 0;
+    let parts = [];
 
-    // ⚠️ CAMBIA QUI I VALORI SPRITZETTINO ⚠️
-    if (!st.call) delta += -1;                 // NON ha chiamato  → -1  (modifica qui)
-    delta += st.no ? -2 : +2;                  // NO usato → -2 / NON usato → +2  (modifica qui)
+    if (!st.call){ delta += -1; parts.push('non ha chiamato (-1)'); }
+    if (st.no){ delta += -2; parts.push('ha usato NO (-2)'); }
+    else { delta += +2; parts.push('NO non usato (+2)'); }
 
     if (delta !== 0){
       await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
     }
+
+    // Log storico Spritz (ieri)
+    const txt = `Spritz (ieri ${yKey}): ${parts.join('; ')} → totale ${delta>0?`+${delta}`:delta}`;
+    await logHistory(player, delta, txt, 'spritz');
+
     updates[player] = yKey;                    // marca "ieri liquidato"
   }
 
@@ -272,10 +356,9 @@ setInterval(async ()=>{
 
 /* =========================================================
    🚧 DEV: Classifica (form numerico) + Reset punteggi
-   Commenta le chiamate a queste funzioni se vuoi disattivarle.
 ========================================================= */
 function renderDevForm(sorted){
-  const form = $('#devForm'); if(!form) return;   // se non c'è la sezione DEV, esce
+  const form = $('#devForm'); if(!form) return;
   form.innerHTML = sorted.map(it=>`
     <div class="input-group mb-2">
       <span class="input-group-text">${it.name}</span>
@@ -294,7 +377,6 @@ async function resetScores(){
 
 /* =========================================================
    🚧 DEV: Spritz – reset tasti di OGGI
-   (usa i bottoni DEV nelle sezioni Spritz dell'HTML)
 ========================================================= */
 async function resetSpritzToday(player){
   await db.ref(`spritz/days/${todayKey()}/${player}`).remove();
