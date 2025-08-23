@@ -171,3 +171,4 @@ function bindUI(){
 }
 async function boot(){ await ensureInitialScores(); bindUI(); showByHash(); }
 document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
+
