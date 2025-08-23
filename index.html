@@ -303,14 +303,24 @@
         <a class="tab" href="#regole-spritz">Spritzettino</a>
       </nav>
 
-      <!-- Riquadro a paragrafo unico -->
-      <div class="rule-card">
-        <p>
-          <strong>Baffalo</strong>: se vedi un amico che non rispetta la regola (per esempio beve con la mano “sbagliata”),
-          lo indichi con il <strong>gomito</strong> e chiami “Baffalo”. Vale il primo che chiama; se c’è dubbio decide la maggioranza.
-          <strong>Punti:</strong> chiamata giusta = <strong>+3</strong> a chi chiama e <strong>−2</strong> a chi è stato beccato;
-          chiamata sbagliata = <strong>−2</strong> a chi chiama. I punti si sommano nel tempo.
+      <!-- Tile carina con titolo, icona e badge -->
+      <div class="rule-tile">
+        <div class="rt-head">
+          <div class="rt-icon" aria-hidden="true">🦬</div>
+          <h2 class="rt-title">Baffalo</h2>
+        </div>
+        <p class="rt-text">
+          Se vedi un amico che non rispetta la regola (es. beve con la mano “sbagliata”),
+          lo indichi col <strong>gomito</strong> e chiami “Baffalo”. Vale il primo che chiama;
+          se c’è dubbio decide la maggioranza. <strong>Punti:</strong> chiamata giusta
+          <strong>+3</strong> a chi chiama e <strong>−2</strong> a chi è stato beccato;
+          chiamata sbagliata <strong>−2</strong> a chi chiama. I punti si sommano nel tempo.
         </p>
+        <div class="rt-badges">
+          <span class="rt-badge pos">+3 a chi chiama</span>
+          <span class="rt-badge neg">−2 al beccato</span>
+          <span class="rt-badge neg">−2 se sbagli</span>
+        </div>
       </div>
     </div>
   </section>
@@ -323,14 +333,25 @@
         <a class="tab active" href="#regole-spritz">Spritzettino</a>
       </nav>
 
-      <!-- Riquadro a paragrafo unico -->
-      <div class="rule-card">
-        <p>
-          <strong>Spritzettino</strong> funziona a giornate (00:00–23:59): hai due bottoni, <em>Ho chiamato</em> e <em>NO</em>, ciascuno una volta al giorno.
-          A mezzanotte l’app assegna i punti di ieri e resetta i bottoni. <strong>Punti di ieri:</strong> se hai chiamato e <em>non</em> usi NO = <strong>+2</strong>;
-          se hai chiamato e usi NO = <strong>−2</strong>; se non chiami e non usi NO = <strong>+1</strong>;
-          se non chiami e usi NO = <strong>−3</strong>. Tutto viene aggiunto in classifica e nello storico.
+      <!-- Tile carina con titolo, icona e badge -->
+      <div class="rule-tile">
+        <div class="rt-head">
+          <div class="rt-icon" aria-hidden="true">🍹</div>
+          <h2 class="rt-title">Spritzettino</h2>
+        </div>
+        <p class="rt-text">
+          Ogni giorno (00:00–23:59) hai due bottoni: <em>Ho chiamato</em> e <em>NO</em>, una volta al giorno.
+          A mezzanotte l’app assegna i punti di ieri e resetta i bottoni. <strong>Punti di ieri:</strong>
+          se chiami e <em>non</em> usi NO <strong>+2</strong>; se chiami e usi NO <strong>−2</strong>;
+          se non chiami e non usi NO <strong>+1</strong>; se non chiami e usi NO <strong>−3</strong>.
+          Tutto va in classifica e nello storico.
         </p>
+        <div class="rt-badges">
+          <span class="rt-badge pos">+2 chiamato / NO non usato</span>
+          <span class="rt-badge neg">−2 chiamato / NO usato</span>
+          <span class="rt-badge pos">+1 non chiami / NO non usato</span>
+          <span class="rt-badge neg">−3 non chiami / NO usato</span>
+        </div>
       </div>
     </div>
   </section>
