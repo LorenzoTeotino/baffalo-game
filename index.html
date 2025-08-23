@@ -97,14 +97,12 @@
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
 
-      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Lorenzo" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Lorenzo" data-target="Sara"   data-delta-me="+3" data-delta-target="-2">a Sara</button>
         <button class="score-btn win"     data-me="Lorenzo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
         <button class="score-btn penalty" data-me="Lorenzo"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
-      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
@@ -117,15 +115,12 @@
         <a class="tab" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
-
-      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Matteo" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Matteo" data-target="Sara"   data-delta-me="+3" data-delta-target="-2">a Sara</button>
         <button class="score-btn win"     data-me="Matteo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
         <button class="score-btn penalty" data-me="Matteo"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
-      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
@@ -138,15 +133,12 @@
         <a class="tab active" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
-
-      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Ilaria" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Ilaria" data-target="Matteo"  data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Ilaria" data-target="Sara"    data-delta-me="+3" data-delta-target="-2">a Sara</button>
         <button class="score-btn penalty" data-me="Ilaria"                       data-delta-me="-2">Ho sbagliato</button>
       </div>
-      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
@@ -159,15 +151,12 @@
         <a class="tab" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab active" href="#punteggi-sara">Sara</a>
       </nav>
-
-      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Sara" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Sara" data-target="Matteo"  data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Sara" data-target="Ilaria"  data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
         <button class="score-btn penalty" data-me="Sara"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
-      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
@@ -326,84 +315,96 @@
   </section>
 
   <!-- ==================== STORICO (uno per giocatore) ==================== -->
-  <section id="storico-lorenzo" class="view detail storico">
+  <section id="storico-lorenzo" class="view detail storico" data-player="Lorenzo">
     <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Lorenzo</h1></header>
     <div class="detail-wrap">
       <ul class="history-list" id="history-lorenzo"></ul>
 
-      <!-- ============== 🚧 DEV (Storico – cancella) INIZIO ==============
-           COMMENTA QUESTO BLOCCO per nasconderlo in produzione -->
+      <!-- ============== 🚧 DEV (Storico – seleziona/elimina righe) INIZIO ==============
+           COMMENTA QUESTO BLOCCO in produzione -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-lorenzo">
         Storico: strumenti DEV
       </button>
       <div id="histDev-lorenzo" class="collapse mt-2">
-        <div class="d-grid gap-2">
-          <button class="dev-reset" data-history-dev="clear" data-player="Lorenzo" type="button">
-            Cancella storico di Lorenzo [DEV]
-          </button>
+        <div class="history-toolbar d-grid gap-2">
+          <button class="btn btn-secondary" data-history-dev="toggle">Attiva selezione righe [DEV]</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-all">Seleziona tutto [DEV]</button>
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-none">Deseleziona tutto [DEV]</button>
+          </div>
+          <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Storico – cancella) FINE ============== -->
+      <!-- ============== 🚧 DEV (Storico) FINE ============== -->
     </div>
   </section>
 
-  <section id="storico-matteo" class="view detail storico">
+  <section id="storico-matteo" class="view detail storico" data-player="Matteo">
     <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Matteo</h1></header>
     <div class="detail-wrap">
       <ul class="history-list" id="history-matteo"></ul>
 
-      <!-- ============== 🚧 DEV (Storico – cancella) INIZIO ============== -->
+      <!-- 🚧 DEV -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-matteo">
         Storico: strumenti DEV
       </button>
       <div id="histDev-matteo" class="collapse mt-2">
-        <div class="d-grid gap-2">
-          <button class="dev-reset" data-history-dev="clear" data-player="Matteo" type="button">
-            Cancella storico di Matteo [DEV]
-          </button>
+        <div class="history-toolbar d-grid gap-2">
+          <button class="btn btn-secondary" data-history-dev="toggle">Attiva selezione righe [DEV]</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-all">Seleziona tutto [DEV]</button>
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-none">Deseleziona tutto [DEV]</button>
+          </div>
+          <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Storico – cancella) FINE ============== -->
+      <!-- /🚧 DEV -->
     </div>
   </section>
 
-  <section id="storico-ilaria" class="view detail storico">
+  <section id="storico-ilaria" class="view detail storico" data-player="Ilaria">
     <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Ilaria</h1></header>
     <div class="detail-wrap">
       <ul class="history-list" id="history-ilaria"></ul>
 
-      <!-- ============== 🚧 DEV (Storico – cancella) INIZIO ============== -->
+      <!-- 🚧 DEV -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-ilaria">
         Storico: strumenti DEV
       </button>
       <div id="histDev-ilaria" class="collapse mt-2">
-        <div class="d-grid gap-2">
-          <button class="dev-reset" data-history-dev="clear" data-player="Ilaria" type="button">
-            Cancella storico di Ilaria [DEV]
-          </button>
+        <div class="history-toolbar d-grid gap-2">
+          <button class="btn btn-secondary" data-history-dev="toggle">Attiva selezione righe [DEV]</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-all">Seleziona tutto [DEV]</button>
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-none">Deseleziona tutto [DEV]</button>
+          </div>
+          <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Storico – cancella) FINE ============== -->
+      <!-- /🚧 DEV -->
     </div>
   </section>
 
-  <section id="storico-sara" class="view detail storico">
+  <section id="storico-sara" class="view detail storico" data-player="Sara">
     <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Sara</h1></header>
     <div class="detail-wrap">
       <ul class="history-list" id="history-sara"></ul>
 
-      <!-- ============== 🚧 DEV (Storico – cancella) INIZIO ============== -->
+      <!-- 🚧 DEV -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-sara">
         Storico: strumenti DEV
       </button>
       <div id="histDev-sara" class="collapse mt-2">
-        <div class="d-grid gap-2">
-          <button class="dev-reset" data-history-dev="clear" data-player="Sara" type="button">
-            Cancella storico di Sara [DEV]
-          </button>
+        <div class="history-toolbar d-grid gap-2">
+          <button class="btn btn-secondary" data-history-dev="toggle">Attiva selezione righe [DEV]</button>
+          <div class="d-flex gap-2">
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-all">Seleziona tutto [DEV]</button>
+            <button class="btn btn-outline-light flex-fill" data-history-dev="select-none">Deseleziona tutto [DEV]</button>
+          </div>
+          <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Storico – cancella) FINE ============== -->
+      <!-- /🚧 DEV -->
     </div>
   </section>
 
