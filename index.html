@@ -97,11 +97,7 @@
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
 
-      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!!
-           Cambia i valori dei data-delta-* per variare i punti dei bottoni.
-           data-delta-me    = punti per chi preme
-           data-delta-target= punti per il bersaglio
-           Esempio: +3 a ME e -2 al TARGET -->
+      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Lorenzo" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Lorenzo" data-target="Sara"   data-delta-me="+3" data-delta-target="-2">a Sara</button>
@@ -191,7 +187,6 @@
       </div>
 
       <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
-      <!-- Se vuoi nascondere in produzione: COMMENTA tutto questo blocco -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-lorenzo">
         Spritz: strumenti DEV
       </button>
@@ -296,7 +291,6 @@
       <div id="race" class="race" aria-live="polite" aria-label="Corsa live dei giocatori"></div>
 
       <!-- ============== 🚧 DEV (Classifica – edit/azzera) INIZIO ============== -->
-      <!-- Se vuoi nascondere in produzione: COMMENTA tutto questo blocco -->
       <button class="btn btn-outline-warning w-100 mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#devEdit">
         Modifica punteggi (DEV)
       </button>
@@ -328,6 +322,32 @@
         <a class="tab" href="#regole-baffalo">Baffalo</a>
         <a class="tab active" href="#regole-spritz">Spritzettino</a>
       </nav>
+    </div>
+  </section>
+
+  <!-- ==================== STORICO (uno per giocatore) ==================== -->
+  <section id="storico-lorenzo" class="view detail storico">
+    <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Lorenzo</h1></header>
+    <div class="detail-wrap">
+      <ul class="history-list" id="history-lorenzo"></ul>
+    </div>
+  </section>
+  <section id="storico-matteo" class="view detail storico">
+    <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Matteo</h1></header>
+    <div class="detail-wrap">
+      <ul class="history-list" id="history-matteo"></ul>
+    </div>
+  </section>
+  <section id="storico-ilaria" class="view detail storico">
+    <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Ilaria</h1></header>
+    <div class="detail-wrap">
+      <ul class="history-list" id="history-ilaria"></ul>
+    </div>
+  </section>
+  <section id="storico-sara" class="view detail storico">
+    <header class="detail-header"><a class="back" href="#classifica">←</a><h1 class="hero-title">Storico – Sara</h1></header>
+    <div class="detail-wrap">
+      <ul class="history-list" id="history-sara"></ul>
     </div>
   </section>
 
