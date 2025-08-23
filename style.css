@@ -1,14 +1,15 @@
 /* ==============================================================
-   RESET & BASE — stili generici dell'app (corpo, link, contenitore)
+   RESET & BASE — struttura generale e tipografia dell'app
+   - Applica font, colori base e comportamenti globali
    ============================================================== */
 
-/* Rimuove spazi indesiderati e effetti di tap blu su mobile */
+/* Rimuove effetti di tap blu su mobile e imposta il box model coerente */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-/* Imposta altezza piena e evita scroll orizzontale per errori layout */
+/* Imposta altezza piena e previene lo scroll orizzontale accidentale */
 html, body { height: 100%; overflow-x: hidden; }
 
-/* Tema base: sfondo nero, testo bianco, font Montserrat come nel menu */
+/* Tema scuro uniforme e font Montserrat per titoli e testi */
 body {
   margin: 0;
   background: #000;
@@ -16,40 +17,41 @@ body {
   font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 
-/* I link ereditano il colore e non hanno sottolineatura (tile cliccabili) */
+/* Link senza sottolineatura e con colore ereditato (tile cliccabili) */
 a { color: inherit; text-decoration: none; }
 
-/* Cornice “telefono”: limita la larghezza massima su desktop */
+/* Contenitore centrale tipo “telefono” per limitare la larghezza su desktop */
 .phone-frame { max-width: 520px; margin: 0 auto; background: #000; }
 
 
 
 /* =================================================================
-   HOME — griglia verticale di tile con foto (come il menu digitale)
+   HOME — stack verticale di tile fotografiche cliccabili
+   - Ogni link .tile è una card 16:9 con foto e titolo centrale
    ================================================================= */
 
-/* Stack verticale con spaziatura uniforme e padding ai lati */
+/* Colonna con spaziatura uniforme e padding ai lati */
 .stack { display: flex; flex-direction: column; gap: 14px; padding: 14px; }
 
-/* Tile cliccabile a rapporto 16:9 con bordo leggero e overflow nascosto */
+/* Card cliccabile a rapporto 16:9 con bordo sottile e overflow nascosto */
 a.tile, a.tile:visited {
   position: relative; display: block; width: 100%;
-  aspect-ratio: 16/9;                          /* mantiene il rapporto su mobile */
-  height: clamp(200px, 52vw, 420px);           /* minima/fluida/massima */
+  aspect-ratio: 16/9;                      /* mantiene il rapporto su tutti i device */
+  height: clamp(200px, 52vw, 420px);       /* minima/fluida/massima */
   overflow: hidden; color: inherit; border-radius: 0;
   border: 1px solid rgba(255,255,255,.25);
   background: #000;
 }
 
-/* Immagine di sfondo della tile: copre e leggermente “spinta” per look vivid */
+/* Immagine di sfondo della tile: copre l'area e ha un leggero boost cromatico */
 .tile img.photo {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; display: block;
   filter: contrast(1.05) saturate(1.05) brightness(.92);
-  transform: scale(1.02);                      /* lieve zoom per evitare bordi vuoti */
+  transform: scale(1.02);                  /* micro-zoom per evitare bande ai bordi */
 }
 
-/* Velo scuro sopra le foto per rendere leggibile il titolo al centro */
+/* Velo scuro sopra la foto per garantire leggibilità del titolo */
 .tile::before {
   content: "";
   position: absolute; inset: 0;
@@ -60,7 +62,8 @@ a.tile, a.tile:visited {
   pointer-events: none;
 }
 
-/* Titolo centrato sulle tile: MAIUSCOLO, corsivo, bold con contorno */
+/* Titolo centrato sulle tile:
+   - maiuscolo, corsivo, pesante, con contorno e ombra per stacco dalla foto */
 .tile h3 {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   margin: 0; padding: 0 8px;
@@ -68,44 +71,48 @@ a.tile, a.tile:visited {
   font-weight: 900; letter-spacing: 1.2px;
   font-size: clamp(22px, 6.2vw, 40px);
   color: #fff;
-  -webkit-text-stroke: 1.4px rgba(0,0,0,.75);  /* contorno scuro */
-  text-shadow: 0 2px 0 rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.65); /* ombra morbida */
+  -webkit-text-stroke: 1.4px rgba(0,0,0,.75);
+  text-shadow: 0 2px 0 rgba(0,0,0,.65), 0 0 18px rgba(0,0,0,.65);
   text-align: center; line-height: 1.05;
 }
 
-/* Ogni parola su riga separata dove serve (es. Punteggi / Baffalo) */
+/* Forza l'andata a capo su righe separate dove serve (es. "Punteggi" / "Baffalo") */
 .tile h3 .line { display: block; }
 
-/* Micro-feedback al tap e accessibilità focus */
+/* Feedback tattile al tap e focus visibile per accessibilità */
 .tile:active { transform: scale(.995); }
 .tile:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 2px; }
 
 
 
 /* ==========================================================
-   NAVIGAZIONE SENZA JS — mostra la sezione con :target
+   NAVIGAZIONE SENZA JS — usa :target per mostrare la sezione
+   - Home visibile di default, sottopagine visibili quando attive
    ========================================================== */
 
-/* Tutte le view sono nascoste, tranne la home di default */
+/* Tutte le viste partono nascoste */
 .view { display: none; }
+
+/* Home visibile finché non c'è un :target */
 #home.view.default { display: block; }
 
-/* Quando l’URL ha #id, la sezione con quell’id appare */
+/* La sottopagina con id uguale al frammento URL diventa visibile */
 :target.view { display: block; }
 
-/* Se una sottopagina è attiva, la home si nasconde */
+/* Quando una sottopagina è visibile, nasconde la home */
 :target.view ~ #home.view.default { display: none; }
 
 
 
 /* ===============================================================
-   DETTAGLIO (sottopagine) — header con back + titolo centrale fisso
+   DETTAGLIO — barra alta con freccia indietro + titolo centrale
+   - Il titolo resta fisso (“Descrizione”, “Classifica”, …)
    =============================================================== */
 
-/* Contenitore pagina: sfondo nero, altezza piena */
+/* Corpo pagina secondaria con tema scuro e altezza completa */
 .detail { background:#000; color:#fff; min-height:100dvh; }
 
-/* HEADER sticky: barra scura con bordo, contiene back, titolo e tabs */
+/* Barra sticky in alto: contiene back, titolo e (per Descrizione) le pills */
 .detail-header{
   position:sticky; top:0; z-index:10;
   display:flex; align-items:center; gap:12px;
@@ -113,11 +120,11 @@ a.tile, a.tile:visited {
   -webkit-backdrop-filter:saturate(180%) blur(6px);
   backdrop-filter:saturate(180%) blur(6px);
   border-bottom:1px solid rgba(255,255,255,.10);
-  padding:10px 14px;               /* leggermente più compatto del default */
+  padding:10px 14px;                   /* compatto per avvicinare le pills */
   min-height:64px;
 }
 
-/* Bottone “←” rotondo a sinistra (tap area comoda) */
+/* Pulsante indietro rotondo con area di tap comoda */
 .detail-header .back{
   display:inline-grid; place-items:center;
   width:40px; height:40px;
@@ -125,11 +132,14 @@ a.tile, a.tile:visited {
   border:1px solid rgba(255,255,255,.25);
   border-radius:999px;
 }
+
+/* Contorno visibile quando il back è messo a fuoco da tastiera */
 .detail-header .back:focus-visible{
   outline:2px solid rgba(255,255,255,.45); outline-offset:2px;
 }
 
-/* Titolo centrale: MAIUSCOLO corsivo bold, fisso (non cambia tra tabs) */
+/* Titolo centrale fisso:
+   - maiuscolo corsivo pesante; posizionato assolutamente per centrarlo */
 .hero-title{
   position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
   margin:0;
@@ -141,47 +151,48 @@ a.tile, a.tile:visited {
   text-align:center; pointer-events:none; width:80%;
 }
 
-/* Wrapper contenuto sotto l’header */
+/* Wrapper del contenuto sotto la barra (padding laterale standard) */
 .detail-wrap{ padding:0 14px 16px; }
 
 
 
 /* ======================================================
-   SUBTABS (pills) — selector persone in “Descrizione”
+   SUBTABS (pills) — selezione persona dentro “Descrizione”
+   - Contenitore scrollabile e pill con stato attivo
    ====================================================== */
 
-/* Contenitore delle tabs: messo DENTRO l’header per stare “attaccate” in alto */
+/* Contenitore orizzontale delle pill posizionato nell'header (a destra) */
 .detail-header .subtabs{
   display:flex; gap:8px;
-  margin-left:auto;                /* si spingono verso la destra dell’header */
-  padding:0;                       /* senza padding extra: appiccicate al titolo */
+  margin-left:auto;                  /* spinge il gruppo di pill a destra */
+  padding:0;                         /* attaccate alla barra */
   overflow-x:auto;
   -webkit-overflow-scrolling: touch;
 }
 
-/* Nasconde la scrollbar orizzontale su iOS/Chrome mobile */
+/* Nasconde la scrollbar su browser WebKit (iOS/Chrome) */
 .detail-header .subtabs::-webkit-scrollbar{ display:none; }
 
-/* Singola pill: bordo bianco, testo bold; tocco comodo */
+/* Singola pill: chip con bordo e testo bold bianco */
 .detail-header .tab{
   display:inline-block;
   padding:8px 14px;
   border:1px solid rgba(255,255,255,.25);
   border-radius:999px;
-  font-weight:800; letter-spacing:.2px;
+  font-weight:800; letter-spacing:.3px;
   background: transparent;
   color:#fff;
   white-space: nowrap;
 }
 
-/* Stato attivo: pill bianca con testo nero (come nello screenshot) */
+/* Stato selezionato: pill bianca con testo nero */
 .detail-header .tab.active{
   background:#fff;
   color:#000;
   border-color:#fff;
 }
 
-/* Accessibilità focus per tastiera */
+/* Focus tastiera evidente per accessibilità */
 .detail-header .tab:focus-visible{
   outline:2px solid rgba(255,255,255,.45); outline-offset:2px;
 }
