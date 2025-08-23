@@ -47,7 +47,7 @@ a.tile, a.tile:visited {
   pointer-events: none;
 }
 
-/* Titolo sulle tile della home (identico al tuo) */
+/* Titolo sulle tile della home — STESSO STILE DEL MENU DIGITALE */
 .tile h3 {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   margin: 0; padding: 0 8px;
@@ -83,7 +83,7 @@ a.tile, a.tile:visited {
 .detail::before{
   content:"";
   position:absolute; inset:0;
-  background-image:url("img/vite-colorata.jpg"); /* opzionale */
+  background-image:url("img/vite-colorata.jpg"); /* opzionale decor */
   background-repeat:repeat-y;
   background-position:center 72px;
   background-size:min(520px,95%);
@@ -106,7 +106,7 @@ a.tile, a.tile:visited {
   border-bottom:1px solid rgba(255,255,255,.10);
   margin:-16px -16px 12px;
   padding:12px 16px;
-  min-height:64px;
+  min-height:64px;                   /* spazio per il titolo centrato */
 }
 
 /* Bottone indietro */
@@ -119,14 +119,17 @@ a.tile, a.tile:visited {
   outline:2px solid rgba(255,255,255,.45); outline-offset:2px;
 }
 
-/* Titolo centrato e MAIUSCOLO */
+/* Titolo centrato e MAIUSCOLO nelle pagine */
 .hero-title{
   position:absolute; left:50%; top:50%; transform:translate(-50%, -50%);
   margin:0;
-  text-transform:uppercase; font-style:italic;
+  text-transform:uppercase;
+  font-style:italic;
   font-weight:900; letter-spacing:1px;
   font-size:clamp(22px, 5.6vw, 32px);
-  color:#fff; -webkit-text-stroke:0; text-shadow:none;
+  color:#fff;
+  -webkit-text-stroke:0;             /* niente contorno qui */
+  text-shadow:none;                  /* niente ombra qui */
   text-align:center; pointer-events:none; width:80%;
 }
 
