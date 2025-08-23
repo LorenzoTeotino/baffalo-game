@@ -1,11 +1,8 @@
 /* ==========================================================
-   BAFFALO – APP.JS (Firebase + logica punteggi)
-   - Usa i bottoni .score-btn con data-* per applicare i delta
-   - Mantiene /scores nel Realtime Database
-   - Aggiorna #board in tempo reale
+   BAFFALO – APP.JS (Firebase + logica punteggi + reset DEV)
    ========================================================== */
 
-/* 1) Firebase: incolla qui la tua config */
+/* 1) Firebase config (la tua) */
 const firebaseConfig = {
   apiKey: "AIzaSyCc7BW6hHPx5MFcRXBmfJ5MC40j_qtQ5CA",
   authDomain: "baffaloenonsolo.firebaseapp.com",
@@ -17,21 +14,18 @@ const firebaseConfig = {
   measurementId: "G-NFXVQJ2VNF"
 };
 
-/* 2) Init Firebase (SDK v8 namespace) */
+/* 2) Init Firebase (SDK v8) */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 firebase.auth().signInAnonymously().catch(console.error);
 
-/* 3) Utility */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => Array.from(document.querySelectorAll(sel));
-const toInt = (v, fb = 0) => {
-  const n = parseInt(v, 10);
-  return Number.isFinite(n) ? n : fb;
-};
+/* 3) Helpers */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const toInt = (v, fb=0) => Number.isFinite(parseInt(v,10)) ? parseInt(v,10) : fb;
 
-/* 4) Raccogli i giocatori dal DOM (me/target dei bottoni), così non servono liste hardcoded */
-function collectPlayersFromDOM() {
+/* 4) Trova i giocatori leggendo i data-* dei bottoni */
+function collectPlayersFromDOM(){
   const set = new Set();
   $$(".score-btn").forEach(btn => {
     if (btn.dataset.me) set.add(btn.dataset.me);
@@ -40,60 +34,47 @@ function collectPlayersFromDOM() {
   return Array.from(set);
 }
 
-/* 5) Inizializza /scores se vuoto (mette 0 a tutti i player trovati nel DOM) */
-async function ensureInitialScores() {
+/* 5) Inizializza /scores se vuoto o se mancano giocatori */
+async function ensureInitialScores(){
   const players = collectPlayersFromDOM();
-  if (players.length === 0) return;
-
-  const snap = await db.ref("scores").get();
-  if (!snap.exists()) {
-    const init = {};
-    players.forEach(p => (init[p] = 0));
-    await db.ref("scores").set(init);
+  if (!players.length) return;
+  const ref = db.ref("scores");
+  const snap = await ref.get();
+  if (!snap.exists()){
+    const init = {}; players.forEach(p => init[p]=0);
+    await ref.set(init);
   } else {
-    // Se esiste, assicura che eventuali player nuovi siano presenti
     const val = snap.val() || {};
-    let needsUpdate = false;
-    players.forEach(p => {
-      if (typeof val[p] !== "number") {
-        val[p] = 0;
-        needsUpdate = true;
-      }
-    });
-    if (needsUpdate) await db.ref("scores").set(val);
+    let changed = false;
+    players.forEach(p => { if (typeof val[p] !== "number"){ val[p]=0; changed=true; } });
+    if (changed) await ref.set(val);
   }
 }
 
-/* 6) Render Classifica (ordinata per punteggio decrescente, poi per nome) */
-function renderBoard(scores) {
+/* 6) Render Classifica ordinata */
+function renderBoard(scores){
   const board = $("#board");
   if (!board) return;
-
-  const rows = Object.entries(scores || {})
-    .map(([name, pts]) => ({ name, pts: Number(pts) || 0 }))
-    .sort((a, b) => (b.pts - a.pts) || a.name.localeCompare(b.name))
-    .map((item, i) => `
+  const rows = Object.entries(scores||{})
+    .map(([name, pts]) => ({ name, pts: Number(pts)||0 }))
+    .sort((a,b) => (b.pts - a.pts) || a.name.localeCompare(b.name))
+    .map((item,i) => `
       <li>
-        <span class="name">${i + 1}. ${item.name}</span>
+        <span class="name">${i+1}. ${item.name}</span>
         <span class="price">${item.pts}</span>
       </li>
-    `)
-    .join("");
-
+    `).join("");
   board.innerHTML = rows;
 }
 
-/* 7) Applica una variazione a un player con transaction (safe su concorrenti) */
-function applyDelta(player, delta) {
+/* 7) Variazioni punteggio con transaction */
+function applyDelta(player, delta){
   if (!player) return;
-  db.ref("scores/" + player).transaction(cur => (Number(cur) || 0) + toInt(delta, 0));
+  db.ref("scores/"+player).transaction(cur => (Number(cur)||0) + toInt(delta,0));
 }
 
-/* 8) Click handler per TUTTI i bottoni .score-btn
-   - Legge data-me, data-target, data-delta-me, data-delta-target
-   - Esempio: presa = +3 a me / -2 al target; errore = -2 a me
-*/
-function onScoreButtonClick(e) {
+/* 8) Click su qualsiasi .score-btn -> applica i delta */
+function onScoreButtonClick(e){
   const btn = e.currentTarget;
   const me = btn.dataset.me || null;
   const target = btn.dataset.target || null;
@@ -105,32 +86,35 @@ function onScoreButtonClick(e) {
   if (target) applyDelta(target, deltaTarget);
 }
 
-/* 9) Binding eventi e start realtime */
-function bindUI() {
-  // Collega tutti i bottoni di punteggio
-  $$(".score-btn").forEach(btn => btn.addEventListener("click", onScoreButtonClick));
-
-  // Ascolta /scores in realtime per aggiornare la classifica
-  db.ref("scores").on("value", snap => renderBoard(snap.val() || {}));
+/* 9) Reset DEV: azzera tutti i punteggi a 0 */
+async function resetScores(){
+  const players = collectPlayersFromDOM();
+  const zero = {}; players.forEach(p => zero[p]=0);
+  await db.ref("scores").set(zero);
 }
 
-/* 10) Boot */
-async function boot() {
+/* 10) Bind UI + realtime */
+function bindUI(){
+  // Bottoni punteggio
+  $$(".score-btn").forEach(btn => btn.addEventListener("click", onScoreButtonClick));
+
+  // Realtime classifica
+  db.ref("scores").on("value", snap => renderBoard(snap.val()||{}));
+
+  // Bottone DEV azzera
+  const resetBtn = $("#resetScores");
+  if (resetBtn){
+    resetBtn.addEventListener("click", async () => {
+      if (confirm("Azzero davvero tutti i punteggi?")) {
+        await resetScores();
+      }
+    });
+  }
+}
+
+/* 11) Boot */
+async function boot(){
   await ensureInitialScores();
   bindUI();
 }
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", boot);
-} else {
-  boot();
-}
-
-/* ----------------------------------------------------------
-   NOTE:
-   - I valori dei punteggi sono guidati dai data-* nei bottoni:
-     data-delta-me="+3"  data-delta-target="-2"  (presa)
-     data-delta-me="-2"                          (errore)
-   - Per cambiare schema (es. -3 al target), basta cambiare i data-* in index.html.
-   - La classifica (#board) è un <ul> con class "menu-list".
-   ---------------------------------------------------------- */
+document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", boot) : boot();
