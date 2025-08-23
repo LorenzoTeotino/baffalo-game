@@ -40,8 +40,7 @@
     </div>
   </section>
 
-  <!-- ==================== DESCRIZIONE (4 pills) ==================== -->
-  <!-- solo intestazione + pills -->
+  <!-- ==================== DESCRIZIONE ==================== -->
   <section id="descrizione-lorenzo" class="view detail descrizione">
     <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Descrizione</h1></header>
     <div class="detail-wrap">
@@ -88,7 +87,6 @@
   </section>
 
   <!-- ==================== BAFFALO ==================== -->
-  <!-- Bottoni moderni (già con +3/-2 e -2) -->
   <section id="punteggi-lorenzo" class="view detail punteggi">
     <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Baffalo</h1></header>
     <div class="detail-wrap">
@@ -120,7 +118,7 @@
         <button class="score-btn win"     data-me="Matteo" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Matteo" data-target="Sara"   data-delta-me="+3" data-delta-target="-2">a Sara</button>
         <button class="score-btn win"     data-me="Matteo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
-        <button class="score-btn penalty" data-me="Matteo"                       data-delta-me="-2">Ho sbagliato</button>
+        <button class="score-btn penalty" data-me="Matteo"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
     </div>
   </section>
@@ -138,7 +136,7 @@
         <button class="score-btn win"     data-me="Ilaria" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Ilaria" data-target="Matteo"  data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Ilaria" data-target="Sara"    data-delta-me="+3" data-delta-target="-2">a Sara</button>
-        <button class="score-btn penalty" data-me="Ilaria"                        data-delta-me="-2">Ho sbagliato</button>
+        <button class="score-btn penalty" data-me="Ilaria"                       data-delta-me="-2">Ho sbagliato</button>
       </div>
     </div>
   </section>
@@ -156,13 +154,13 @@
         <button class="score-btn win"     data-me="Sara" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Sara" data-target="Matteo"  data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Sara" data-target="Ilaria"  data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
-        <button class="score-btn penalty" data-me="Sara"                       data-delta-me="-2">Ho sbagliato</button>
+        <button class="score-btn penalty" data-me="Sara"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
     </div>
   </section>
 
-  <!-- ==================== SPRITZETTINO (2 bottoni) ==================== -->
-  <!-- call = “ho chiamato lo spritz” ; no = “ho usato il NO” -->
+  <!-- ==================== SPRITZETTINO ==================== -->
+  <!-- Ogni sezione include pannello DEV per resettare i tasti di oggi -->
   <section id="spritz-lorenzo" class="view detail spritz">
     <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Spritzettino</h1></header>
     <div class="detail-wrap">
@@ -175,6 +173,17 @@
       <div class="score-grid">
         <button class="score-btn spritz-call" data-spritz="call" data-me="Lorenzo">Ho chiamato</button>
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Lorenzo">Ho usato NO</button>
+      </div>
+
+      <!-- DEV -->
+      <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-lorenzo">
+        Spritz: strumenti DEV
+      </button>
+      <div id="spritzDev-lorenzo" class="collapse mt-2">
+        <div class="d-grid gap-2">
+          <button class="dev-reset" data-spritz-dev="me"  data-me="Lorenzo" type="button">Reset tasti di OGGI (solo Lorenzo) [DEV]</button>
+          <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
+        </div>
       </div>
     </div>
   </section>
@@ -192,6 +201,17 @@
         <button class="score-btn spritz-call" data-spritz="call" data-me="Matteo">Ho chiamato</button>
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Matteo">Ho usato NO</button>
       </div>
+
+      <!-- DEV -->
+      <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-matteo">
+        Spritz: strumenti DEV
+      </button>
+      <div id="spritzDev-matteo" class="collapse mt-2">
+        <div class="d-grid gap-2">
+          <button class="dev-reset" data-spritz-dev="me"  data-me="Matteo" type="button">Reset tasti di OGGI (solo Matteo) [DEV]</button>
+          <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -208,6 +228,17 @@
         <button class="score-btn spritz-call" data-spritz="call" data-me="Ilaria">Ho chiamato</button>
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Ilaria">Ho usato NO</button>
       </div>
+
+      <!-- DEV -->
+      <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-ilaria">
+        Spritz: strumenti DEV
+      </button>
+      <div id="spritzDev-ilaria" class="collapse mt-2">
+        <div class="d-grid gap-2">
+          <button class="dev-reset" data-spritz-dev="me"  data-me="Ilaria" type="button">Reset tasti di OGGI (solo Ilaria) [DEV]</button>
+          <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -223,6 +254,17 @@
       <div class="score-grid">
         <button class="score-btn spritz-call" data-spritz="call" data-me="Sara">Ho chiamato</button>
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Sara">Ho usato NO</button>
+      </div>
+
+      <!-- DEV -->
+      <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-sara">
+        Spritz: strumenti DEV
+      </button>
+      <div id="spritzDev-sara" class="collapse mt-2">
+        <div class="d-grid gap-2">
+          <button class="dev-reset" data-spritz-dev="me"  data-me="Sara" type="button">Reset tasti di OGGI (solo Sara) [DEV]</button>
+          <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
+        </div>
       </div>
     </div>
   </section>
