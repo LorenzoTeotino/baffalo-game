@@ -4,7 +4,7 @@
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html,body{ height:100%; }
 body{
-  margin:0; background:#000; color:#fff; overflow:hidden;  /* niente scroll di pagina */
+  margin:0; background:#000; color:#fff; overflow:hidden;  /* niente scroll pagina */
   font-family:Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 a{ color:inherit; text-decoration:none; }
@@ -14,18 +14,15 @@ a{ color:inherit; text-decoration:none; }
    HOME – tile fotografiche
 ======================= */
 .stack{ display:flex; flex-direction:column; gap:14px; padding:14px; }
-
 a.tile, a.tile:visited{
   position:relative; display:block; width:100%;
   aspect-ratio:16/9; height:clamp(200px,52vw,420px);
   overflow:hidden; border:1px solid rgba(255,255,255,.25); background:#000;
 }
-
 .tile img.photo{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
   filter:contrast(1.05) saturate(1.05) brightness(.92); transform:scale(1.02);
 }
-
 .tile::before{
   content:""; position:absolute; inset:0;
   background:
@@ -33,7 +30,6 @@ a.tile, a.tile:visited{
     radial-gradient(80% 80% at 50% 20%, rgba(0,0,0,0) 0%, rgba(0,0,0,.45) 100%);
   mix-blend-mode:multiply; pointer-events:none;
 }
-
 .tile h3{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   margin:0; padding:0 8px; text-transform:uppercase; font-style:italic;
@@ -44,14 +40,11 @@ a.tile, a.tile:visited{
 }
 
 /* =======================
-   Pagine (routing a vista unica)
+   Pagine (una vista alla volta)
 ======================= */
 .view{ display:none; }
 .view.active{
-  display:block;
-  position:fixed; inset:0;              /* occupa tutto */
-  overflow-y:auto;                      /* scroll interno alla vista */
-  -webkit-overflow-scrolling:touch;
+  display:block; position:fixed; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
 }
 #home.view.active{ position:fixed; }
 
@@ -59,11 +52,9 @@ a.tile, a.tile:visited{
    Detail (header + titolo)
 ======================= */
 .detail{ background:#000; color:#fff; min-height:100%; }
-
 .detail-header{
   position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:12px;
-  background:rgba(0,0,0,.85);
-  -webkit-backdrop-filter:saturate(180%) blur(6px);
+  background:rgba(0,0,0,.85); -webkit-backdrop-filter:saturate(180%) blur(6px);
   backdrop-filter:saturate(180%) blur(6px);
   border-bottom:1px solid rgba(255,255,255,.10);
   padding:12px 16px; min-height:64px;
@@ -79,17 +70,19 @@ a.tile, a.tile:visited{
 }
 .detail-wrap{ padding:0 14px 16px; }
 
+/* Spazio generale sotto l’header + spazio tra header e pills */
+.detail-header + .detail-wrap{ padding-top:8px; }
+.detail-header + .detail-wrap .subtabs{ margin-top:8px; }
+
 /* =======================
    Subtabs (pills)
 ======================= */
 .subtabs{
   display:flex; gap:8px;
-  padding:2px 0 10px;           /* distacco dal titolo */
-  margin:2px 0 12px;            /* distacco dal contenuto */
+  padding:2px 0 10px; margin:2px 0 12px;
   overflow-x:auto; -webkit-overflow-scrolling:touch;
 }
 .subtabs::-webkit-scrollbar{ display:none; }
-
 .tab{
   display:inline-block; padding:8px 12px;
   border:1px solid rgba(255,255,255,.25);
@@ -98,109 +91,92 @@ a.tile, a.tile:visited{
 }
 .tab.active{ background:#fff; color:#000; border-color:#fff; }
 
-/* Spazio GENERALE sotto il titolo (header) in tutte le pagine */
-.detail-header + .detail-wrap{
-  padding-top: 8px;           /* aria tra la riga e il contenuto (es. Classifica) */
-}
-
-/* Spazio tra titolo e i pills (Descrizione, Baffalo, Regole, Spritzettino) */
-.detail-header + .detail-wrap .subtabs{
-  margin-top: 8px;            /* aumenta se le vuoi ancora più staccate (es. 10–12px) */
-}
-
-
 /* =======================
-   Bottoni Baffalo
+   Baffalo – bottoni “moderni”
 ======================= */
 .score-grid{
-  display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:8px 0 18px;
+  display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:10px 0 18px;
 }
-.score-btn{
-  position:relative;
-  display:flex; flex-direction:column; justify-content:center; align-items:center;
-  min-height:104px; border:0; border-radius:16px; padding:22px 16px;
-  font-weight:800; text-align:center; color:#fff;
-  background:linear-gradient(180deg,#1b1b1b,#0f0f0f);
-  box-shadow:0 10px 28px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.06) inset;
-  transition:transform .06s ease, box-shadow .12s ease, filter .12s ease;
-}
-.score-btn.win{
-  background:linear-gradient(180deg,#0f6f3a,#0a4a29);
-  box-shadow:0 10px 28px rgba(0,180,110,.28), 0 1px 0 rgba(255,255,255,.06) inset;
-}
-.score-btn.penalty{
-  background:linear-gradient(180deg,#7a1f1f,#4a1313);
-  box-shadow:0 10px 28px rgba(255,60,60,.25), 0 1px 0 rgba(255,255,255,.06) inset;
-}
-.score-btn .who{ font-size:22px; letter-spacing:.2px; text-shadow:0 1px 0 rgba(0,0,0,.45); }
-.score-btn:active{ transform:translateY(1px) scale(.995); }
-
-/* Ripple visivo */
-.score-btn .ripple{
-  position:absolute; border-radius:999px; transform:scale(0);
-  background:rgba(255,255,255,.35); pointer-events:none; animation:ripple .5s ease-out forwards;
-}
-@keyframes ripple{ to{ transform:scale(18); opacity:0; } }
 @media(max-width:360px){ .score-grid{ grid-template-columns:1fr; } }
 
-/* =======================
-   Classifica – Corsa
-======================= */
-.race{ display:flex; flex-direction:column; gap:14px; }
-
-.lane{
-  position:relative;
-  background:linear-gradient(180deg,#0c0c0c,#070707);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:14px;
-  padding:12px 12px 16px;
-  box-shadow:0 10px 26px rgba(0,0,0,.28);
+/* Card 3D con glow, border morbido e ripple */
+.score-btn{
+  position:relative; isolation:isolate; overflow:hidden;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  min-height:140px; border-radius:22px; border:1px solid rgba(255,255,255,.14);
+  padding:20px 16px; text-align:center; font-weight:900; letter-spacing:.2px;
+  color:#fff; text-transform:none; font-size:26px; line-height:1.1;
+  background:
+    radial-gradient(120px 120px at 20% 20%, rgba(255,255,255,.08), transparent 60%),
+    linear-gradient(180deg, #171717, #0e0e0e);
+  box-shadow:
+    0 18px 40px rgba(0,0,0,.45),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    inset 0 -6px 24px rgba(0,0,0,.35);
+  transition: transform .06s ease, filter .12s ease, box-shadow .12s ease;
+}
+.score-btn.win{
+  background:
+    radial-gradient(120px 120px at 20% 20%, rgba(255,255,255,.10), transparent 60%),
+    linear-gradient(180deg, #0f5f35, #0a3e22);
+  box-shadow:
+    0 18px 40px rgba(0,170,100,.30),
+    inset 0 1px 0 rgba(255,255,255,.07),
+    inset 0 -6px 24px rgba(0,0,0,.35);
+}
+.score-btn.penalty{
+  background:
+    radial-gradient(120px 120px at 20% 20%, rgba(255,255,255,.08), transparent 60%),
+    linear-gradient(180deg, #6f1c1c, #451010);
+  box-shadow:
+    0 18px 40px rgba(255,70,70,.30),
+    inset 0 1px 0 rgba(255,255,255,.06),
+    inset 0 -6px 24px rgba(0,0,0,.35);
 }
 
+/* token grande sopra, label sotto */
+.score-btn .token{ font-size:48px; line-height:1; margin-bottom:10px; filter:drop-shadow(0 2px 10px rgba(0,0,0,.45)); }
+.score-btn .label{ font-size:24px; }
+
+/* effetto pressione + ripple */
+.score-btn:active{ transform:translateY(1px) scale(.992); }
+.score-btn .ripple{
+  position:absolute; border-radius:999px; transform:scale(0);
+  background:rgba(255,255,255,.35); pointer-events:none; animation:ripple .55s ease-out forwards;
+}
+@keyframes ripple{ to{ transform:scale(20); opacity:0; } }
+
+/* =======================
+   Classifica – Corsa (INVARIATA tranne track/pedina)
+======================= */
+.race{ display:flex; flex-direction:column; gap:14px; }
+.lane{
+  position:relative; background:linear-gradient(180deg,#0c0c0c,#070707);
+  border:1px solid rgba(255,255,255,.12); border-radius:14px;
+  padding:12px 12px 16px; box-shadow:0 10px 26px rgba(0,0,0,.28);
+}
 .lane-head{
   display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; margin-bottom:8px;
 }
-.rank-badge{
-  min-width:32px; height:32px; display:grid; place-items:center;
-  border-radius:999px; font-weight:900; color:#000; background:#fff;
-}
-.rank-1{ background:linear-gradient(90deg,#ffda6b,#ffc107); }
-.rank-2{ background:linear-gradient(90deg,#e0e0e0,#cfd8dc); }
-.rank-3{ background:linear-gradient(90deg,#ffc9a3,#ff9800); }
+.rank-badge{ min-width:32px; height:32px; display:grid; place-items:center; border-radius:999px; font-weight:900; color:#000; background:#fff; }
+.rank-1{ background:linear-gradient(90deg,#ffda6b,#ffc107); } .rank-2{ background:linear-gradient(90deg,#e0e0e0,#cfd8dc); } .rank-3{ background:linear-gradient(90deg,#ffc9a3,#ff9800); }
 .trophy{ color:#ffc107; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 
-/* Pista PIU' BASSA */
 .track{
-  position:relative;
-  height:56px;                                  /* << più bassa */
-  border-radius:12px;
-  background:repeating-linear-gradient(
-    to right,
-    rgba(255,255,255,.06) 0 2px,
-    transparent 2px 10px
-  );
-  border:1px solid rgba(255,255,255,.08);
-  overflow:hidden;
+  position:relative; height:56px; border-radius:12px;
+  background:repeating-linear-gradient(to right, rgba(255,255,255,.06) 0 2px, transparent 2px 10px);
+  border:1px solid rgba(255,255,255,.08); overflow:hidden;
 }
-
-/* Pedina SENZA CERCHIO – solo emoji grande e centrata */
+/* pedina = solo emoji centrata */
 .jockey{
-  position:absolute; top:50%; transform:translate(-50%, -50%); /* centrata verticale */
-  left:50%;                                  /* il JS aggiorna "left:%" in base ai punti */
+  position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);
   background:transparent; border:0; padding:0;
   width:auto; height:auto; display:inline-block;
-  font-size:40px;                             /* grandezza emoji */
-  line-height:1; color:#fff;
-  box-shadow:none;                            /* nessuna ombra/cerchio */
+  font-size:40px; line-height:1; color:#fff; box-shadow:none;
   transition:left .28s ease-out, transform .06s ease;
 }
 .jockey:active{ transform:translate(-50%, -50%) scale(.98); }
-
-/* niente effetti speciali per le posizioni */
-.jockey.rank-1,
-.jockey.rank-2,
-.jockey.rank-3,
-.jockey.rank-n{ box-shadow:none; }
+.jockey.rank-1, .jockey.rank-2, .jockey.rank-3, .jockey.rank-n{ box-shadow:none; }
 
 /* =======================
    Dev controls
