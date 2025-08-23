@@ -1,7 +1,11 @@
-// Lista giocatori
-const PLAYERS = ["Matteo","Sara","Lorenzo","Ilaria"];
+/* ==========================================================
+   BAFFALO – APP.JS (Firebase + logica punteggi)
+   - Usa i bottoni .score-btn con data-* per applicare i delta
+   - Mantiene /scores nel Realtime Database
+   - Aggiorna #board in tempo reale
+   ========================================================== */
 
-// Firebase config (incolla i tuoi valori qui)
+/* 1) Firebase: incolla qui la tua config */
 const firebaseConfig = {
   apiKey: "AIzaSyCc7BW6hHPx5MFcRXBmfJ5MC40j_qtQ5CA",
   authDomain: "baffaloenonsolo.firebaseapp.com",
@@ -12,96 +16,121 @@ const firebaseConfig = {
   appId: "1:687589907379:web:a65a0b4caa81753b31c9c6",
   measurementId: "G-NFXVQJ2VNF"
 };
+
+/* 2) Init Firebase (SDK v8 namespace) */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-firebase.auth().signInAnonymously();
+firebase.auth().signInAnonymously().catch(console.error);
 
-// Nav
-function show(name){
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  document.getElementById("view-"+name).classList.add("active");
-  document.getElementById("btnBack").classList.toggle("hidden", name==="home");
-}
-document.querySelectorAll("[data-open]").forEach(el=>{
-  el.addEventListener("click", ()=> show(el.dataset.open));
-});
-document.getElementById("btnBack").addEventListener("click", ()=> show("home"));
+/* 3) Utility */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+const toInt = (v, fb = 0) => {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) ? n : fb;
+};
 
-// Sblocco
-function refreshLocks(){
-  let unlocked = localStorage.getItem("accepted")==="1";
-  ["punteggi","spritz","classifica","regole"].forEach(id=>{
-    document.getElementById("tile-"+id).classList.toggle("locked", !unlocked);
+/* 4) Raccogli i giocatori dal DOM (me/target dei bottoni), così non servono liste hardcoded */
+function collectPlayersFromDOM() {
+  const set = new Set();
+  $$(".score-btn").forEach(btn => {
+    if (btn.dataset.me) set.add(btn.dataset.me);
+    if (btn.dataset.target) set.add(btn.dataset.target);
   });
+  return Array.from(set);
 }
-document.getElementById("btnUnlock").addEventListener("click", ()=>{
-  localStorage.setItem("accepted","1"); refreshLocks();
-});
-refreshLocks();
 
-// Classifica realtime
-function renderBoard(scores){
-  let arr = Object.entries(scores||{}).map(([p,t])=>({p,t:Number(t)||0}));
-  arr.sort((a,b)=>b.t-a.t);
-  document.getElementById("board").innerHTML =
-    arr.map((s,i)=>`<div class="row"><span>${i+1}. ${s.p}</span><strong>${s.t}</strong></div>`).join("");
-}
-db.ref("scores").on("value", snap=>renderBoard(snap.val()||{}));
+/* 5) Inizializza /scores se vuoto (mette 0 a tutti i player trovati nel DOM) */
+async function ensureInitialScores() {
+  const players = collectPlayersFromDOM();
+  if (players.length === 0) return;
 
-// Inizializza punteggi se vuoti
-(async ()=>{
-  let snap = await db.ref("scores").get();
-  if(!snap.exists()){
-    let init={}; PLAYERS.forEach(p=>init[p]=0);
-    db.ref("scores").set(init);
+  const snap = await db.ref("scores").get();
+  if (!snap.exists()) {
+    const init = {};
+    players.forEach(p => (init[p] = 0));
+    await db.ref("scores").set(init);
+  } else {
+    // Se esiste, assicura che eventuali player nuovi siano presenti
+    const val = snap.val() || {};
+    let needsUpdate = false;
+    players.forEach(p => {
+      if (typeof val[p] !== "number") {
+        val[p] = 0;
+        needsUpdate = true;
+      }
+    });
+    if (needsUpdate) await db.ref("scores").set(val);
   }
-})();
-
-// Selezione giocatori
-let me=null, other=null;
-function renderPlayers(){
-  let meList=document.getElementById("meList");
-  let otherList=document.getElementById("otherList");
-  meList.innerHTML=""; otherList.innerHTML="";
-  PLAYERS.forEach(p=>{
-    let bm=document.createElement("button");
-    bm.textContent=p; bm.className="player";
-    if(p===me) bm.classList.add("active");
-    bm.onclick=()=>{me=p;localStorage.setItem("me",p);renderPlayers()};
-    meList.appendChild(bm);
-
-    let bo=document.createElement("button");
-    bo.textContent=p; bo.className="player";
-    if(p===other) bo.classList.add("active");
-    if(p===me) bo.disabled=true;
-    bo.onclick=()=>{other=p;renderPlayers()};
-    otherList.appendChild(bo);
-  });
-  document.getElementById("meLabel").textContent=me||"—";
-  document.getElementById("otherLabel").textContent=other||"—";
-  let enable=!!(me&&other);
-  document.getElementById("btnBaffaloPreso").disabled=!enable;
-  document.getElementById("btnBaffaloSbagliato").disabled=!enable;
-  document.getElementById("btnPlus").disabled=!me;
-  document.getElementById("btnMinus").disabled=!me;
 }
-me=localStorage.getItem("me")||null;
-renderPlayers();
 
-// Funzioni punteggio
-function applyDelta(player,delta){
-  db.ref("scores/"+player).transaction(cur=>(Number(cur)||0)+delta);
-}
-function actionPreso(){
-  applyDelta(me,3); applyDelta(other,-3);
-}
-function actionSbagliato(){
-  applyDelta(me,-3); applyDelta(other,3);
-}
-function actionPlus(){ applyDelta(me,1); }
-function actionMinus(){ applyDelta(me,-1); }
+/* 6) Render Classifica (ordinata per punteggio decrescente, poi per nome) */
+function renderBoard(scores) {
+  const board = $("#board");
+  if (!board) return;
 
-document.getElementById("btnBaffaloPreso").onclick=actionPreso;
-document.getElementById("btnBaffaloSbagliato").onclick=actionSbagliato;
-document.getElementById("btnPlus").onclick=actionPlus;
-document.getElementById("btnMinus").onclick=actionMinus;
+  const rows = Object.entries(scores || {})
+    .map(([name, pts]) => ({ name, pts: Number(pts) || 0 }))
+    .sort((a, b) => (b.pts - a.pts) || a.name.localeCompare(b.name))
+    .map((item, i) => `
+      <li>
+        <span class="name">${i + 1}. ${item.name}</span>
+        <span class="price">${item.pts}</span>
+      </li>
+    `)
+    .join("");
+
+  board.innerHTML = rows;
+}
+
+/* 7) Applica una variazione a un player con transaction (safe su concorrenti) */
+function applyDelta(player, delta) {
+  if (!player) return;
+  db.ref("scores/" + player).transaction(cur => (Number(cur) || 0) + toInt(delta, 0));
+}
+
+/* 8) Click handler per TUTTI i bottoni .score-btn
+   - Legge data-me, data-target, data-delta-me, data-delta-target
+   - Esempio: presa = +3 a me / -2 al target; errore = -2 a me
+*/
+function onScoreButtonClick(e) {
+  const btn = e.currentTarget;
+  const me = btn.dataset.me || null;
+  const target = btn.dataset.target || null;
+  const deltaMe = toInt(btn.dataset.deltaMe, 0);
+  const deltaTarget = toInt(btn.dataset.deltaTarget, 0);
+
+  if (!me) return;
+  applyDelta(me, deltaMe);
+  if (target) applyDelta(target, deltaTarget);
+}
+
+/* 9) Binding eventi e start realtime */
+function bindUI() {
+  // Collega tutti i bottoni di punteggio
+  $$(".score-btn").forEach(btn => btn.addEventListener("click", onScoreButtonClick));
+
+  // Ascolta /scores in realtime per aggiornare la classifica
+  db.ref("scores").on("value", snap => renderBoard(snap.val() || {}));
+}
+
+/* 10) Boot */
+async function boot() {
+  await ensureInitialScores();
+  bindUI();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
+
+/* ----------------------------------------------------------
+   NOTE:
+   - I valori dei punteggi sono guidati dai data-* nei bottoni:
+     data-delta-me="+3"  data-delta-target="-2"  (presa)
+     data-delta-me="-2"                          (errore)
+   - Per cambiare schema (es. -3 al target), basta cambiare i data-* in index.html.
+   - La classifica (#board) è un <ul> con class "menu-list".
+   ---------------------------------------------------------- */
