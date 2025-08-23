@@ -191,6 +191,8 @@ a.tile, a.tile:visited {
   border-color:#fff;
 }
 
-/* Piccolo distacco subito sotto le pills nella pagina Descrizione */
-.descrizione .subtabs { margin-top: 4px; }
+/* Spazio tra il titolo "DESCRIZIONE" e le pills */
+.descrizione .detail-header { margin-bottom: 12px; }
+.descrizione .subtabs { margin-top: 0; }
+
 
