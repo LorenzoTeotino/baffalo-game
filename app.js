@@ -18,6 +18,9 @@ const $  = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 const toInt = (v, fb=0) => { const n = parseInt(v,10); return Number.isFinite(n) ? n : fb; };
 
+const PLAYERS = ["Lorenzo","Matteo","Ilaria","Sara"];
+const TOKEN   = { Lorenzo:"👑", Matteo:"🎾", Sara:"🏐", Ilaria:"🍹" };
+
 /* ===== Routing ===== */
 function showByHash(){
   const id = (location.hash || '#home').slice(1);
@@ -27,28 +30,21 @@ function showByHash(){
 window.addEventListener('hashchange', showByHash);
 document.addEventListener('DOMContentLoaded', showByHash);
 
-/* ===== Init /scores ===== */
-function collectPlayersFromDOM(){
-  const s = new Set();
-  $$('.score-btn').forEach(b => { if (b.dataset.me) s.add(b.dataset.me); if (b.dataset.target) s.add(b.dataset.target); });
-  return Array.from(s);
-}
+/* ===== Scores init ===== */
 async function ensureInitialScores(){
-  const players = collectPlayersFromDOM(); if (!players.length) return;
-  const ref = db.ref('scores'); const snap = await ref.get();
-  if (!snap.exists()){
-    const init = {}; players.forEach(p => init[p]=0); await ref.set(init);
+  const ref = db.ref('scores');
+  const s = await ref.get();
+  if (!s.exists()){
+    const init={}; PLAYERS.forEach(p=>init[p]=0);
+    await ref.set(init);
   }else{
-    const v = snap.val()||{}; let changed=false;
-    players.forEach(p => { if (typeof v[p] !== 'number'){ v[p]=0; changed=true; } });
+    const v=s.val()||{}; let changed=false;
+    PLAYERS.forEach(p=>{ if(typeof v[p]!=='number'){ v[p]=0; changed=true; } });
     if (changed) await ref.set(v);
   }
 }
 
-/* ===== Pedine (emoji) ===== */
-const TOKEN = { Lorenzo:"👑", Matteo:"🎾", Sara:"🏐", Ilaria:"🍹" };
-
-/* ===== Toast ===== */
+/* ===== Classifica (corsa) ===== */
 let toastRef;
 function showScoreToast(txt){
   const el = $('#scoreToast'); if (!el) return;
@@ -57,12 +53,10 @@ function showScoreToast(txt){
   toastRef.show();
 }
 
-/* ===== Classifica ===== */
 function renderRace(scoresObj){
   const race = $('#race'); if (!race) return;
   const arr = Object.entries(scoresObj||{}).map(([name,pts])=>({name,pts:Number(pts)||0}))
                .sort((a,b)=>(b.pts-a.pts)||a.name.localeCompare(b.name));
-
   const vals = arr.map(x=>x.pts), min = Math.min(...vals,0), max = Math.max(...vals,0);
   const span = (max-min)||1, pct = v => Math.max(6, Math.min(94, Math.round(100*(v-min)/span)));
 
@@ -98,7 +92,7 @@ function renderRace(scoresObj){
   renderDevForm(arr);
 }
 
-/* ===== Feedback (audio+ripple+haptics) ===== */
+/* ===== Feedback (audio + ripple + haptics) ===== */
 let audioCtx;
 function ensureAudioCtx(){ try{ if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==='suspended') audioCtx.resume(); }catch(e){} }
 function beep(freq=880, ms=90){
@@ -121,8 +115,11 @@ function rippleAt(btn, ev){
   btn.appendChild(s); setTimeout(()=>s.remove(),520);
 }
 
-/* ===== Baffalo: bottone → aggiorna punteggi ===== */
-function applyDelta(player,delta){ if(!player) return; db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+toInt(delta,0)); }
+/* ===== Punteggi diretti (Baffalo) ===== */
+function applyDelta(player,delta){
+  if (!player) return;
+  db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+toInt(delta,0));
+}
 function onScoreButtonClick(e){
   const b=e.currentTarget, me=b.dataset.me, target=b.dataset.target;
   const dMe=toInt(b.dataset.deltaMe,0), dT=toInt(b.dataset.deltaTarget,0);
@@ -131,18 +128,101 @@ function onScoreButtonClick(e){
   rippleAt(b,e); haptics(kind); audioFeedback(kind);
   applyDelta(me,dMe); if(target) applyDelta(target,dT);
 }
-
-/* ===== Abbellimento bottoni Baffalo (token + markup) ===== */
-function decorateButtons(){
-  $$('.score-btn').forEach(b=>{
-    // Decidi quale emoji mostrare: target per win, una X per penalty
+function decorateBaffaloButtons(){
+  $$('.score-btn.win, .score-btn.penalty').forEach(b=>{
+    if (b.dataset.decorated) return;
     const token = b.classList.contains('penalty') ? '❌' : (TOKEN[b.dataset.target] || '🎯');
     const label = b.textContent.trim();
     b.innerHTML = `<span class="token">${token}</span><span class="label">${label}</span>`;
+    b.dataset.decorated = "1";
   });
 }
 
-/* ===== Dev ===== */
+/* ===== Spritzettino ===== */
+/* Date helpers (chiave locale YYYY-MM-DD) */
+function dateKey(d){ const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${dd}`; }
+function todayKey(){ return dateKey(new Date()); }
+function keyAddDays(key, delta){
+  const [y,m,d]=key.split('-').map(Number);
+  const dt=new Date(y, m-1, d); dt.setDate(dt.getDate()+delta);
+  return dateKey(dt);
+}
+
+/* UI: blocca/sblocca i due pulsanti di oggi in base allo stato nel DB */
+let spritzRef=null, currentDay=todayKey();
+function updateSpritzUI(dayState){
+  PLAYERS.forEach(p=>{
+    const st = (dayState && dayState[p]) || {};
+    $$(`[data-spritz][data-me="${p}"]`).forEach(btn=>{
+      const type = btn.dataset.spritz;         // "call" | "no"
+      const used = !!st[type];
+      btn.disabled = used;
+      btn.classList.toggle('used', used);
+      // icone e label
+      const base = type==='call' ? '🍹 Ho chiamato' : '🚫 Ho usato NO';
+      const done = type==='call' ? '🍹 Chiamata usata' : '🚫 NO usato';
+      const html = `<span class="token">${type==='call'?'🍹':'🚫'}</span><span class="label">${used?done:base}</span>`;
+      btn.innerHTML = html;
+    });
+  });
+}
+function attachSpritzListener(){
+  if (spritzRef) spritzRef.off();
+  spritzRef = db.ref(`spritz/days/${currentDay}`);
+  spritzRef.on('value', s=>updateSpritzUI(s.val()||{}));
+}
+
+/* Click sui due bottoni (idempotente) */
+function onSpritzClick(e){
+  const b=e.currentTarget; const player=b.dataset.me; const type=b.dataset.spritz; // "call" | "no"
+  const ref = db.ref(`spritz/days/${todayKey()}/${player}/${type}`);
+  rippleAt(b,e); audioFeedback(type==='no'?'penalty':'win'); haptics(type==='no'?'penalty':'win');
+  ref.transaction(v => v ? v : true); // se già true non cambia nulla
+}
+
+/* Liquidazione giornaliera:
+   per ogni giorno non chiuso fino a ieri:
+   - se non ha fatto "call" → -1
+   - se ha usato "no" → -2, altrimenti +2
+*/
+async function settleSpritz(){
+  const daysSnap = await db.ref('spritz/days').get();
+  const days = daysSnap.val() || {};
+  const settledSnap = await db.ref('spritz/settled').get();
+  const settled = settledSnap.val() || {};
+  const yesterday = keyAddDays(todayKey(), -1);
+
+  // prendi tutte le date presenti (<= ieri) e ordinale
+  const keys = Object.keys(days).filter(k => k <= yesterday).sort();
+  if (!keys.length) return;
+
+  for (const player of PLAYERS){
+    // ultima data chiusa per player
+    const last = settled[player] || null;
+    for (const day of keys){
+      if (last && day <= last) continue;
+      const st = (days[day] && days[day][player]) || {};
+      let delta = 0;
+      if (!st.call) delta += -1;      // NON ha chiamato
+      delta += st.no ? -2 : +2;       // NO usato → -2, altrimenti +2
+      if (delta !== 0) await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
+      settled[player] = day;
+    }
+  }
+  await db.ref('spritz/settled').set(settled);
+}
+
+/* Controllo cambio giorno (se l’app resta aperta) */
+setInterval(async ()=>{
+  const k = todayKey();
+  if (k !== currentDay){
+    await settleSpritz();
+    currentDay = k;
+    attachSpritzListener();           // ascolta i bottoni del nuovo giorno
+  }
+}, 60000);
+
+/* ===== Dev: form e reset ===== */
 function renderDevForm(sorted){
   const form = $('#devForm'); if(!form) return;
   form.innerHTML = sorted.map(it=>`
@@ -163,12 +243,25 @@ async function resetScores(){
 
 /* ===== Bind & Boot ===== */
 function bindUI(){
-  decorateButtons();
-  $$('.score-btn').forEach(b=>b.addEventListener('click', onScoreButtonClick));
+  decorateBaffaloButtons();
+  $$('.score-btn.win, .score-btn.penalty').forEach(b=>b.addEventListener('click', onScoreButtonClick));
+
+  // Spritz
+  attachSpritzListener();
+  $$('[data-spritz]').forEach(b=>b.addEventListener('click', onSpritzClick));
+
+  // Classifica realtime
   db.ref('scores').on('value', s=>renderRace(s.val()||{}));
+
+  // DEV reset
   const resetBtn=$('#resetScores');
   if(resetBtn) resetBtn.addEventListener('click', async ()=>{ if(confirm('Azzero davvero tutti i punteggi?')) await resetScores(); });
 }
-async function boot(){ await ensureInitialScores(); bindUI(); showByHash(); }
-document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
 
+async function boot(){
+  await ensureInitialScores();
+  await settleSpritz();   // chiudi ieri (o giorni arretrati)
+  bindUI();
+  showByHash();
+}
+document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
