@@ -48,11 +48,12 @@ async function ensureInitialScores(){
 
 /* ===== Pedine personalizzate ===== */
 const TOKEN = {
-  "Lorenzo":"👑",
-  "Matteo":"🏸🎾",   // racchetta + pallina (padel approx)
-  "Sara":"🏐",
-  "Ilaria":"🍹"
+  "Lorenzo": "👑",
+  "Matteo":  "🎾",   // solo pallina da tennis
+  "Sara":    "🏐",
+  "Ilaria":  "🍹"
 };
+
 
 /* ===== Render classifica “corsa” con coppa solo al primo ===== */
 let toastRef;
