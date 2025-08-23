@@ -116,7 +116,7 @@ a.tile, a.tile:visited{
 /* Responsive */
 @media(max-width:360px){ .score-grid{ grid-template-columns:1fr; } }
 
-/* ===== Classifica – Corsa dei cavalli ===== */
+/* ===== Classifica – Corsa (pedine personalizzate) ===== */
 .race{ display:flex; flex-direction:column; gap:14px; }
 
 /* Singola corsia */
@@ -129,9 +129,9 @@ a.tile, a.tile:visited{
   box-shadow:0 10px 26px rgba(0,0,0,.28);
 }
 
-/* Testata corsia: posizione, nome, punteggio */
+/* Testata corsia: posizione, nome, punteggio (+ eventuale coppa al primo) */
 .lane-head{
-  display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; margin-bottom:8px;
+  display:grid; grid-template-columns:auto 1fr auto auto; align-items:center; gap:10px; margin-bottom:8px;
 }
 .rank-badge{
   min-width:32px; height:32px; display:grid; place-items:center;
@@ -140,6 +140,10 @@ a.tile, a.tile:visited{
 .rank-1{ background:linear-gradient(90deg,#ffda6b,#ffc107); }
 .rank-2{ background:linear-gradient(90deg,#e0e0e0,#cfd8dc); }
 .rank-3{ background:linear-gradient(90deg,#ffc9a3,#ff9800); }
+
+.trophy{
+  color:#ffc107; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6));
+}
 
 /* Pista */
 .track{
@@ -153,13 +157,7 @@ a.tile, a.tile:visited{
   overflow:hidden;
 }
 
-/* Traguardo a destra */
-.finish{
-  position:absolute; right:8px; top:50%; transform:translateY(-50%);
-  font-size:18px; color:#ffc107; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6));
-}
-
-/* Cavallo (pallina cliccabile che si muove) */
+/* Pedina (emoji) */
 .jockey{
   position:absolute; top:50%; transform:translate(-50%, -50%);
   width:48px; height:48px; border-radius:999px;
@@ -175,6 +173,9 @@ a.tile, a.tile:visited{
 .jockey.rank-2{ box-shadow:0 8px 26px rgba(176,190,197,.30); }
 .jockey.rank-3{ box-shadow:0 8px 26px rgba(255,152,0,.30); }
 .jockey.rank-n{ box-shadow:0 8px 26px rgba(30,136,229,.28); }
+
+/* ===== Dev form ===== */
+.dev-form .input-group-text{ min-width:110px; justify-content:center; }
 
 /* ===== Bottone DEV reset ===== */
 .dev-reset{
