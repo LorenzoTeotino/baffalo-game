@@ -14,11 +14,6 @@
   <section id="home" class="view default" aria-label="Categorie">
     <div class="stack">
 
-      <!-- (Opzionale) Logo in cima -->
-      <a class="tile tile--logo" href="#descrizione">
-        <img class="logo" src="img/logo.jpg" alt="Logo">
-      </a>
-
       <!-- DESCRIZIONE -->
       <a class="tile" href="#descrizione">
         <img class="photo" src="img/descrizione.jpg" alt="Descrizione">
@@ -52,51 +47,37 @@
     </div>
   </section>
 
-  <!-- ============== DESCRIZIONE (sottopagina) ============== -->
+  <!-- ============== SOTTOPAGINE (se vuoi navigare senza JS) ============== -->
   <section id="descrizione" class="view detail" aria-label="Descrizione">
     <header class="detail-header">
       <a class="back" href="#home">← Indietro</a>
       <h1 class="hero-title">Descrizione</h1>
     </header>
     <div class="detail-wrap">
-      <p>Benvenuti nel gioco del <strong>Baffalo</strong> per il viaggio in Sardegna. Leggi qui come funziona e poi inizia a giocare dai tile della home.</p>
-      <ul class="menu-list">
-        <li><span class="name">Baffalo preso</span><span class="price">+3 / −3</span></li>
-        <li><span class="name">Baffalo sbagliato</span><span class="price">−3 / +3</span></li>
-        <li><span class="name">Azioni rapide</span><span class="price">±1</span></li>
-      </ul>
+      <p>Testo descrittivo…</p>
     </div>
   </section>
 
-  <!-- ============ PUNTEGGI BAFFALO (sottopagina) ============ -->
   <section id="punteggi-baffalo" class="view detail" aria-label="Punteggi Baffalo">
     <header class="detail-header">
       <a class="back" href="#home">← Indietro</a>
       <h1 class="hero-title">Punteggi Baffalo</h1>
     </header>
     <div class="detail-wrap">
-      <p class="muted">Qui andrà la UI con i bottoni per assegnare i punti (verrà gestita in JS/Firebase).</p>
-      <ul class="menu-list">
-        <li><span class="name">Seleziona TE e l’ALTRO</span><span class="price">—</span></li>
-        <li><span class="name">Baffalo ✅</span><span class="price">+3 / −3</span></li>
-        <li><span class="name">Baffalo ❌</span><span class="price">−3 / +3</span></li>
-        <li><span class="name">+1 / −1</span><span class="price">±1</span></li>
-      </ul>
+      <p>Qui andrà la UI per assegnare i punti.</p>
     </div>
   </section>
 
-  <!-- ============== SPRITZETTINO (sottopagina) ============== -->
   <section id="spritzettino" class="view detail" aria-label="Spritzettino">
     <header class="detail-header">
       <a class="back" href="#home">← Indietro</a>
       <h1 class="hero-title">Spritzettino</h1>
     </header>
     <div class="detail-wrap">
-      <p class="muted">Sezione bonus/mini-gioco (placeholder).</p>
+      <p>Contenuto spritz…</p>
     </div>
   </section>
 
-  <!-- ================== CLASSIFICA (sottopagina) ================== -->
   <section id="classifica" class="view detail" aria-label="Classifica">
     <header class="detail-header">
       <a class="back" href="#home">← Indietro</a>
@@ -104,16 +85,11 @@
     </header>
     <div class="detail-wrap">
       <ul class="menu-list" id="board">
-        <!-- Qui comparirà la classifica live (JS) -->
-        <li><span class="name">Matteo</span><span class="price">0</span></li>
-        <li><span class="name">Sara</span><span class="price">0</span></li>
-        <li><span class="name">Giulia</span><span class="price">0</span></li>
-        <li><span class="name">Luca</span><span class="price">0</span></li>
+        <!-- classifica live qui -->
       </ul>
     </div>
   </section>
 
-  <!-- =================== REGOLE (sottopagina) =================== -->
   <section id="regole" class="view detail" aria-label="Regole">
     <header class="detail-header">
       <a class="back" href="#home">← Indietro</a>
@@ -121,10 +97,8 @@
     </header>
     <div class="detail-wrap">
       <ul class="menu-list">
-        <li><span class="name">Baffalo valido durante il brindisi</span><span class="price">—</span></li>
-        <li><span class="name">Preso: +3 al chiamante, −3 all’altro</span><span class="price">+3/−3</span></li>
-        <li><span class="name">Sbagliato: −3 al chiamante, +3 all’altro</span><span class="price">−3/+3</span></li>
-        <li><span class="name">Contestazioni → si rigioca</span><span class="price">🙂</span></li>
+        <li><span class="name">Baffalo preso</span><span class="price">+3 / −3</span></li>
+        <li><span class="name">Baffalo sbagliato</span><span class="price">−3 / +3</span></li>
       </ul>
     </div>
   </section>
