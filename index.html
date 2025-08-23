@@ -4,125 +4,117 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Baffalo – Sardegna Game</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="app">
-  <header>
-    <div class="bar">
-      <button id="btnBack" class="back hidden" aria-label="Indietro">← Indietro</button>
-      <h1 id="title">Home</h1>
-      <span style="margin-left:auto" id="connBadge" class="badge">offline…</span>
+<main>
+
+  <!-- HOME: tile immagine a tutta larghezza -->
+  <section id="view-home" class="view active" aria-label="Home tiles">
+    <div class="tile big" style="background-image:url('img/descrizione.jpg')" data-open="descrizione">
+      <div class="overlay">DESCRIZIONE</div>
     </div>
-  </header>
 
-  <main>
-    <!-- HOME -->
-    <section id="view-home" class="view active">
-      <div class="grid">
-        <div class="tile" data-open="descrizione">
-          <h3>Descrizione</h3>
-          <div class="center"><div class="title">DESCRIZIONE</div></div>
+    <div id="tile-punteggi" class="tile big locked" style="background-image:url('img/baffalo.jpg')" data-open="punteggi">
+      <div class="overlay">PUNTEGGI&nbsp;BAFFALO</div>
+    </div>
+
+    <div id="tile-spritz" class="tile big locked" style="background-image:url('img/spritz.jpg')" data-open="spritz">
+      <div class="overlay">SPRITZETTINO</div>
+    </div>
+
+    <div id="tile-classifica" class="tile big locked" style="background-image:url('img/classifica.jpg')" data-open="classifica">
+      <div class="overlay">CLASSIFICA</div>
+    </div>
+
+    <div id="tile-regole" class="tile big locked" style="background-image:url('img/regole.jpg')" data-open="regole">
+      <div class="overlay">REGOLE</div>
+    </div>
+  </section>
+
+  <!-- DESCRIZIONE -->
+  <section id="view-descrizione" class="view" aria-label="Descrizione">
+    <div class="card">
+      <h2 class="h">Come funziona</h2>
+      <p>Questo è il gioco del <strong>Baffalo</strong> per il viaggio in Sardegna. All’inizio è visibile solo la Descrizione. Premi <em>Ho capito</em> per sbloccare gli altri tile.</p>
+      <p class="muted">La classifica si aggiorna in <strong>tempo reale</strong> tra tutti i telefoni.</p>
+      <div class="actions">
+        <button id="btnUnlock" class="btn primary">Ho capito, sblocca</button>
+        <button class="btn" data-open="home">Torna ai tile</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PUNTEGGI BAFFALO -->
+  <section id="view-punteggi" class="view" aria-label="Punteggi Baffalo">
+    <div class="card">
+      <div class="row between wrap gap">
+        <div class="pill">Io sono: <strong id="meLabel">—</strong></div>
+        <div class="pill">L'altro: <strong id="otherLabel">—</strong></div>
+      </div>
+
+      <div class="stack m-top">
+        <div>
+          <div class="muted m-bottom-6">Scegli TE</div>
+          <div id="meList" class="players"></div>
         </div>
-        <div class="tile locked" id="tile-punteggi" data-open="punteggi">
-          <h3>Punteggi Baffalo</h3>
-          <div class="center"><div class="title">PUNTEGGI</div></div>
-        </div>
-        <div class="tile locked" id="tile-spritz" data-open="spritz">
-          <h3>Spritzettino</h3>
-          <div class="center"><div class="title">SPRITZ</div></div>
-        </div>
-        <div class="tile locked" id="tile-classifica" data-open="classifica">
-          <h3>Classifica</h3>
-          <div class="center"><div class="title">CLASSIFICA</div></div>
-        </div>
-        <div class="tile locked" id="tile-regole" data-open="regole">
-          <h3>Regole</h3>
-          <div class="center"><div class="title">REGOLE</div></div>
+        <div>
+          <div class="muted m-bottom-6">Scegli L’ALTRO</div>
+          <div id="otherList" class="players"></div>
         </div>
       </div>
-    </section>
 
-    <!-- DESCRIZIONE -->
-    <section id="view-descrizione" class="view">
-      <div class="stack">
-        <div class="card">
-          <h2>Come funziona</h2>
-          <p>Benvenuti nel gioco del <strong>Baffalo</strong> per il viaggio in Sardegna. All'inizio vedi solo questo tile. Quando premi <em>Ho capito</em>, si sbloccheranno gli altri.</p>
-          <div class="actions">
-            <button class="btn primary" id="btnUnlock">Ho capito, sblocca</button>
-            <button class="btn" data-open="home">Torna alla Home</button>
-          </div>
-        </div>
+      <div class="controls">
+        <button id="btnBaffaloPreso" class="good" disabled>✅ Baffalo preso (+3 / −3)</button>
+        <button id="btnBaffaloSbagliato" class="bad" disabled>❌ Baffalo sbagliato (−3 / +3)</button>
+        <button id="btnPlus" class="good" disabled>+1 a me</button>
+        <button id="btnMinus" class="bad" disabled>−1 a me</button>
       </div>
-    </section>
+      <p class="muted hint">I bottoni si attivano quando selezioni entrambi i giocatori.</p>
+    </div>
 
-    <!-- PUNTEGGI -->
-    <section id="view-punteggi" class="view">
-      <div class="stack">
-        <div class="card">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between">
-            <div class="pill">Io sono: <strong id="meLabel">—</strong></div>
-            <div class="pill">L'altro: <strong id="otherLabel">—</strong></div>
-          </div>
-          <div class="stack" style="margin-top:12px">
-            <div>
-              <div class="muted">Scegli TE</div>
-              <div id="meList" class="players"></div>
-            </div>
-            <div>
-              <div class="muted">Scegli L'ALTRO</div>
-              <div id="otherList" class="players"></div>
-            </div>
-          </div>
-          <div class="controls">
-            <button id="btnBaffaloPreso" class="good" disabled>✅ Baffalo preso</button>
-            <button id="btnBaffaloSbagliato" class="bad" disabled>❌ Baffalo sbagliato</button>
-            <button id="btnPlus" class="good" disabled>+1 a me</button>
-            <button id="btnMinus" class="bad" disabled>−1 a me</button>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Ultimi eventi</h3>
-          <div id="feed"></div>
-        </div>
-      </div>
-    </section>
+    <div class="card">
+      <h3 class="h">Ultimi eventi</h3>
+      <div id="feed"></div>
+    </div>
+  </section>
 
-    <!-- CLASSIFICA -->
-    <section id="view-classifica" class="view">
-      <div id="board" class="stack"></div>
-    </section>
+  <!-- CLASSIFICA -->
+  <section id="view-classifica" class="view" aria-label="Classifica">
+    <div id="board" class="stack"></div>
+  </section>
 
-    <!-- SPRITZ -->
-    <section id="view-spritz" class="view">
-      <div class="card">
-        <h2>Spritzettino 🍹</h2>
-        <p class="muted">Mini-gioco/bonus (placeholder).</p>
-      </div>
-    </section>
+  <!-- SPRITZETTINO -->
+  <section id="view-spritz" class="view" aria-label="Spritzettino">
+    <div class="card">
+      <h2 class="h">Spritzettino 🍹</h2>
+      <p class="muted">Mini-gioco/bonus (placeholder per ora).</p>
+    </div>
+  </section>
 
-    <!-- REGOLE -->
-    <section id="view-regole" class="view">
-      <div class="card">
-        <h2>Regole del Baffalo</h2>
-        <ul>
-          <li>Baffalo preso: +3 al chiamante, −3 all'altro.</li>
-          <li>Baffalo sbagliato: −3 al chiamante, +3 all'altro.</li>
-          <li>Bottoni +1/−1 per casi vari.</li>
-        </ul>
-      </div>
-    </section>
-  </main>
-</div>
+  <!-- REGOLE -->
+  <section id="view-regole" class="view" aria-label="Regole">
+    <div class="card">
+      <h2 class="h">Regole del Baffalo</h2>
+      <ul class="rules">
+        <li>Baffalo <strong>preso</strong>: +3 al chiamante, −3 all’altro.</li>
+        <li>Baffalo <strong>sbagliato</strong>: −3 al chiamante, +3 all’altro.</li>
+        <li>Bottoni +1 / −1 per casi extra.</li>
+      </ul>
+    </div>
+  </section>
 
-<div id="toast" class="toast hidden">ok</div>
+</main>
 
-<!-- Firebase SDK -->
+<!-- Toast -->
+<div id="toast" class="toast hidden" role="status" aria-live="polite">OK</div>
+
+<!-- Firebase SDK (compat) -->
 <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.3/firebase-database-compat.js"></script>
 
+<!-- La logica sta tutta in app.js -->
 <script src="app.js"></script>
 </body>
 </html>
