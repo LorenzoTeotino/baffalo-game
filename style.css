@@ -110,6 +110,17 @@ a.tile, a.tile:visited{
     inset 0 -6px 24px rgba(0,0,0,.35);
   transition: transform .06s ease, filter .12s ease, box-shadow .12s ease, opacity .12s ease;
 }
+
+/* Effetto "flash grigio" al click (riuso anche per Spritz) */
+.score-btn.flash::after{
+  content:"";
+  position:absolute; inset:0;
+  background:rgba(255,255,255,.12);
+  border-radius:inherit;
+  animation:flashFade .18s ease-out forwards;
+}
+@keyframes flashFade{ to{ opacity:0; } }
+
 .score-btn .token{ font-size:48px; line-height:1; margin-bottom:10px; filter:drop-shadow(0 2px 10px rgba(0,0,0,.45)); }
 .score-btn .label{ font-size:24px; }
 .score-btn:active{ transform:translateY(1px) scale(.992); }
