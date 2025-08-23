@@ -1,9 +1,11 @@
-/* ============== Reset & base ============== */
+/* =======================
+   Reset & base
+======================= */
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { height: 100%; overflow-x: hidden; }
 body {
   margin: 0;
-  background: #000;
+  background: #000;               /* sfondo home */
   color: #fff;
   font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
@@ -12,7 +14,9 @@ a { color: inherit; text-decoration: none; }
 /* Contenitore tipo telefono */
 .phone-frame { max-width: 520px; margin: 0 auto; background: #000; }
 
-/* ============== HOME – tile con foto ============== */
+/* =======================
+   HOME – tile con foto
+======================= */
 .stack { display: flex; flex-direction: column; gap: 14px; padding: 14px; }
 
 a.tile, a.tile:visited {
@@ -24,6 +28,7 @@ a.tile, a.tile:visited {
   background: #000;
 }
 
+/* immagine tile */
 .tile img.photo {
   position: absolute; inset: 0; width: 100%; height: 100%;
   object-fit: cover; display: block;
@@ -31,6 +36,7 @@ a.tile, a.tile:visited {
   transform: scale(1.02);
 }
 
+/* ombre sopra l'immagine */
 .tile::before {
   content: "";
   position: absolute; inset: 0;
@@ -41,7 +47,7 @@ a.tile, a.tile:visited {
   pointer-events: none;
 }
 
-/* Titolo sulle tile */
+/* Titolo sulle tile (stile identico al tuo menu) */
 .tile h3 {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
   margin: 0; padding: 0 8px;
@@ -58,13 +64,17 @@ a.tile, a.tile:visited {
 .tile:active { transform: scale(.995); }
 .tile:focus-visible { outline: 2px solid rgba(255,255,255,.6); outline-offset: 2px; }
 
-/* ============== Navigazione senza JS ============== */
+/* =======================
+   Navigazione senza JS
+======================= */
 .view { display: none; }
 #home.view.default { display: block; }
 :target.view { display: block; }
 :target.view ~ #home.view.default { display: none; }
 
-/* ============== DETTAGLIO (solo header) ============== */
+/* =======================
+   DETTAGLIO (solo header)
+======================= */
 .detail { background:#000; color:#fff; min-height:100dvh; }
 .detail-header{
   position:sticky; top:0;
@@ -93,4 +103,36 @@ a.tile, a.tile:visited {
   color:#fff;
   -webkit-text-stroke:0; text-shadow:none;
   text-align:center; pointer-events:none; width:80%;
+}
+
+/* =======================
+   Subtabs (pills)
+======================= */
+.detail-wrap{ padding:16px; }
+
+.subtabs{
+  display:flex; gap:8px;
+  padding: 2px 0 10px;
+  margin: 2px 0 12px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+}
+.subtabs::-webkit-scrollbar{ display:none; }
+
+.tab{
+  display:inline-block;
+  padding: 8px 12px;
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:999px;
+  font-weight:800; letter-spacing:.3px;
+  background: transparent;
+  color:#fff;
+  white-space: nowrap;
+}
+.tab:focus-visible{ outline:2px solid rgba(255,255,255,.45); outline-offset:2px; }
+
+.tab.active{
+  background:#fff;
+  color:#000;
+  border-color:#fff;
 }
