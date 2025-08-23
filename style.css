@@ -98,6 +98,17 @@ a.tile, a.tile:visited{
 }
 .tab.active{ background:#fff; color:#000; border-color:#fff; }
 
+/* Spazio GENERALE sotto il titolo (header) in tutte le pagine */
+.detail-header + .detail-wrap{
+  padding-top: 8px;           /* aria tra la riga e il contenuto (es. Classifica) */
+}
+
+/* Spazio tra titolo e i pills (Descrizione, Baffalo, Regole, Spritzettino) */
+.detail-header + .detail-wrap .subtabs{
+  margin-top: 8px;            /* aumenta se le vuoi ancora più staccate (es. 10–12px) */
+}
+
+
 /* =======================
    Bottoni Baffalo
 ======================= */
@@ -198,10 +209,5 @@ a.tile, a.tile:visited{
 .dev-reset{
   border-radius:12px; border:1px dashed rgba(255,80,80,.55);
   background:linear-gradient(180deg,#2a0f0f,#1b0a0a); color:#fff; font-weight:900;
-}
-
-/* Spazio tra titolo (header) e i pills in tutte le viste */
-.detail-header + .detail-wrap .subtabs{
-  margin-top: 4px;   /* identico al distacco che volevi */
 }
 
