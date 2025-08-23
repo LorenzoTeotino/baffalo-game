@@ -1,24 +1,31 @@
-/* ===== Base ===== */
+/* =======================
+   Base
+======================= */
 *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html,body{ height:100%; }
 body{
-  margin:0; background:#000; color:#fff; overflow:hidden; /* niente scroll di pagina */
+  margin:0; background:#000; color:#fff; overflow:hidden;  /* niente scroll di pagina */
   font-family:Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 a{ color:inherit; text-decoration:none; }
 .phone-frame{ max-width:520px; margin:0 auto; background:#000; }
 
-/* ===== Home: tile fotografiche ===== */
+/* =======================
+   HOME – tile fotografiche
+======================= */
 .stack{ display:flex; flex-direction:column; gap:14px; padding:14px; }
+
 a.tile, a.tile:visited{
   position:relative; display:block; width:100%;
   aspect-ratio:16/9; height:clamp(200px,52vw,420px);
   overflow:hidden; border:1px solid rgba(255,255,255,.25); background:#000;
 }
+
 .tile img.photo{
   position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
   filter:contrast(1.05) saturate(1.05) brightness(.92); transform:scale(1.02);
 }
+
 .tile::before{
   content:""; position:absolute; inset:0;
   background:
@@ -26,6 +33,7 @@ a.tile, a.tile:visited{
     radial-gradient(80% 80% at 50% 20%, rgba(0,0,0,0) 0%, rgba(0,0,0,.45) 100%);
   mix-blend-mode:multiply; pointer-events:none;
 }
+
 .tile h3{
   position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
   margin:0; padding:0 8px; text-transform:uppercase; font-style:italic;
@@ -35,21 +43,29 @@ a.tile, a.tile:visited{
   text-align:center; line-height:1.05;
 }
 
-/* ===== "Pagine" (no scroll tra sezioni) ===== */
+/* =======================
+   Pagine (routing a vista unica)
+======================= */
 .view{ display:none; }
 .view.active{
   display:block;
-  position:fixed; inset:0;       /* copre tutto */
-  overflow-y:auto;               /* scroll solo dentro la vista */
+  position:fixed; inset:0;              /* occupa tutto */
+  overflow-y:auto;                      /* scroll interno alla vista */
+  -webkit-overflow-scrolling:touch;
 }
-#home.view.active{ position:fixed; } /* anche la home scorre internamente */
+#home.view.active{ position:fixed; }
 
-/* ===== Detail: header + titolo ===== */
+/* =======================
+   Detail (header + titolo)
+======================= */
 .detail{ background:#000; color:#fff; min-height:100%; }
+
 .detail-header{
   position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:12px;
-  background:rgba(0,0,0,.85); -webkit-backdrop-filter:saturate(180%) blur(6px);
-  backdrop-filter:saturate(180%) blur(6px); border-bottom:1px solid rgba(255,255,255,.10);
+  background:rgba(0,0,0,.85);
+  -webkit-backdrop-filter:saturate(180%) blur(6px);
+  backdrop-filter:saturate(180%) blur(6px);
+  border-bottom:1px solid rgba(255,255,255,.10);
   padding:12px 16px; min-height:64px;
 }
 .detail-header .back{
@@ -63,19 +79,28 @@ a.tile, a.tile:visited{
 }
 .detail-wrap{ padding:0 14px 16px; }
 
-/* ===== Subtabs (pills) ===== */
+/* =======================
+   Subtabs (pills)
+======================= */
 .subtabs{
-  display:flex; gap:8px; padding:2px 0 10px; margin:2px 0 12px;
+  display:flex; gap:8px;
+  padding:2px 0 10px;           /* distacco dal titolo */
+  margin:2px 0 12px;            /* distacco dal contenuto */
   overflow-x:auto; -webkit-overflow-scrolling:touch;
 }
 .subtabs::-webkit-scrollbar{ display:none; }
+
 .tab{
-  display:inline-block; padding:8px 12px; border:1px solid rgba(255,255,255,.25);
-  border-radius:999px; font-weight:800; letter-spacing:.3px; background:transparent; color:#fff; white-space:nowrap;
+  display:inline-block; padding:8px 12px;
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:999px; font-weight:800; letter-spacing:.3px;
+  background:transparent; color:#fff; white-space:nowrap;
 }
 .tab.active{ background:#fff; color:#000; border-color:#fff; }
 
-/* ===== Bottoni Baffalo ===== */
+/* =======================
+   Bottoni Baffalo
+======================= */
 .score-grid{
   display:grid; grid-template-columns:1fr 1fr; gap:14px; padding:8px 0 18px;
 }
@@ -99,7 +124,7 @@ a.tile, a.tile:visited{
 .score-btn .who{ font-size:22px; letter-spacing:.2px; text-shadow:0 1px 0 rgba(0,0,0,.45); }
 .score-btn:active{ transform:translateY(1px) scale(.995); }
 
-/* Ripple */
+/* Ripple visivo */
 .score-btn .ripple{
   position:absolute; border-radius:999px; transform:scale(0);
   background:rgba(255,255,255,.35); pointer-events:none; animation:ripple .5s ease-out forwards;
@@ -107,13 +132,20 @@ a.tile, a.tile:visited{
 @keyframes ripple{ to{ transform:scale(18); opacity:0; } }
 @media(max-width:360px){ .score-grid{ grid-template-columns:1fr; } }
 
-/* ===== Classifica – Corsa ===== */
+/* =======================
+   Classifica – Corsa
+======================= */
 .race{ display:flex; flex-direction:column; gap:14px; }
+
 .lane{
-  position:relative; background:linear-gradient(180deg,#0c0c0c,#070707);
-  border:1px solid rgba(255,255,255,.12); border-radius:14px;
-  padding:12px 12px 16px; box-shadow:0 10px 26px rgba(0,0,0,.28);
+  position:relative;
+  background:linear-gradient(180deg,#0c0c0c,#070707);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:12px 12px 16px;
+  box-shadow:0 10px 26px rgba(0,0,0,.28);
 }
+
 .lane-head{
   display:grid; grid-template-columns:auto 1fr auto; align-items:center; gap:10px; margin-bottom:8px;
 }
@@ -126,29 +158,42 @@ a.tile, a.tile:visited{
 .rank-3{ background:linear-gradient(90deg,#ffc9a3,#ff9800); }
 .trophy{ color:#ffc107; filter:drop-shadow(0 2px 8px rgba(0,0,0,.6)); }
 
+/* Pista PIU' BASSA */
 .track{
-  position:relative; height:68px; border-radius:12px;
-  background:repeating-linear-gradient(to right, rgba(255,255,255,.06) 0 2px, transparent 2px 10px);
-  border:1px solid rgba(255,255,255,.08); overflow:hidden;
+  position:relative;
+  height:56px;                                  /* << più bassa */
+  border-radius:12px;
+  background:repeating-linear-gradient(
+    to right,
+    rgba(255,255,255,.06) 0 2px,
+    transparent 2px 10px
+  );
+  border:1px solid rgba(255,255,255,.08);
+  overflow:hidden;
 }
-/* pedina grande e centrata */
+
+/* Pedina SENZA CERCHIO – solo emoji grande e centrata */
 .jockey{
-  position:absolute; top:50%; transform:translate(-50%, -50%);
-  width:56px; height:56px; border-radius:999px;
-  display:grid; place-items:center; text-align:center;
-  border:1px solid rgba(255,255,255,.18);
-  background:linear-gradient(180deg,#1b1b1b,#0d0d0d);
-  color:#fff; font-size:30px; line-height:1;
-  box-shadow:0 8px 20px rgba(0,0,0,.35), 0 1px 0 rgba(255,255,255,.05) inset;
+  position:absolute; top:50%; transform:translate(-50%, -50%); /* centrata verticale */
+  left:50%;                                  /* il JS aggiorna "left:%" in base ai punti */
+  background:transparent; border:0; padding:0;
+  width:auto; height:auto; display:inline-block;
+  font-size:40px;                             /* grandezza emoji */
+  line-height:1; color:#fff;
+  box-shadow:none;                            /* nessuna ombra/cerchio */
   transition:left .28s ease-out, transform .06s ease;
 }
 .jockey:active{ transform:translate(-50%, -50%) scale(.98); }
-.jockey.rank-1{ box-shadow:0 8px 26px rgba(255,193,7,.35); }
-.jockey.rank-2{ box-shadow:0 8px 26px rgba(176,190,197,.30); }
-.jockey.rank-3{ box-shadow:0 8px 26px rgba(255,152,0,.30); }
-.jockey.rank-n{ box-shadow:0 8px 26px rgba(30,136,229,.28); }
 
-/* Dev */
+/* niente effetti speciali per le posizioni */
+.jockey.rank-1,
+.jockey.rank-2,
+.jockey.rank-3,
+.jockey.rank-n{ box-shadow:none; }
+
+/* =======================
+   Dev controls
+======================= */
 .dev-form .input-group-text{ min-width:110px; justify-content:center; }
 .dev-reset{
   border-radius:12px; border:1px dashed rgba(255,80,80,.55);
