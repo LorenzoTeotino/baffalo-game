@@ -44,11 +44,14 @@ function showByHash(){
 
   // attach/detach storico
   if (id.startsWith('storico-')){
-    const player = id.replace('storico-','');
-    attachHistory(player);
-  } else {
-    detachHistory();
-  }
+  const slug = id.slice('storico-'.length); // es. "lorenzo"
+  // mappa allo spelling ufficiale in PLAYERS (con la maiuscola)
+  const player = PLAYERS.find(p => p.toLowerCase() === slug.toLowerCase()) || slug;
+  attachHistory(player);
+} else {
+  detachHistory();
+}
+
 }
 window.addEventListener('hashchange', showByHash);
 document.addEventListener('DOMContentLoaded', showByHash);
@@ -113,11 +116,12 @@ function renderRace(scoresObj){
 
   // Click su nome/corsia → storico
   race.querySelectorAll('[data-open-history]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      const player = el.getAttribute('data-open-history');
-      location.hash = `#storico-${player}`;
-    });
+  el.addEventListener('click', ()=>{
+    const player = el.getAttribute('data-open-history');
+    location.hash = `#storico-${player.toLowerCase()}`;
   });
+});
+
 
   // Click sulla pedina → toast punti (come prima)
   race.querySelectorAll('.jockey').forEach(btn=>{
