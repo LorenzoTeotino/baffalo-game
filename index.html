@@ -175,7 +175,7 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Lorenzo">Ho usato NO</button>
       </div>
 
-      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
+      <!-- 🚧 DEV Spritz -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-lorenzo">
         Spritz: strumenti DEV
       </button>
@@ -185,7 +185,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
+      <!-- /🚧 DEV Spritz -->
     </div>
   </section>
 
@@ -203,7 +203,7 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Matteo">Ho usato NO</button>
       </div>
 
-      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
+      <!-- 🚧 DEV Spritz -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-matteo">
         Spritz: strumenti DEV
       </button>
@@ -213,7 +213,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
+      <!-- /🚧 DEV Spritz -->
     </div>
   </section>
 
@@ -231,7 +231,7 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Ilaria">Ho usato NO</button>
       </div>
 
-      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
+      <!-- 🚧 DEV Spritz -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-ilaria">
         Spritz: strumenti DEV
       </button>
@@ -241,7 +241,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
+      <!-- /🚧 DEV Spritz -->
     </div>
   </section>
 
@@ -259,7 +259,7 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Sara">Ho usato NO</button>
       </div>
 
-      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
+      <!-- 🚧 DEV Spritz -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-sara">
         Spritz: strumenti DEV
       </button>
@@ -269,7 +269,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
+      <!-- /🚧 DEV Spritz -->
     </div>
   </section>
 
@@ -279,7 +279,7 @@
     <div class="detail-wrap">
       <div id="race" class="race" aria-live="polite" aria-label="Corsa live dei giocatori"></div>
 
-      <!-- ============== 🚧 DEV (Classifica – edit/azzera) INIZIO ============== -->
+      <!-- 🚧 DEV Classifica -->
       <button class="btn btn-outline-warning w-100 mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#devEdit">
         Modifica punteggi (DEV)
       </button>
@@ -290,7 +290,7 @@
           <button id="resetScores" class="dev-reset btn btn-outline-danger" type="button">Azzera punteggi (DEV)</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Classifica) FINE ============== -->
+      <!-- /🚧 DEV Classifica -->
     </div>
   </section>
 
@@ -302,8 +302,19 @@
         <a class="tab active" href="#regole-baffalo">Baffalo</a>
         <a class="tab" href="#regole-spritz">Spritzettino</a>
       </nav>
+
+      <!-- Riquadro a paragrafo unico -->
+      <div class="rule-card">
+        <p>
+          <strong>Baffalo</strong>: se vedi un amico che non rispetta la regola (per esempio beve con la mano “sbagliata”),
+          lo indichi con il <strong>gomito</strong> e chiami “Baffalo”. Vale il primo che chiama; se c’è dubbio decide la maggioranza.
+          <strong>Punti:</strong> chiamata giusta = <strong>+3</strong> a chi chiama e <strong>−2</strong> a chi è stato beccato;
+          chiamata sbagliata = <strong>−2</strong> a chi chiama. I punti si sommano nel tempo.
+        </p>
+      </div>
     </div>
   </section>
+
   <section id="regole-spritz" class="view detail regole">
     <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Regole</h1></header>
     <div class="detail-wrap">
@@ -311,6 +322,16 @@
         <a class="tab" href="#regole-baffalo">Baffalo</a>
         <a class="tab active" href="#regole-spritz">Spritzettino</a>
       </nav>
+
+      <!-- Riquadro a paragrafo unico -->
+      <div class="rule-card">
+        <p>
+          <strong>Spritzettino</strong> funziona a giornate (00:00–23:59): hai due bottoni, <em>Ho chiamato</em> e <em>NO</em>, ciascuno una volta al giorno.
+          A mezzanotte l’app assegna i punti di ieri e resetta i bottoni. <strong>Punti di ieri:</strong> se hai chiamato e <em>non</em> usi NO = <strong>+2</strong>;
+          se hai chiamato e usi NO = <strong>−2</strong>; se non chiami e non usi NO = <strong>+1</strong>;
+          se non chiami e usi NO = <strong>−3</strong>. Tutto viene aggiunto in classifica e nello storico.
+        </p>
+      </div>
     </div>
   </section>
 
@@ -320,8 +341,7 @@
     <div class="detail-wrap">
       <ul class="history-list" id="history-lorenzo"></ul>
 
-      <!-- ============== 🚧 DEV (Storico – seleziona/elimina righe) INIZIO ==============
-           COMMENTA QUESTO BLOCCO in produzione -->
+      <!-- 🚧 DEV Storico -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-lorenzo">
         Storico: strumenti DEV
       </button>
@@ -335,7 +355,7 @@
           <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- ============== 🚧 DEV (Storico) FINE ============== -->
+      <!-- /🚧 DEV Storico -->
     </div>
   </section>
 
@@ -344,7 +364,7 @@
     <div class="detail-wrap">
       <ul class="history-list" id="history-matteo"></ul>
 
-      <!-- 🚧 DEV -->
+      <!-- 🚧 DEV Storico -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-matteo">
         Storico: strumenti DEV
       </button>
@@ -358,7 +378,7 @@
           <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- /🚧 DEV -->
+      <!-- /🚧 DEV Storico -->
     </div>
   </section>
 
@@ -367,7 +387,7 @@
     <div class="detail-wrap">
       <ul class="history-list" id="history-ilaria"></ul>
 
-      <!-- 🚧 DEV -->
+      <!-- 🚧 DEV Storico -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-ilaria">
         Storico: strumenti DEV
       </button>
@@ -381,7 +401,7 @@
           <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- /🚧 DEV -->
+      <!-- /🚧 DEV Storico -->
     </div>
   </section>
 
@@ -390,7 +410,7 @@
     <div class="detail-wrap">
       <ul class="history-list" id="history-sara"></ul>
 
-      <!-- 🚧 DEV -->
+      <!-- 🚧 DEV Storico -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#histDev-sara">
         Storico: strumenti DEV
       </button>
@@ -404,7 +424,7 @@
           <button class="btn btn-danger" data-history-dev="delete-selected">Elimina selezionate [DEV]</button>
         </div>
       </div>
-      <!-- /🚧 DEV -->
+      <!-- /🚧 DEV Storico -->
     </div>
   </section>
 
