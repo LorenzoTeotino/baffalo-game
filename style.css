@@ -1,6 +1,6 @@
 /* ===========================
    RESET & BASE (global)
-   - Tipografia, colori e comportamento generale
+   - Tipografia, colori e comportamento generale dell'app
    =========================== */
 
 /* Box model coerente e rimozione del flash blu al tap su mobile */
@@ -17,7 +17,7 @@ body {
   font-family: Montserrat, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
 }
 
-/* Link “neutri” (usati come tile) */
+/* Link “neutri” (usati anche come tile) */
 a { color: inherit; text-decoration: none; }
 
 /* Contenitore centrale stile “telefono” su desktop */
@@ -105,7 +105,7 @@ a.tile, a.tile:visited {
 
 /* ==========================================================
    DETTAGLIO — barra alta con back + titolo centrale fisso
-   - Le pills NON stanno dentro l’header per evitare sovrapposizioni
+   - Le pills stanno SOTTO l’header per evitare sovrapposizioni
    ========================================================== */
 
 /* Corpo pagina secondaria */
@@ -153,15 +153,15 @@ a.tile, a.tile:visited {
 
 
 /* ======================================================
-   SUBTABS (pills) — riga di selezione per “Descrizione”
-   - Stanno SOTTO l’header, attaccate in alto
+   SUBTABS (pills) — riga di selezione persone
+   - Riutilizzate sia in .descrizione sia in .punteggi
    ====================================================== */
 
 /* Contenitore orizzontale delle pill con scroll laterale */
 .subtabs{
   display:flex; gap:8px;
-  padding: 2px 0 10px;       /* le avvicina all’header ma con un filo di respiro */
-  margin: 2px 0 12px;        /* distacco minimo dal contenuto che segue */
+  padding: 2px 0 10px;      /* respiro interno compatto */
+  margin: 2px 0 12px;       /* distacco minimo dal contenuto seguente */
   overflow-x:auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -191,8 +191,7 @@ a.tile, a.tile:visited {
   border-color:#fff;
 }
 
-/* Spazio tra il titolo "DESCRIZIONE" e le pills */
+/* Spazio tra titolo e pills:
+   - uguale per le pagine Descrizione e Punteggi */
 .descrizione .detail-header { margin-bottom: 12px; }
-.descrizione .subtabs { margin-top: 0; }
-
-
+.punteggi    .detail-header { margin-bottom: 12px; }
