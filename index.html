@@ -96,12 +96,19 @@
         <a class="tab" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
+
+      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!!
+           Cambia i valori dei data-delta-* per variare i punti dei bottoni.
+           data-delta-me    = punti per chi preme
+           data-delta-target= punti per il bersaglio
+           Esempio: +3 a ME e -2 al TARGET -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Lorenzo" data-target="Matteo" data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Lorenzo" data-target="Sara"   data-delta-me="+3" data-delta-target="-2">a Sara</button>
         <button class="score-btn win"     data-me="Lorenzo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
         <button class="score-btn penalty" data-me="Lorenzo"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
+      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
@@ -114,12 +121,15 @@
         <a class="tab" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
+
+      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Matteo" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Matteo" data-target="Sara"   data-delta-me="+3" data-delta-target="-2">a Sara</button>
         <button class="score-btn win"     data-me="Matteo" data-target="Ilaria" data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
         <button class="score-btn penalty" data-me="Matteo"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
+      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
@@ -132,12 +142,15 @@
         <a class="tab active" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab" href="#punteggi-sara">Sara</a>
       </nav>
+
+      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Ilaria" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Ilaria" data-target="Matteo"  data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Ilaria" data-target="Sara"    data-delta-me="+3" data-delta-target="-2">a Sara</button>
         <button class="score-btn penalty" data-me="Ilaria"                       data-delta-me="-2">Ho sbagliato</button>
       </div>
+      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
@@ -150,17 +163,19 @@
         <a class="tab" href="#punteggi-ilaria">Ilaria</a>
         <a class="tab active" href="#punteggi-sara">Sara</a>
       </nav>
+
+      <!-- !!! 🔧 MODIFICA PUNTEGGI BAFFALO QUI (HTML) !!! -->
       <div class="score-grid">
         <button class="score-btn win"     data-me="Sara" data-target="Lorenzo" data-delta-me="+3" data-delta-target="-2">a Lorenzo</button>
         <button class="score-btn win"     data-me="Sara" data-target="Matteo"  data-delta-me="+3" data-delta-target="-2">a Matteo</button>
         <button class="score-btn win"     data-me="Sara" data-target="Ilaria"  data-delta-me="+3" data-delta-target="-2">a Ilaria</button>
         <button class="score-btn penalty" data-me="Sara"                      data-delta-me="-2">Ho sbagliato</button>
       </div>
+      <!-- !!! FINE SEZIONE MODIFICA PUNTEGGI BAFFALO !!! -->
     </div>
   </section>
 
   <!-- ==================== SPRITZETTINO ==================== -->
-  <!-- Ogni sezione include pannello DEV per resettare i tasti di oggi -->
   <section id="spritz-lorenzo" class="view detail spritz">
     <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Spritzettino</h1></header>
     <div class="detail-wrap">
@@ -175,7 +190,8 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Lorenzo">Ho usato NO</button>
       </div>
 
-      <!-- DEV -->
+      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
+      <!-- Se vuoi nascondere in produzione: COMMENTA tutto questo blocco -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-lorenzo">
         Spritz: strumenti DEV
       </button>
@@ -185,6 +201,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
+      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
     </div>
   </section>
 
@@ -202,7 +219,7 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Matteo">Ho usato NO</button>
       </div>
 
-      <!-- DEV -->
+      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-matteo">
         Spritz: strumenti DEV
       </button>
@@ -212,6 +229,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
+      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
     </div>
   </section>
 
@@ -229,7 +247,7 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Ilaria">Ho usato NO</button>
       </div>
 
-      <!-- DEV -->
+      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-ilaria">
         Spritz: strumenti DEV
       </button>
@@ -239,6 +257,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
+      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
     </div>
   </section>
 
@@ -256,7 +275,7 @@
         <button class="score-btn spritz-no"   data-spritz="no"   data-me="Sara">Ho usato NO</button>
       </div>
 
-      <!-- DEV -->
+      <!-- ============== 🚧 DEV (Spritz – reset tasti di OGGI) INIZIO ============== -->
       <button class="btn btn-outline-warning w-100 mt-2" type="button" data-bs-toggle="collapse" data-bs-target="#spritzDev-sara">
         Spritz: strumenti DEV
       </button>
@@ -266,6 +285,7 @@
           <button class="dev-reset" data-spritz-dev="all" type="button">Reset tasti di OGGI (TUTTI) [DEV]</button>
         </div>
       </div>
+      <!-- ============== 🚧 DEV (Spritz) FINE ============== -->
     </div>
   </section>
 
@@ -275,6 +295,8 @@
     <div class="detail-wrap">
       <div id="race" class="race" aria-live="polite" aria-label="Corsa live dei giocatori"></div>
 
+      <!-- ============== 🚧 DEV (Classifica – edit/azzera) INIZIO ============== -->
+      <!-- Se vuoi nascondere in produzione: COMMENTA tutto questo blocco -->
       <button class="btn btn-outline-warning w-100 mt-3" type="button" data-bs-toggle="collapse" data-bs-target="#devEdit">
         Modifica punteggi (DEV)
       </button>
@@ -285,6 +307,7 @@
           <button id="resetScores" class="dev-reset btn btn-outline-danger" type="button">Azzera punteggi (DEV)</button>
         </div>
       </div>
+      <!-- ============== 🚧 DEV (Classifica) FINE ============== -->
     </div>
   </section>
 
