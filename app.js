@@ -217,30 +217,38 @@ function onSpritzClick(e){
   ref.transaction(v => v ? v : true);
 }
 
-/* Liquidazione: calcola i punti dei giorni passati e li accredita */
+// Liquidazione SOLO di "ieri", una volta sola per ciascun giocatore.
+// Regole: se NON chiami -> -1 ; se NON usi NO -> +2 ; se usi NO -> -2
 async function settleSpritz(){
-  const daysSnap = await db.ref('spritz/days').get();
-  const days = daysSnap.val() || {};
+  const yKey = keyAddDays(todayKey(), -1);                   // ieri (YYYY-MM-DD)
+
+  // per evitare doppi conteggi: ultima data già liquidata per ogni player
   const settledSnap = await db.ref('spritz/settled').get();
   const settled = settledSnap.val() || {};
-  const yesterday = keyAddDays(todayKey(), -1);
 
-  const keys = Object.keys(days).filter(k => k <= yesterday).sort();
-  if (!keys.length) return;
+  // stato di ieri (se nessuno ha premuto, non c'è: tratteremo come "silenzioso")
+  const daySnap = await db.ref(`spritz/days/${yKey}`).get();
+  const dayState = daySnap.val() || {};                      // es: { Lorenzo: {call:true}, ... }
 
+  const updates = {};
   for (const player of PLAYERS){
-    const last = settled[player] || null;
-    for (const day of keys){
-      if (last && day <= last) continue;
-      const st = (days[day] && days[day][player]) || {};
-      let delta = 0;
-      if (!st.call) delta += -1;        // non ha chiamato → -1
-      delta += st.no ? -2 : +2;         // ha usato NO → -2, altrimenti +2
-      if (delta !== 0) await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
-      settled[player] = day;
+    // se questo player ha già liquidato proprio ieri, salta
+    if (settled[player] === yKey) continue;
+
+    const st = dayState[player] || {};                      // se mancante: giorno "silenzioso"
+    let delta = 0;
+    if (!st.call) delta += -1;                              // non ha chiamato -> -1
+    delta += st.no ? -2 : +2;                               // ha usato NO -> -2, altrimenti +2
+
+    if (delta !== 0){
+      await db.ref('scores/'+player).transaction(cur => (Number(cur)||0)+delta);
     }
+    updates[player] = yKey;                                 // marca "ieri liquidato" per questo player
   }
-  await db.ref('spritz/settled').set(settled);
+
+  if (Object.keys(updates).length){
+    await db.ref('spritz/settled').update(updates);
+  }
 }
 
 /* Se l’app resta aperta, passa il giorno → ricalcola listener e liquidazione */
