@@ -153,8 +153,8 @@ a.tile, a.tile:visited {
 
 
 /* ======================================================
-   SUBTABS (pills) — riga di selezione persone
-   - Riutilizzate sia in .descrizione sia in .punteggi
+   SUBTABS (pills) — riga di selezione persone / modalità
+   - Riutilizzate in .descrizione, .punteggi, .spritz e .regole
    ====================================================== */
 
 /* Contenitore orizzontale delle pill con scroll laterale */
@@ -192,6 +192,8 @@ a.tile, a.tile:visited {
 }
 
 /* Spazio tra titolo e pills:
-   - uguale per le pagine Descrizione e Punteggi */
+   - allineato per tutte le pagine che usano le sottotabs */
 .descrizione .detail-header { margin-bottom: 12px; }
 .punteggi    .detail-header { margin-bottom: 12px; }
+.spritz      .detail-header { margin-bottom: 12px; }
+.regole      .detail-header { margin-bottom: 12px; }
