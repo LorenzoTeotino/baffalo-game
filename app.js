@@ -477,144 +477,193 @@ async function boot(){
 document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
 
 /* =======================
-   ROULETTE – 20 penitenze
+   ROULETTE – 20 penitenze (misteriosa)
 ======================= */
 
-// 🔧 Modifica qui i testi delle penitenze (devono essere 20)
+// 🔧 Testi penitenze (personalizzali liberamente, 20 voci)
 const ROULETTE_PENALTIES = [
   "Bevi un sorso", "Scambia posto", "Parla in rima per 1 min",
   "Selfie di gruppo", "Complimento a tutti", "Mima un animale",
   "Canta un ritornello", "Dialetto per 2 min", "Fai 10 squat",
   "Toast a caso", "Cambio nickname oggi", "Storia IG del tavolo",
-  "Imita un amico", "Parla solo con gesti 1 min", "Regina/ Re del brindisi",
-  "Racconta un aneddoto", "Ballino di 10 sec", "Rispondi con sì/ no invertiti 1 min",
+  "Imita un amico", "Gesti soltanto per 1 min", "Re/Regina del brindisi",
+  "Racconta un aneddoto", "Ballino di 10 sec", "Sì/No invertiti per 1 min",
   "Sedia musicale (mini)", "Passa il telefono a sinistra"
+];
+
+// Palette brillante (20 colori)
+const WHEEL_COLORS = [
+  "#F94144","#F3722C","#F8961E","#F9844A","#F9C74F",
+  "#90BE6D","#43AA8B","#4D908E","#577590","#277DA1",
+  "#A78BFA","#EC4899","#22D3EE","#34D399","#FB7185",
+  "#F59E0B","#10B981","#60A5FA","#E879F9","#C084FC"
 ];
 
 const WHEEL = {
   el: null, ctx: null,
-  size: 340,   // aggiornato a runtime
-  angle: 0,    // rotazione attuale (radiani)
-  vel: 0,      // velocità angolare
-  last: 0,     // timestamp animazione
+  size: 360, angle: 0, vel: 0, last: 0,
   spinning: false,
-  seg: (2 * Math.PI) / ROULETTE_PENALTIES.length, // ampiezza settore
-  lastTickSeg: null, // per suono/vibrazione ad ogni settore
+  seg: (2*Math.PI)/ROULETTE_PENALTIES.length,
+  lastTickSeg: null
 };
 
-function rouletteDraw() {
-  const { ctx, size, angle, seg } = WHEEL;
-  const r = size / 2;
-  ctx.clearRect(0, 0, size, size);
+function drawWheelBase(angle) {
+  const { ctx, size, seg } = WHEEL;
+  const r = size/2;
   ctx.save();
   ctx.translate(r, r);
   ctx.rotate(angle);
 
-  // settori
-  for (let i = 0; i < ROULETTE_PENALTIES.length; i++) {
+  // Settori colorati (senza testo)
+  for (let i=0;i<ROULETTE_PENALTIES.length;i++){
     ctx.beginPath();
     ctx.moveTo(0,0);
-    ctx.fillStyle = i % 2 === 0 ? "#222d" : "#333d";
-    ctx.arc(0,0, r-6, i*seg, (i+1)*seg);
+    ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
+    ctx.arc(0,0, r-8, i*seg, (i+1)*seg);
     ctx.closePath();
     ctx.fill();
-
-    // linea bordo settore
-    ctx.strokeStyle = "rgba(255,255,255,.10)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(0,0, r-6, i*seg, (i+1)*seg);
-    ctx.stroke();
-
-    // etichette
-    ctx.save();
-    ctx.rotate(i*seg + seg/2);
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillStyle = "#fff";
-    ctx.font = `bold ${Math.max(11, r*0.085)}px Montserrat, system-ui`;
-    ctx.translate((r*0.63), 0);
-    // ombra leggera
-    ctx.shadowColor = "rgba(0,0,0,.45)";
-    ctx.shadowBlur = 6;
-    ctx.fillText(ROULETTE_PENALTIES[i], 0, 0);
-    ctx.restore();
   }
 
-  // mozzo
+  // Sheen/luccichio superiore
+  const sheen = ctx.createRadialGradient(0, -r*0.15, r*0.1, 0, -r*0.15, r*0.9);
+  sheen.addColorStop(0, "rgba(255,255,255,.25)");
+  sheen.addColorStop(0.25, "rgba(255,255,255,.10)");
+  sheen.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.globalCompositeOperation = "overlay";
+  ctx.fillStyle = sheen;
   ctx.beginPath();
-  ctx.fillStyle = "#111";
-  ctx.arc(0,0, r*0.15, 0, Math.PI*2);
+  ctx.arc(0,0, r-10, 0, Math.PI*2);
   ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+
+  // LED ring animato (effetto “chasing”)
+  const leds = 54;
+  for (let k=0;k<leds;k++){
+    const a = k*(2*Math.PI/leds);
+    const x = Math.cos(a)*(r-6);
+    const y = Math.sin(a)*(r-6);
+    const phase = (a + angle*1.6);
+    const bright = (Math.sin(phase*3)+1)/2; // 0..1
+    const col = Math.floor(180 + bright*75);
+    ctx.fillStyle = `rgba(${col},${col},${col},${.55 + bright*.35})`;
+    ctx.beginPath();
+    ctx.arc(x,y, 2.2, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // Mozzo centrale “metal”
+  const hub = ctx.createRadialGradient(0,0, 2, 0,0, r*0.16);
+  hub.addColorStop(0,"#222");
+  hub.addColorStop(1,"#0b0b0b");
+  ctx.fillStyle = hub;
+  ctx.beginPath(); ctx.arc(0,0, r*0.16, 0, Math.PI*2); ctx.fill();
+
+  // Anello metallico interno
+  ctx.strokeStyle = "rgba(255,255,255,.12)";
+  ctx.lineWidth = 10;
+  ctx.beginPath(); ctx.arc(0,0, r-6, 0, Math.PI*2); ctx.stroke();
+
   ctx.restore();
+}
+
+function rouletteDraw() {
+  const { ctx, size, angle, vel } = WHEEL;
+  ctx.clearRect(0,0,size,size);
+
+  // Motion blur leggero quando va veloce
+  const speed = Math.abs(vel);
+  if (speed > 0.08){
+    ctx.globalAlpha = 0.35;
+    drawWheelBase(angle - vel*1.0);
+    ctx.globalAlpha = 0.5;
+    drawWheelBase(angle);
+    ctx.globalAlpha = 0.35;
+    drawWheelBase(angle + vel*1.0);
+    ctx.globalAlpha = 1;
+  } else {
+    drawWheelBase(angle);
+  }
 }
 
 function rouletteResize() {
   const wrap = document.querySelector(".wheel-wrap");
   if (!wrap) return;
-  const s = Math.floor(Math.min(wrap.clientWidth, 480));
+  const s = Math.floor(Math.min(wrap.clientWidth, 520));
   const cvs = document.getElementById("wheelCanvas");
   if (!cvs) return;
-  WHEEL.size = s;
-  cvs.width = s; cvs.height = s;
-  WHEEL.el = cvs;
-  WHEEL.ctx = cvs.getContext("2d");
+  WHEEL.size = s; cvs.width = s; cvs.height = s;
+  WHEEL.el = cvs; WHEEL.ctx = cvs.getContext("2d");
   rouletteDraw();
 }
 
-function rouletteTickSound() {
-  try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "square"; o.frequency.value = 880;
-    g.gain.value = 0.05;
-    o.connect(g); g.connect(ctx.destination);
-    o.start();
-    setTimeout(() => { o.stop(); ctx.close(); }, 60);
-  } catch {}
+function rouletteTickFX() {
+  // piccolo “tick” + vibrazione
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC){
+      const ctx = new AC();
+      const o = ctx.createOscillator(); const g = ctx.createGain();
+      o.type="square"; o.frequency.value=880; g.gain.value=0.05;
+      o.connect(g); g.connect(ctx.destination);
+      o.start(); setTimeout(()=>{o.stop(); ctx.close();},60);
+    }
+  }catch{}
   if (navigator.vibrate) navigator.vibrate(10);
+}
+
+function burstFX(){
+  const container = document.getElementById("wheelBurst");
+  if (!container) return;
+  container.innerHTML="";
+  const N=16;
+  for(let i=0;i<N;i++){
+    const p = document.createElement("span");
+    p.className="p";
+    const ang = (i/N)*Math.PI*2;
+    const dist = 50 + Math.random()*40;
+    p.style.setProperty("--x", `${Math.cos(ang)*dist}px`);
+    p.style.setProperty("--y", `${Math.sin(ang)*dist}px`);
+    container.appendChild(p);
+  }
+  setTimeout(()=>{ container.innerHTML=""; }, 650);
 }
 
 function rouletteAnimate(ts) {
   if (!WHEEL.spinning) return;
   if (!WHEEL.last) WHEEL.last = ts;
-  const dt = Math.min(32, ts - WHEEL.last); // ms
+  const dt = Math.min(32, ts - WHEEL.last);
   WHEEL.last = ts;
 
-  // integrazione semplice
   WHEEL.angle += WHEEL.vel * (dt/16.666);
-  // attrito
-  WHEEL.vel *= 0.985;
+  WHEEL.vel *= 0.985; // attrito
 
   // tick su cambio settore
   const segIndex = ((ROULETTE_PENALTIES.length * ((WHEEL.angle % (2*Math.PI))+2*Math.PI)) / (2*Math.PI)) | 0;
   if (segIndex !== WHEEL.lastTickSeg) {
     WHEEL.lastTickSeg = segIndex;
-    rouletteTickSound();
+    rouletteTickFX();
   }
 
   rouletteDraw();
 
   if (Math.abs(WHEEL.vel) < 0.002) {
-    // fermo: snap al centro del settore più vicino
-    WHEEL.spinning = false;
-    WHEEL.last = 0;
-
+    // fermo: calcolo settore sotto al puntatore (in alto)
+    WHEEL.spinning = false; WHEEL.last = 0;
     const norm = ((WHEEL.angle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
-    const pointerAngle = (3*Math.PI/2); // il triangolino è in alto (270°)
+    const pointerAngle = (3*Math.PI/2); // 270°
     const rel = (pointerAngle - norm + 2*Math.PI) % (2*Math.PI);
     const index = Math.floor(rel / WHEEL.seg) % ROULETTE_PENALTIES.length;
-
     const text = ROULETTE_PENALTIES[index];
+
+    // FX
+    burstFX();
+
+    // Modal Bootstrap (rivelazione “misteriosa”)
     const out = document.getElementById("rouletteResult");
-    if (out) out.textContent = `Penitenza: ${text}`;
-    // se hai già un toast Bootstrap in app: lo riuso
-    const toastBody = document.getElementById("scoreToastBody");
-    const toastEl   = document.getElementById("scoreToast");
-    if (toastBody && toastEl && window.bootstrap) {
-      toastBody.textContent = `🎯 ${text}`;
-      new bootstrap.Toast(toastEl).show();
+    if (out) out.textContent = text;
+    const modalEl = document.getElementById("rouletteModal");
+    if (modalEl && window.bootstrap){
+      new bootstrap.Modal(modalEl).show();
     }
     return;
   }
@@ -622,9 +671,7 @@ function rouletteAnimate(ts) {
 }
 
 function rouletteSpinRandom() {
-  if (!WHEEL.ctx) return;
-  if (WHEEL.spinning) return;
-  // velocità iniziale casuale (in rad/frame)
+  if (!WHEEL.ctx || WHEEL.spinning) return;
   WHEEL.vel = (Math.random()*0.35 + 0.25) * (Math.random() < 0.5 ? -1 : 1);
   WHEEL.spinning = true; WHEEL.last = 0;
   requestAnimationFrame(rouletteAnimate);
@@ -656,7 +703,7 @@ function rouletteAttachGestures() {
     const a = angleFrom(x,y);
     const delta = a - lastAngle;
     WHEEL.angle += delta;
-    WHEEL.vel = delta; // stima grezza, raffinata allo "end"
+    WHEEL.vel = delta;
     lastAngle = a;
     rouletteDraw();
   };
@@ -664,11 +711,9 @@ function rouletteAttachGestures() {
     if (!dragging) return;
     const now = Date.now();
     const dt = Math.max(1, now - lastTime);
-    // piccola spinta finale
-    WHEEL.vel *= Math.min(3, 16/dt) * 1.5;
+    WHEEL.vel *= Math.min(3, 16/dt) * 1.5; // piccola spinta finale
     dragging = false;
     if (Math.abs(WHEEL.vel) < 0.02) {
-      // se troppo lenta, spin random
       rouletteSpinRandom();
     } else {
       WHEEL.spinning = true; WHEEL.last = 0;
@@ -677,19 +722,11 @@ function rouletteAttachGestures() {
   };
 
   // Touch
-  cvs.addEventListener("touchstart", e => {
-    const t = e.touches[0]; start(t.clientX, t.clientY);
-  }, {passive:true});
-  cvs.addEventListener("touchmove", e => {
-    const t = e.touches[0]; move(t.clientX, t.clientY);
-  }, {passive:true});
-  cvs.addEventListener("touchend", e => {
-    const t = e.changedTouches[0] || e.touches[0]; 
-    const x = t ? t.clientX : 0, y = t ? t.clientY : 0;
-    end(x,y);
-  });
+  cvs.addEventListener("touchstart", e => { const t=e.touches[0]; start(t.clientX,t.clientY); }, {passive:true});
+  cvs.addEventListener("touchmove",  e => { const t=e.touches[0]; move(t.clientX,t.clientY); }, {passive:true});
+  cvs.addEventListener("touchend",   e => { const t=e.changedTouches[0]||e.touches[0]; end(t? t.clientX:0, t? t.clientY:0); });
 
-  // Mouse (per test desktop)
+  // Mouse (debug desktop)
   cvs.addEventListener("mousedown", e => start(e.clientX, e.clientY));
   window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
   window.addEventListener("mouseup",  e => end(e.clientX, e.clientY));
@@ -702,16 +739,12 @@ function rouletteInitIfVisible() {
   }
 }
 
-// bottone "SPIN"
+// Bottone
 document.addEventListener("click", (e)=>{
   if (e.target && e.target.id === "spinBtn") rouletteSpinRandom();
 });
 
-// resize & cambio sezione
+// Resize & navigazione
 window.addEventListener("resize", rouletteResize);
 window.addEventListener("hashchange", rouletteInitIfVisible);
-
-// prima inizializzazione se si entra direttamente
-document.addEventListener("DOMContentLoaded", () => {
-  rouletteInitIfVisible();
-});
+document.addEventListener("DOMContentLoaded", rouletteInitIfVisible);
