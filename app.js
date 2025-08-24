@@ -475,3 +475,243 @@ async function boot(){
   showByHash();
 }
 document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
+
+/* =======================
+   ROULETTE – 20 penitenze
+======================= */
+
+// 🔧 Modifica qui i testi delle penitenze (devono essere 20)
+const ROULETTE_PENALTIES = [
+  "Bevi un sorso", "Scambia posto", "Parla in rima per 1 min",
+  "Selfie di gruppo", "Complimento a tutti", "Mima un animale",
+  "Canta un ritornello", "Dialetto per 2 min", "Fai 10 squat",
+  "Toast a caso", "Cambio nickname oggi", "Storia IG del tavolo",
+  "Imita un amico", "Parla solo con gesti 1 min", "Regina/ Re del brindisi",
+  "Racconta un aneddoto", "Ballino di 10 sec", "Rispondi con sì/ no invertiti 1 min",
+  "Sedia musicale (mini)", "Passa il telefono a sinistra"
+];
+
+const WHEEL = {
+  el: null, ctx: null,
+  size: 340,   // aggiornato a runtime
+  angle: 0,    // rotazione attuale (radiani)
+  vel: 0,      // velocità angolare
+  last: 0,     // timestamp animazione
+  spinning: false,
+  seg: (2 * Math.PI) / ROULETTE_PENALTIES.length, // ampiezza settore
+  lastTickSeg: null, // per suono/vibrazione ad ogni settore
+};
+
+function rouletteDraw() {
+  const { ctx, size, angle, seg } = WHEEL;
+  const r = size / 2;
+  ctx.clearRect(0, 0, size, size);
+  ctx.save();
+  ctx.translate(r, r);
+  ctx.rotate(angle);
+
+  // settori
+  for (let i = 0; i < ROULETTE_PENALTIES.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.fillStyle = i % 2 === 0 ? "#222d" : "#333d";
+    ctx.arc(0,0, r-6, i*seg, (i+1)*seg);
+    ctx.closePath();
+    ctx.fill();
+
+    // linea bordo settore
+    ctx.strokeStyle = "rgba(255,255,255,.10)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0,0, r-6, i*seg, (i+1)*seg);
+    ctx.stroke();
+
+    // etichette
+    ctx.save();
+    ctx.rotate(i*seg + seg/2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#fff";
+    ctx.font = `bold ${Math.max(11, r*0.085)}px Montserrat, system-ui`;
+    ctx.translate((r*0.63), 0);
+    // ombra leggera
+    ctx.shadowColor = "rgba(0,0,0,.45)";
+    ctx.shadowBlur = 6;
+    ctx.fillText(ROULETTE_PENALTIES[i], 0, 0);
+    ctx.restore();
+  }
+
+  // mozzo
+  ctx.beginPath();
+  ctx.fillStyle = "#111";
+  ctx.arc(0,0, r*0.15, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function rouletteResize() {
+  const wrap = document.querySelector(".wheel-wrap");
+  if (!wrap) return;
+  const s = Math.floor(Math.min(wrap.clientWidth, 480));
+  const cvs = document.getElementById("wheelCanvas");
+  if (!cvs) return;
+  WHEEL.size = s;
+  cvs.width = s; cvs.height = s;
+  WHEEL.el = cvs;
+  WHEEL.ctx = cvs.getContext("2d");
+  rouletteDraw();
+}
+
+function rouletteTickSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "square"; o.frequency.value = 880;
+    g.gain.value = 0.05;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    setTimeout(() => { o.stop(); ctx.close(); }, 60);
+  } catch {}
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+function rouletteAnimate(ts) {
+  if (!WHEEL.spinning) return;
+  if (!WHEEL.last) WHEEL.last = ts;
+  const dt = Math.min(32, ts - WHEEL.last); // ms
+  WHEEL.last = ts;
+
+  // integrazione semplice
+  WHEEL.angle += WHEEL.vel * (dt/16.666);
+  // attrito
+  WHEEL.vel *= 0.985;
+
+  // tick su cambio settore
+  const segIndex = ((ROULETTE_PENALTIES.length * ((WHEEL.angle % (2*Math.PI))+2*Math.PI)) / (2*Math.PI)) | 0;
+  if (segIndex !== WHEEL.lastTickSeg) {
+    WHEEL.lastTickSeg = segIndex;
+    rouletteTickSound();
+  }
+
+  rouletteDraw();
+
+  if (Math.abs(WHEEL.vel) < 0.002) {
+    // fermo: snap al centro del settore più vicino
+    WHEEL.spinning = false;
+    WHEEL.last = 0;
+
+    const norm = ((WHEEL.angle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+    const pointerAngle = (3*Math.PI/2); // il triangolino è in alto (270°)
+    const rel = (pointerAngle - norm + 2*Math.PI) % (2*Math.PI);
+    const index = Math.floor(rel / WHEEL.seg) % ROULETTE_PENALTIES.length;
+
+    const text = ROULETTE_PENALTIES[index];
+    const out = document.getElementById("rouletteResult");
+    if (out) out.textContent = `Penitenza: ${text}`;
+    // se hai già un toast Bootstrap in app: lo riuso
+    const toastBody = document.getElementById("scoreToastBody");
+    const toastEl   = document.getElementById("scoreToast");
+    if (toastBody && toastEl && window.bootstrap) {
+      toastBody.textContent = `🎯 ${text}`;
+      new bootstrap.Toast(toastEl).show();
+    }
+    return;
+  }
+  requestAnimationFrame(rouletteAnimate);
+}
+
+function rouletteSpinRandom() {
+  if (!WHEEL.ctx) return;
+  if (WHEEL.spinning) return;
+  // velocità iniziale casuale (in rad/frame)
+  WHEEL.vel = (Math.random()*0.35 + 0.25) * (Math.random() < 0.5 ? -1 : 1);
+  WHEEL.spinning = true; WHEEL.last = 0;
+  requestAnimationFrame(rouletteAnimate);
+}
+
+function rouletteAttachGestures() {
+  const cvs = document.getElementById("wheelCanvas");
+  if (!cvs) return;
+
+  let dragging = false, lastAngle = 0, lastTime = 0;
+
+  const center = () => {
+    const rect = cvs.getBoundingClientRect();
+    return { cx: rect.left + rect.width/2, cy: rect.top + rect.height/2 };
+  };
+  const angleFrom = (x,y) => {
+    const c = center();
+    return Math.atan2(y - c.cy, x - c.cx);
+  };
+
+  const start = (x,y) => {
+    dragging = true;
+    lastAngle = angleFrom(x,y);
+    lastTime = Date.now();
+    WHEEL.spinning = false; WHEEL.vel = 0;
+  };
+  const move = (x,y) => {
+    if (!dragging) return;
+    const a = angleFrom(x,y);
+    const delta = a - lastAngle;
+    WHEEL.angle += delta;
+    WHEEL.vel = delta; // stima grezza, raffinata allo "end"
+    lastAngle = a;
+    rouletteDraw();
+  };
+  const end = (x,y) => {
+    if (!dragging) return;
+    const now = Date.now();
+    const dt = Math.max(1, now - lastTime);
+    // piccola spinta finale
+    WHEEL.vel *= Math.min(3, 16/dt) * 1.5;
+    dragging = false;
+    if (Math.abs(WHEEL.vel) < 0.02) {
+      // se troppo lenta, spin random
+      rouletteSpinRandom();
+    } else {
+      WHEEL.spinning = true; WHEEL.last = 0;
+      requestAnimationFrame(rouletteAnimate);
+    }
+  };
+
+  // Touch
+  cvs.addEventListener("touchstart", e => {
+    const t = e.touches[0]; start(t.clientX, t.clientY);
+  }, {passive:true});
+  cvs.addEventListener("touchmove", e => {
+    const t = e.touches[0]; move(t.clientX, t.clientY);
+  }, {passive:true});
+  cvs.addEventListener("touchend", e => {
+    const t = e.changedTouches[0] || e.touches[0]; 
+    const x = t ? t.clientX : 0, y = t ? t.clientY : 0;
+    end(x,y);
+  });
+
+  // Mouse (per test desktop)
+  cvs.addEventListener("mousedown", e => start(e.clientX, e.clientY));
+  window.addEventListener("mousemove", e => move(e.clientX, e.clientY));
+  window.addEventListener("mouseup",  e => end(e.clientX, e.clientY));
+}
+
+function rouletteInitIfVisible() {
+  if (location.hash === "#roulette") {
+    rouletteResize();
+    rouletteAttachGestures();
+  }
+}
+
+// bottone "SPIN"
+document.addEventListener("click", (e)=>{
+  if (e.target && e.target.id === "spinBtn") rouletteSpinRandom();
+});
+
+// resize & cambio sezione
+window.addEventListener("resize", rouletteResize);
+window.addEventListener("hashchange", rouletteInitIfVisible);
+
+// prima inizializzazione se si entra direttamente
+document.addEventListener("DOMContentLoaded", () => {
+  rouletteInitIfVisible();
+});
