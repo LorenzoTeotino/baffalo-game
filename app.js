@@ -477,33 +477,71 @@ async function boot(){
 document.readyState==='loading' ? document.addEventListener('DOMContentLoaded', boot) : boot();
 
 /* =======================
-   ROULETTE – 20 penitenze (misteriosa)
+   ROULETTE – 7 difficoltà, 3 penitenze ciascuna
 ======================= */
 
-// 🔧 Testi penitenze (personalizzali liberamente, 20 voci)
-const ROULETTE_PENALTIES = [
-  "Bevi un sorso", "Scambia posto", "Parla in rima per 1 min",
-  "Selfie di gruppo", "Complimento a tutti", "Mima un animale",
-  "Canta un ritornello", "Dialetto per 2 min", "Fai 10 squat",
-  "Toast a caso", "Cambio nickname oggi", "Storia IG del tavolo",
-  "Imita un amico", "Gesti soltanto per 1 min", "Re/Regina del brindisi",
-  "Racconta un aneddoto", "Ballino di 10 sec", "Sì/No invertiti per 1 min",
-  "Sedia musicale (mini)", "Passa il telefono a sinistra"
+// Etichette dei 7 livelli (appaiono sulla ruota)
+const ROULETTE_LEVELS = [
+  "Quasi nulla",
+  "Molto semplice",
+  "Semplice",
+  "Normale",
+  "Difficile",
+  "Molto difficile",
+  "Impossibile"
 ];
 
-// Palette brillante (20 colori)
+// 3 penitenze per ogni livello (emoticon incluse)
+// 👉 Modifica liberamente i testi qui sotto
+const ROULETTE_POOL = {
+  "Quasi nulla": [
+    "🥤 Bevi un sorso d’acqua",
+    "🪑 Cambia sedia con qualcuno",
+    "📸 Scatta una foto buffa"
+  ],
+  "Molto semplice": [
+    "👏 Fai un applauso a caso",
+    "😀 Fai una faccia buffa per 5 sec",
+    "🗣️ Di’ il tuo soprannome ad alta voce"
+  ],
+  "Semplice": [
+    "🕺 Mini ballo di 5 sec",
+    "🤝 Dai il cinque a tutti",
+    "🎶 Canticchia un ritornello"
+  ],
+  "Normale": [
+    "🍹 Fai un brindisi creativo",
+    "🦁 Imitazione di un animale",
+    "🧠 Racconta un aneddoto personale"
+  ],
+  "Difficile": [
+    "🎭 Parla in rima per 30 sec",
+    "🗣️ Parla in dialetto per 1 min",
+    "🕵️‍♂️ Mima un film, indovinano gli altri"
+  ],
+  "Molto difficile": [
+    "🏋️ 10 squat davanti al gruppo",
+    "📢 Presentati come fossi a X-Factor",
+    "🎤 Canta un ritornello a scelta"
+  ],
+  "Impossibile": [
+    "👑 Re/Regina del brindisi: inventa un rito",
+    "📱 Storia IG (breve) col gruppo",
+    "🌀 Sì/No invertiti per 1 minuto"
+  ]
+};
+
+// Palette per 7 settori (vivida)
 const WHEEL_COLORS = [
-  "#F94144","#F3722C","#F8961E","#F9844A","#F9C74F",
-  "#90BE6D","#43AA8B","#4D908E","#577590","#277DA1",
-  "#A78BFA","#EC4899","#22D3EE","#34D399","#FB7185",
-  "#F59E0B","#10B981","#60A5FA","#E879F9","#C084FC"
+  "#F94144", "#F8961E", "#F9C74F", "#43AA8B",
+  "#577590", "#A78BFA", "#EC4899"
 ];
 
 const WHEEL = {
   el: null, ctx: null,
   size: 360, angle: 0, vel: 0, last: 0,
   spinning: false,
-  seg: (2*Math.PI)/ROULETTE_PENALTIES.length,
+  seg: (2*Math.PI)/ROULETTE_LEVELS.length,
   lastTickSeg: null
 };
 
@@ -514,19 +552,53 @@ function drawWheelBase(angle) {
   ctx.translate(r, r);
   ctx.rotate(angle);
 
-  // Settori colorati (senza testo)
-  for (let i=0;i<ROULETTE_PENALTIES.length;i++){
+  // Settori colorati + bordo
+  for (let i=0; i<ROULETTE_LEVELS.length; i++){
     ctx.beginPath();
     ctx.moveTo(0,0);
     ctx.fillStyle = WHEEL_COLORS[i % WHEEL_COLORS.length];
     ctx.arc(0,0, r-8, i*seg, (i+1)*seg);
     ctx.closePath();
     ctx.fill();
+
+    // Bordo settore
+    ctx.strokeStyle = "rgba(0,0,0,.25)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0,0, r-8, i*seg, (i+1)*seg);
+    ctx.stroke();
+
+    // Etichetta livello (centrata nel settore)
+    ctx.save();
+    ctx.rotate(i*seg + seg/2);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "#fff";
+    ctx.font = `900 ${Math.max(12, r*0.11)}px Montserrat, system-ui`;
+    ctx.translate(r*0.60, 0);
+
+    // contorno/ombra per leggibilità
+    ctx.shadowColor = "rgba(0,0,0,.55)";
+    ctx.shadowBlur = 8;
+
+    // gestione due righe (per “Molto difficile” ecc.)
+    const label = ROULETTE_LEVELS[i];
+    if (label.length > 10){
+      const parts = label.split(" ");
+      const mid = Math.ceil(parts.length/2);
+      const l1 = parts.slice(0,mid).join(" ");
+      const l2 = parts.slice(mid).join(" ");
+      ctx.fillText(l1, 0, -r*0.06);
+      ctx.fillText(l2, 0,  r*0.06);
+    } else {
+      ctx.fillText(label, 0, 0);
+    }
+    ctx.restore();
   }
 
-  // Sheen/luccichio superiore
-  const sheen = ctx.createRadialGradient(0, -r*0.15, r*0.1, 0, -r*0.15, r*0.9);
-  sheen.addColorStop(0, "rgba(255,255,255,.25)");
+  // Sheen/luccichio
+  const sheen = ctx.createRadialGradient(0, -r*0.15, r*0.1, 0, -r*0.15, r*0.95);
+  sheen.addColorStop(0, "rgba(255,255,255,.22)");
   sheen.addColorStop(0.25, "rgba(255,255,255,.10)");
   sheen.addColorStop(1, "rgba(255,255,255,0)");
   ctx.globalCompositeOperation = "overlay";
@@ -536,13 +608,13 @@ function drawWheelBase(angle) {
   ctx.fill();
   ctx.globalCompositeOperation = "source-over";
 
-  // LED ring animato (effetto “chasing”)
-  const leds = 54;
+  // LED ring
+  const leds = 56;
   for (let k=0;k<leds;k++){
     const a = k*(2*Math.PI/leds);
     const x = Math.cos(a)*(r-6);
     const y = Math.sin(a)*(r-6);
-    const phase = (a + angle*1.6);
+    const phase = (a + angle*1.4);
     const bright = (Math.sin(phase*3)+1)/2; // 0..1
     const col = Math.floor(180 + bright*75);
     ctx.fillStyle = `rgba(${col},${col},${col},${.55 + bright*.35})`;
@@ -551,15 +623,15 @@ function drawWheelBase(angle) {
     ctx.fill();
   }
 
-  // Mozzo centrale “metal”
+  // Mozzo centrale
   const hub = ctx.createRadialGradient(0,0, 2, 0,0, r*0.16);
   hub.addColorStop(0,"#222");
   hub.addColorStop(1,"#0b0b0b");
   ctx.fillStyle = hub;
   ctx.beginPath(); ctx.arc(0,0, r*0.16, 0, Math.PI*2); ctx.fill();
 
-  // Anello metallico interno
-  ctx.strokeStyle = "rgba(255,255,255,.12)";
+  // Anello interno
+  ctx.strokeStyle = "rgba(255,255,255,.14)";
   ctx.lineWidth = 10;
   ctx.beginPath(); ctx.arc(0,0, r-6, 0, Math.PI*2); ctx.stroke();
 
@@ -573,12 +645,9 @@ function rouletteDraw() {
   // Motion blur leggero quando va veloce
   const speed = Math.abs(vel);
   if (speed > 0.08){
-    ctx.globalAlpha = 0.35;
-    drawWheelBase(angle - vel*1.0);
-    ctx.globalAlpha = 0.5;
-    drawWheelBase(angle);
-    ctx.globalAlpha = 0.35;
-    drawWheelBase(angle + vel*1.0);
+    ctx.globalAlpha = 0.35; drawWheelBase(angle - vel*0.9);
+    ctx.globalAlpha = 0.5;  drawWheelBase(angle);
+    ctx.globalAlpha = 0.35; drawWheelBase(angle + vel*0.9);
     ctx.globalAlpha = 1;
   } else {
     drawWheelBase(angle);
@@ -597,7 +666,6 @@ function rouletteResize() {
 }
 
 function rouletteTickFX() {
-  // piccolo “tick” + vibrazione
   try{
     const AC = window.AudioContext || window.webkitAudioContext;
     if (AC){
@@ -628,6 +696,12 @@ function burstFX(){
   setTimeout(()=>{ container.innerHTML=""; }, 650);
 }
 
+function pickPenaltyFor(level){
+  const pool = ROULETTE_POOL[level] || [];
+  if (!pool.length) return "—";
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
 function rouletteAnimate(ts) {
   if (!WHEEL.spinning) return;
   if (!WHEEL.last) WHEEL.last = ts;
@@ -638,7 +712,7 @@ function rouletteAnimate(ts) {
   WHEEL.vel *= 0.985; // attrito
 
   // tick su cambio settore
-  const segIndex = ((ROULETTE_PENALTIES.length * ((WHEEL.angle % (2*Math.PI))+2*Math.PI)) / (2*Math.PI)) | 0;
+  const segIndex = ((ROULETTE_LEVELS.length * ((WHEEL.angle % (2*Math.PI))+2*Math.PI)) / (2*Math.PI)) | 0;
   if (segIndex !== WHEEL.lastTickSeg) {
     WHEEL.lastTickSeg = segIndex;
     rouletteTickFX();
@@ -652,15 +726,17 @@ function rouletteAnimate(ts) {
     const norm = ((WHEEL.angle % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
     const pointerAngle = (3*Math.PI/2); // 270°
     const rel = (pointerAngle - norm + 2*Math.PI) % (2*Math.PI);
-    const index = Math.floor(rel / WHEEL.seg) % ROULETTE_PENALTIES.length;
-    const text = ROULETTE_PENALTIES[index];
+    const index = Math.floor(rel / WHEEL.seg) % ROULETTE_LEVELS.length;
+
+    const level = ROULETTE_LEVELS[index];
+    const text  = pickPenaltyFor(level);
 
     // FX
     burstFX();
 
-    // Modal Bootstrap (rivelazione “misteriosa”)
+    // Modal Bootstrap (rivelazione)
     const out = document.getElementById("rouletteResult");
-    if (out) out.textContent = text;
+    if (out) out.textContent = `${level} → ${text}`;
     const modalEl = document.getElementById("rouletteModal");
     if (modalEl && window.bootstrap){
       new bootstrap.Modal(modalEl).show();
@@ -734,12 +810,14 @@ function rouletteAttachGestures() {
 
 function rouletteInitIfVisible() {
   if (location.hash === "#roulette") {
+    // aggiorna segment width per 7 livelli
+    WHEEL.seg = (2*Math.PI)/ROULETTE_LEVELS.length;
     rouletteResize();
     rouletteAttachGestures();
   }
 }
 
-// Bottone
+// Bottone SPIN
 document.addEventListener("click", (e)=>{
   if (e.target && e.target.id === "spinBtn") rouletteSpinRandom();
 });
