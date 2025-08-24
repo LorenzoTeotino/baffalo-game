@@ -228,25 +228,58 @@ a.tile, a.tile:visited{
 .rt-badge.neg{ border-color:rgba(255,155,155,.45); background:rgba(180,30,30,.20); color:#ffb3b3; }
 
 /* =======================
-   Roulette – ruota interattiva
+   Roulette – ruota scenografica
 ======================= */
 .wheel-wrap{
   position:relative;
   display:grid; place-items:center;
   margin:10px auto 0;
-  width:min(92vw, 480px);
+  width:min(92vw, 520px);
   aspect-ratio:1;
+  filter: drop-shadow(0 18px 44px rgba(0,0,0,.55));
 }
+
 #wheelCanvas{
   width:100%; height:100%; border-radius:50%;
-  background:radial-gradient(circle at 50% 50%, #222 0%, #111 70%);
+  background:
+    radial-gradient(circle at 50% 45%, #1b1b1b 0%, #0d0d0d 65%, #060606 100%);
   box-shadow:
-    0 20px 40px rgba(0,0,0,.45),
-    inset 0 2px 8px rgba(255,255,255,.06),
-    inset 0 -10px 30px rgba(0,0,0,.50);
+    inset 0 2px 10px rgba(255,255,255,.06),
+    inset 0 -18px 40px rgba(0,0,0,.65);
 }
+
+/* Puntatore a triangolo “neon” */
 .wheel-pointer{
-  position:absolute; top:-6px; left:50%; transform:translateX(-50%);
-  font-size:22px; color:#fff; text-shadow:0 2px 8px rgba(0,0,0,.6);
+  position:absolute; top:-3px; left:50%; transform:translateX(-50%);
+  width:0; height:0;
+  border-left:14px solid transparent;
+  border-right:14px solid transparent;
+  border-bottom:22px solid #fff;
+  filter: drop-shadow(0 0 10px rgba(255,255,255,.55)) drop-shadow(0 2px 8px rgba(0,0,0,.65));
 }
-.roulette .detail-wrap{ padding-bottom:24px; }
+
+/* Pulsante spin con look premium */
+.btn-spin{
+  border:1px solid rgba(255,255,255,.25);
+  color:#000;
+  background:
+    radial-gradient(120px 120px at 25% 20%, rgba(255,255,255,.55), rgba(255,255,255,.25)),
+    linear-gradient(180deg, #ffd86b, #ffb703);
+  box-shadow: 0 12px 26px rgba(255,183,3,.25), inset 0 1px 0 rgba(255,255,255,.75);
+  border-radius:999px;
+  padding:.9rem 1.1rem;
+}
+.btn-spin:active{ transform:translateY(1px); }
+
+/* Particelle burst al traguardo */
+.burst{ position:absolute; top:6px; left:50%; transform:translateX(-50%); pointer-events:none; }
+.burst .p{
+  position:absolute; width:8px; height:8px; border-radius:999px; background:#fff;
+  box-shadow:0 0 12px rgba(255,255,255,.8);
+  animation:burst 600ms ease-out forwards;
+}
+@keyframes burst{
+  0%{ transform: translate(0,0) scale(1); opacity:1; }
+  100%{ transform: translate(var(--x), var(--y)) scale(.6); opacity:0; }
+}
+
