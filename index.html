@@ -278,28 +278,47 @@
       <!-- /🚧 DEV Spritz -->
     </div>
   </section>
-  
+
   <section id="roulette" class="view detail roulette" aria-label="Roulette">
-    <header class="detail-header">
-      <a class="back" href="#home" aria-label="Torna alle categorie">←</a>
-      <h1 class="hero-title">Roulette</h1>
-    </header>
+  <header class="detail-header">
+    <a class="back" href="#home" aria-label="Torna alle categorie">←</a>
+    <h1 class="hero-title">Roulette</h1>
+  </header>
+  <div class="detail-wrap">
+    <div class="wheel-wrap">
+      <!-- Ruota -->
+      <canvas id="wheelCanvas" width="360" height="360" aria-label="Ruota misteriosa"></canvas>
 
-    <div class="detail-wrap">
-      <div class="wheel-wrap">
-        <canvas id="wheelCanvas" width="340" height="340" aria-label="Ruota con 20 penitenze"></canvas>
-        <div class="wheel-pointer" aria-hidden="true">▲</div>
-      </div>
+      <!-- Effetti particelle -->
+      <div id="wheelBurst" class="burst" aria-hidden="true"></div>
 
-      <div class="d-grid gap-2 mt-3">
-        <button id="spinBtn" class="btn btn-light fw-bold">SPIN</button>
-        <small class="text-muted text-center">
-          Suggerimento: trascina con il dito (swipe) sulla ruota per lanciarla ✨
-        </small>
-      </div>
-      <div id="rouletteResult" class="mt-3 text-center fw-bold"></div>
+      <!-- Puntatore “neon” -->
+      <div class="wheel-pointer" aria-hidden="true"></div>
     </div>
-  </section>
+
+    <div class="d-grid gap-2 mt-3">
+      <button id="spinBtn" class="btn btn-spin fw-bold">SPIN</button>
+      <small class="text-muted text-center">Suggerimento: trascina con il dito sulla ruota per lanciarla ✨</small>
+    </div>
+  </div>
+  <!-- Modal risultato (misterioso, mostra solo quando si ferma) -->
+  <div class="modal fade" id="rouletteModal" tabindex="-1" aria-labelledby="rouletteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content bg-dark text-white border border-secondary rounded-4 shadow-lg">
+        <div class="modal-header border-0">
+          <h5 class="modal-title" id="rouletteModalLabel">Penitenza</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Chiudi"></button>
+        </div>
+        <div class="modal-body">
+          <div id="rouletteResult" class="fs-5 fw-bold text-center">—</div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-light fw-bold rounded-pill" data-bs-dismiss="modal">Ok!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
   <!-- ==================== CLASSIFICA ==================== -->
   <section id="classifica" class="view detail">
