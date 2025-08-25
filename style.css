@@ -227,6 +227,10 @@ a.tile, a.tile:visited{
 .rt-badge.pos{ border-color:rgba(127,255,191,.45); background:rgba(12,140,80,.22); color:#99ffd6; }
 .rt-badge.neg{ border-color:rgba(255,155,155,.45); background:rgba(180,30,30,.20); color:#ffb3b3; }
 
+/* Elenco puntato nei riquadri delle regole */
+.rt-bullets{ margin:10px 0 0; padding-left:1.2rem; }
+.rt-bullets li{ margin:6px 0; line-height:1.35; }
+
 /* =======================
    Roulette – ruota scenografica
 ======================= */
