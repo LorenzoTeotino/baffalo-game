@@ -826,3 +826,50 @@ document.addEventListener("click", (e)=>{
 window.addEventListener("resize", rouletteResize);
 window.addEventListener("hashchange", rouletteInitIfVisible);
 document.addEventListener("DOMContentLoaded", rouletteInitIfVisible);
+
+/* =======================
+   BONUS – TH vinto (+5) / Ritardo (-2)
+======================= */
+
+// helper: toast + piccola vibrazione (riuso se già hai qualcosa di simile)
+function bonusToast(msg){
+  const body = document.getElementById("scoreToastBody");
+  const el   = document.getElementById("scoreToast");
+  if (body && el && window.bootstrap){
+    body.textContent = msg;
+    new bootstrap.Toast(el).show();
+  }
+  if (navigator.vibrate) navigator.vibrate(12);
+}
+
+// helper: scrivi una riga di storico (categoria "bonus")
+function bonusLogHistory(player, delta, kind){
+  // kind: "TH vinto" | "Ritardo"
+  const entry = {
+    t: Date.now(),
+    delta: Number(delta),
+    cat: "bonus",
+    msg: kind
+  };
+  firebase.database().ref(`history/${player}`).push(entry).catch(()=>{});
+}
+
+// delega: click su bottoni bonus
+document.addEventListener("click", (e)=>{
+  const btn = e.target.closest(".bonus-btn");
+  if(!btn) return;
+
+  const me    = btn.dataset.me;
+  const delta = parseInt(btn.dataset.delta, 10) || 0;
+  const kind  = btn.dataset.bonus === "th" ? "TH vinto" : "Ritardo";
+
+  // aggiorna punteggio
+  applyDelta(me, delta);
+
+  // storico
+  bonusLogHistory(me, delta, kind);
+
+  // feedback UI
+  const pretty = delta > 0 ? `+${delta}` : `${delta}`;
+  bonusToast(`🎁 ${me}: ${kind} (${pretty})`);
+});
