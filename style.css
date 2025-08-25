@@ -254,7 +254,7 @@ a.tile, a.tile:visited{
   width:0; height:0;
   border-left:14px solid transparent;
   border-right:14px solid transparent;
-  border-bottom:22px solid #fff;
+  border-bottom:22px solid #fff;   /* punta in GIÙ */
   filter: drop-shadow(0 0 10px rgba(255,255,255,.55)) drop-shadow(0 2px 8px rgba(0,0,0,.65));
 }
 
