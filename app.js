@@ -873,3 +873,98 @@ document.addEventListener("click", (e)=>{
   const pretty = delta > 0 ? `+${delta}` : `${delta}`;
   bonusToast(`🎁 ${me}: ${kind} (${pretty})`);
 });
+
+/* ==========================================================
+   MODULO PUNTEGGIO LOCALE (namespace lp-)
+   - SOLO localStorage, niente Firebase / storico
+   - Non interferisce con gli altri listener grazie a classi lp-
+========================================================== */
+(function(){
+  const LP_PLAYERS = (window.PLAYERS && Array.isArray(window.PLAYERS))
+    ? window.PLAYERS
+    : ["Lorenzo","Matteo","Ilaria","Sara"];
+
+  const LS_KEY_POINTS   = "lp.points.v1";
+  const LS_KEY_SELECTED = "lp.selected.v1";
+
+  let lpPoints   = loadPoints();
+  let lpSelected = loadSelected() || LP_PLAYERS[0];
+
+  function loadPoints(){
+    try{
+      const raw = localStorage.getItem(LS_KEY_POINTS);
+      const obj = raw ? JSON.parse(raw) : null;
+      if (obj && typeof obj === "object") return obj;
+    }catch{}
+    const init = {}; LP_PLAYERS.forEach(p=>init[p]=0); return init;
+  }
+  function savePoints(){ try{ localStorage.setItem(LS_KEY_POINTS, JSON.stringify(lpPoints)); }catch{} }
+
+  function loadSelected(){ try{ return localStorage.getItem(LS_KEY_SELECTED) || null; }catch{ return null; } }
+  function saveSelected(){ try{ localStorage.setItem(LS_KEY_SELECTED, lpSelected); }catch{} }
+
+  function renderBoards(){
+    const arr = LP_PLAYERS.map(p=>({p, t:Number(lpPoints[p]||0)})).sort((a,b)=>b.t-a.t);
+    const html = arr.map((s,i)=>`
+      <div class="lp-row">
+        <span class="name">${i+1}. ${s.p}</span>
+        <span class="val">${s.t}</span>
+      </div>`).join("");
+    document.querySelectorAll(".lp-board").forEach(el => el.innerHTML = html);
+  }
+
+  function renderSelectedLabels(){
+    // aggiorna le scritte "Stai modificando: ..."
+    const map = {
+      "#lp-lorenzo" : "Lorenzo",
+      "#lp-matteo"  : "Matteo",
+      "#lp-ilaria"  : "Ilaria",
+      "#lp-sara"    : "Sara",
+    };
+    // set iniziale per le 4 pagine
+    const ids = [["#lp-current","Lorenzo"],["#lp-current-m","Matteo"],["#lp-current-i","Ilaria"],["#lp-current-s","Sara"]];
+    ids.forEach(([id,def])=>{
+      const el = document.querySelector(id);
+      if(el) el.textContent = def;
+    });
+  }
+
+  function applyDelta(player, delta){
+    lpPoints[player] = (Number(lpPoints[player]||0) + delta);
+    savePoints(); renderBoards();
+  }
+
+  // Deleghe click SOLO per classi lp-
+  document.addEventListener("click", (e)=>{
+    // Bottoni punti
+    const b = e.target.closest(".lp-btn");
+    if(b){
+      const player = b.dataset.lpPlayer;
+      const delta  = parseInt(b.dataset.lpDelta, 10) || 0;
+      if(!player) return;
+      applyDelta(player, delta);
+      // flash + vibrazione
+      b.classList.add("lp-flash");
+      setTimeout(()=>b.classList.remove("lp-flash"), 200);
+      if (navigator.vibrate) navigator.vibrate(12);
+      return;
+    }
+
+    // Reset DEV (commenta il blocco sotto se non vuoi il pulsante)
+    if(e.target && e.target.id === "lp-reset"){
+      if(confirm("Azzerare i punteggi locali (solo tile Punteggio)?")){
+        LP_PLAYERS.forEach(p=>lpPoints[p]=0);
+        savePoints(); renderBoards();
+      }
+    }
+  });
+
+  // Render al primo ingresso in una delle 4 pagine
+  function initLPIfVisible(){
+    if (location.hash && location.hash.startsWith("#lp-")){
+      renderBoards(); renderSelectedLabels();
+    }
+  }
+  window.addEventListener("hashchange", initLPIfVisible);
+  document.addEventListener("DOMContentLoaded", initLPIfVisible);
+})();
