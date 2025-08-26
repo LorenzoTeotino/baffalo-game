@@ -42,6 +42,9 @@
       <a class="tile" href="#regole-baffalo">
         <img class="photo" src="img/regole.jpg" alt="Regole"><h3>Regole</h3>
       </a>
+      <a class="tile" href="#lp-lorenzo">
+        <img class="photo" src="img/punteggio.jpg" alt="Punteggio"><h3>Punteggio</h3>
+      </a>
     </div>
   </section>
 
@@ -517,6 +520,106 @@
         <li><strong>TH vinto</strong>: <strong>+5</strong> punti al giocatore che vince la sfida del giorno.</li>
         <li><strong>Ritardo</strong>: <strong>−2</strong> punti al giocatore che arriva tardi.</li>
       </ul>
+    </div>
+  </div>
+</section>
+
+  <!-- ========== PUNTEGGIO GIOCO (LOCALE) – Lorenzo ========== -->
+<section id="lp-lorenzo" class="view detail lp">
+  <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggio</h1></header>
+  <div class="detail-wrap">
+    <nav class="subtabs">
+      <a class="tab active" href="#lp-lorenzo">Lorenzo</a>
+      <a class="tab" href="#lp-matteo">Matteo</a>
+      <a class="tab" href="#lp-ilaria">Ilaria</a>
+      <a class="tab" href="#lp-sara">Sara</a>
+    </nav>
+
+    <!-- Classifica locale (solo per questo tile) -->
+    <div class="lp-board"></div>
+
+    <p class="lp-editing">Stai modificando: <strong id="lp-current">Lorenzo</strong></p>
+
+    <div class="lp-grid">
+      <button class="lp-btn lp-pos" data-lp-player="Lorenzo" data-lp-delta="10">+10</button>
+      <button class="lp-btn lp-pos" data-lp-player="Lorenzo" data-lp-delta="20">+20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Lorenzo" data-lp-delta="-20">−20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Lorenzo" data-lp-delta="-10">−10</button>
+    </div>
+
+    <!-- ===== DEV: commenta quando pubblichi ===== -->
+    <div class="lp-dev">
+      <button id="lp-reset" class="lp-dev-btn">Reset punteggi (DEV)</button>
+    </div>
+    <!-- ========================================= -->
+  </div>
+</section>
+
+<!-- ========== PUNTEGGIO GIOCO (LOCALE) – Matteo ========== -->
+<section id="lp-matteo" class="view detail lp">
+  <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggio</h1></header>
+  <div class="detail-wrap">
+    <nav class="subtabs">
+      <a class="tab" href="#lp-lorenzo">Lorenzo</a>
+      <a class="tab active" href="#lp-matteo">Matteo</a>
+      <a class="tab" href="#lp-ilaria">Ilaria</a>
+      <a class="tab" href="#lp-sara">Sara</a>
+    </nav>
+
+    <div class="lp-board"></div>
+    <p class="lp-editing">Stai modificando: <strong id="lp-current-m">Matteo</strong></p>
+
+    <div class="lp-grid">
+      <button class="lp-btn lp-pos" data-lp-player="Matteo" data-lp-delta="10">+10</button>
+      <button class="lp-btn lp-pos" data-lp-player="Matteo" data-lp-delta="20">+20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Matteo" data-lp-delta="-20">−20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Matteo" data-lp-delta="-10">−10</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PUNTEGGIO GIOCO (LOCALE) – Ilaria ========== -->
+<section id="lp-ilaria" class="view detail lp">
+  <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggio</h1></header>
+  <div class="detail-wrap">
+    <nav class="subtabs">
+      <a class="tab" href="#lp-lorenzo">Lorenzo</a>
+      <a class="tab" href="#lp-matteo">Matteo</a>
+      <a class="tab active" href="#lp-ilaria">Ilaria</a>
+      <a class="tab" href="#lp-sara">Sara</a>
+    </nav>
+
+    <div class="lp-board"></div>
+    <p class="lp-editing">Stai modificando: <strong id="lp-current-i">Ilaria</strong></p>
+
+    <div class="lp-grid">
+      <button class="lp-btn lp-pos" data-lp-player="Ilaria" data-lp-delta="10">+10</button>
+      <button class="lp-btn lp-pos" data-lp-player="Ilaria" data-lp-delta="20">+20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Ilaria" data-lp-delta="-20">−20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Ilaria" data-lp-delta="-10">−10</button>
+    </div>
+  </div>
+</section>
+
+<!-- ========== PUNTEGGIO GIOCO (LOCALE) – Sara ========== -->
+<section id="lp-sara" class="view detail lp">
+  <header class="detail-header"><a class="back" href="#home">←</a><h1 class="hero-title">Punteggio</h1></header>
+  <div class="detail-wrap">
+    <nav class="subtabs">
+      <a class="tab" href="#lp-lorenzo">Lorenzo</a>
+      <a class="tab" href="#lp-matteo">Matteo</a>
+      <a class="tab" href="#lp-ilaria">Ilaria</a>
+      <a class="tab active" href="#lp-sara">Sara</a>
+    </nav>
+
+    <div class="lp-board"></div>
+    <p class="lp-editing">Stai modificando: <strong id="lp-current-s">Sara</strong></p>
+
+    <div class="lp-grid">
+      <button class="lp-btn lp-pos" data-lp-player="Sara" data-lp-delta="10">+10</button>
+      <button class="lp-btn lp-pos" data-lp-player="Sara" data-lp-delta="20">+20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Sara" data-lp-delta="-20">−20</button>
+      <button class="lp-btn lp-neg" data-lp-player="Sara" data-lp-delta="-10">−10</button>
     </div>
   </div>
 </section>
