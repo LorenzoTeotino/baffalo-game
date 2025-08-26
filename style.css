@@ -294,3 +294,68 @@ a.tile, a.tile:visited{
   100%{ transform: translate(var(--x), var(--y)) scale(.6); opacity:0; }
 }
 
+/* =======================
+   TILE "Punteggio" LOCALE (namespace lp-)
+   Non tocca gli altri moduli
+======================= */
+
+/* mini classifica locale */
+.lp-board{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  padding:12px;
+  margin:6px 0 8px;
+}
+.lp-board .lp-row{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:10px 6px; border-bottom:1px dashed rgba(255,255,255,.12);
+}
+.lp-board .lp-row:last-child{ border-bottom:0; }
+.lp-board .name{ font-weight:800; }
+.lp-board .val{ font-weight:900; }
+
+.lp-editing{ margin:4px 0 10px; color:#aaa; }
+.lp-editing strong{ color:#fff; }
+
+/* griglia bottoni 2x2 */
+.lp-grid{
+  display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;
+}
+.lp-btn{
+  position:relative; display:block; width:100%;
+  padding:22px 8px; border-radius:22px;
+  border:1px solid rgba(255,255,255,.18);
+  font-weight:900; font-style:italic; letter-spacing:.5px; text-align:center;
+  box-shadow:0 14px 28px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .05s ease-out, filter .2s ease-out;
+}
+.lp-btn:active{ transform:scale(.99); }
+.lp-btn.lp-pos{
+  color:#062;
+  background:
+    radial-gradient(140px 120px at 25% 20%, rgba(255,255,255,.75), rgba(255,255,255,.35)),
+    linear-gradient(180deg, #b7ffcf, #6af79d);
+}
+.lp-btn.lp-neg{
+  color:#3b0000;
+  background:
+    radial-gradient(140px 120px at 25% 20%, rgba(255,255,255,.65), rgba(255,255,255,.28)),
+    linear-gradient(180deg, #ffb3b3, #ff6a6a);
+}
+/* flash tap */
+.lp-btn.lp-flash::after{
+  content:""; position:absolute; inset:0; border-radius:inherit;
+  background:rgba(255,255,255,.18); animation:lpFlash .18s ease forwards;
+}
+@keyframes lpFlash{ to{ opacity:0 } }
+
+/* DEV */
+.lp-dev{ margin-top:18px; }
+.lp-dev-btn{
+  width:100%; padding:12px 14px; border-radius:14px; border:1px dashed #ffda6a;
+  font-weight:800; color:#111; background:#ffda6a;
+}
+.lp-dev-btn:active{ transform:scale(.995); }
+
+
