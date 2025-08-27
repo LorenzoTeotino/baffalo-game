@@ -875,97 +875,106 @@ document.addEventListener("click", (e)=>{
 });
 
 /* ==========================================================
-   TILE "Punteggio" (lp) — CONDIVISO su Firebase (compat Safari vecchi)
-   - Percorso dedicato: lpScores (separato da Baffalo/Spritz/storico)
-   - Bottoni stile Baffalo (.score-btn) ma senza toast
-   - Classifica STATICA (ordine fisso dei 4 nomi)
+   TILE "Punteggio" (lp) — CONDIVISO su Firebase
+   - Percorso dedicato: lpScores  (NON tocca Baffalo/Spritz/storico)
+   - Bottoni stile Baffalo (.score-btn) con flash + vibrazione
+   - Classifica STATICA in ordine fisso (niente ri-ordinamenti)
 ========================================================== */
 (function(){
-  var LP_PLAYERS = (window.PLAYERS && Array.isArray(window.PLAYERS))
-    ? window.PLAYERS
-    : ["Lorenzo","Matteo","Ilaria","Sara"];
+  const LP_PLAYERS = (window.PLAYERS && Array.isArray(window.PLAYERS))
+    ? window.PLAYERS            // se nel tuo app hai già PLAYERS globali, li riuso
+    : ["Lorenzo","Matteo","Ilaria","Sara"]; // fallback
 
-  var LP_DB_PATH = "lpScores";
+  const LP_DB_PATH = "lpScores";  // percorso separato su Firebase
 
-  function ensureLpScores(){
-    var ref = firebase.database().ref(LP_DB_PATH);
-    return ref.get().then(function(snap){
-      if(!snap.exists()){
-        var init = {}; LP_PLAYERS.forEach(function(p){ init[p]=0; });
-        return ref.set(init).then(function(){ return init; });
-      }else{
-        var cur = snap.val() || {};
-        var changed = false;
-        LP_PLAYERS.forEach(function(p){
-          if(!(p in cur)){ cur[p]=0; changed=true; }
-        });
-        if(changed){ return ref.set(cur).then(function(){ return cur; }); }
-        return cur;
-      }
-    });
+  // Inizializza il ramo se vuoto e garantisci tutte le chiavi
+  async function ensureLpScores() {
+    const ref = firebase.database().ref(LP_DB_PATH);
+    const snap = await ref.get();
+    if (!snap.exists()) {
+      const init = {}; LP_PLAYERS.forEach(p => init[p] = 0);
+      await ref.set(init);
+      return init;
+    } else {
+      const cur = snap.val() || {};
+      let changed = false;
+      LP_PLAYERS.forEach(p => { if (!(p in cur)) { cur[p] = 0; changed = true; }});
+      if (changed) await ref.set(cur);
+      return cur;
+    }
   }
 
-  function renderLpBoard(map){
-    var html = LP_PLAYERS.map(function(p,i){
-      var val = (map && map[p] != null) ? Number(map[p]) : 0;
-      return '' +
-        '<div class="lp-row">' +
-          '<span class="name">'+(i+1)+'. '+p+'</span>' +
-          '<span class="val">'+ val +'</span>' +
-        '</div>';
+  // Render classifica STATICO: usa l’ordine di LP_PLAYERS, non sort
+  function renderLpBoard(map) {
+    const html = LP_PLAYERS.map((p, i) => {
+      const val = Number(map?.[p] ?? 0);
+      return `
+        <div class="lp-row">
+          <span class="name">${i+1}. ${p}</span>
+          <span class="val">${val}</span>
+        </div>`;
     }).join("");
-    var nodes = document.querySelectorAll(".lp-board");
-    for (var k=0; k<nodes.length; k++){ nodes[k].innerHTML = html; }
+    document.querySelectorAll(".lp-board").forEach(el => el.innerHTML = html);
   }
 
+  // Aggiorna punteggio di un giocatore
   function lpApplyDelta(player, delta){
-    var ref = firebase.database().ref(LP_DB_PATH + "/" + player);
-    ref.transaction(function(cur){ 
-      var n = Number(cur); if(!isFinite(n)) n = 0;
-      var d = parseInt(delta,10); if(!isFinite(d)) d = 0;
-      return n + d; 
-    });
+    const ref = firebase.database().ref(`${LP_DB_PATH}/${player}`);
+    ref.transaction(cur => (Number(cur)||0) + delta);
   }
 
+  // Effetti “come Baffalo”: flash overlay + vibrazione
   function tapFX(btn){
-    if(!btn) return;
-    btn.classList.add("flash");
-    setTimeout(function(){ btn.classList.remove("flash"); }, 200);
-    if (navigator.vibrate) navigator.vibrate(15);
+    if (!btn) return;
+    btn.classList.add("flash");      // NB: in Baffalo hai .score-btn.flash::after
+    setTimeout(()=>btn.classList.remove("flash"), 200);
+    if (navigator.vibrate) navigator.vibrate(12);
   }
 
-  // SOLO bottoni del tile Punteggio (identificati da data-lp-player)
-  document.addEventListener("click", function(e){
-    var btn = e.target && e.target.closest('.score-btn[data-lp-player]');
-    if(!btn) return;
-    var player = btn.getAttribute('data-lp-player');
-    var delta  = parseInt(btn.getAttribute('data-lp-delta'), 10) || 0;
-    if(!player) return;
+  // Click handler SOLO per i bottoni del tile Punteggio
+document.addEventListener("click", (e)=>{
+  // bottoni +10/+20/-10/-20
+  const btn = e.target.closest('.score-btn[data-lp-player]');
+  if (btn){
+    const player = btn.dataset.lpPlayer;
+    const delta  = parseInt(btn.dataset.lpDelta, 10) || 0;
+    if (!player) return;
     lpApplyDelta(player, delta);
     tapFX(btn);
-  });
 
-  // Realtime classifica del tile
-  firebase.database().ref(LP_DB_PATH).on("value", function(snap){
+    // (opzionale) toast riusando quello globale
+    const te = document.getElementById("scoreToast");
+    const tb = document.getElementById("scoreToastBody");
+    if (te && tb && window.bootstrap){
+      tb.textContent = `🧮 ${player} ${delta>0?`+${delta}`:delta} (Punteggio)`;
+      new bootstrap.Toast(te).show();
+    }
+    return; // evita che scatti il blocco DEV sotto
+  }
+
+  // Reset DEV (solo se hai il pulsante)
+  if (e.target && e.target.id === "lp-reset"){
+    if (confirm("Azzerare i punteggi del tile Punteggio per tutti?")){
+      const zero = {}; LP_PLAYERS.forEach(p=>zero[p]=0);
+      firebase.database().ref(LP_DB_PATH).set(zero);
+    }
+  }
+});
+  
+
+  // Realtime listener: aggiorna tutte le board del tile
+  firebase.database().ref(LP_DB_PATH).on("value", snap=>{
     renderLpBoard(snap.val() || {});
   });
 
-  // Primo ingresso nelle pagine #lp-*
-  function initLpIfVisible(){
-    if(location.hash && location.hash.indexOf("#lp-") === 0){
-      ensureLpScores().then(function(map){
-        renderLpBoard(map);
-        var ids = [
-          ["#lp-current","Lorenzo"],
-          ["#lp-current-m","Matteo"],
-          ["#lp-current-i","Ilaria"],
-          ["#lp-current-s","Sara"]
-        ];
-        ids.forEach(function(pair){
-          var el = document.querySelector(pair[0]);
-          if(el) el.textContent = pair[1];
-        });
-      });
+  // Primo avvio quando entri in una pagina #lp-*
+  async function initLpIfVisible(){
+    if (location.hash && location.hash.startsWith("#lp-")){
+      const map = await ensureLpScores();
+      renderLpBoard(map);
+      // Aggiorna le scritte “Stai modificando:” con i nomi giusti (se hai gli id)
+      const ids = [["#lp-current","Lorenzo"],["#lp-current-m","Matteo"],["#lp-current-i","Ilaria"],["#lp-current-s","Sara"]];
+      ids.forEach(([sel, name])=>{ const el=document.querySelector(sel); if(el) el.textContent=name; });
     }
   }
   window.addEventListener("hashchange", initLpIfVisible);
