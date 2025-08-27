@@ -941,7 +941,7 @@ document.addEventListener("click", (e)=>{
       lpApplyDelta(player, delta);
       tapFX(btn);
 
-      // (Opzionale) Toast riutilizzando quello globale se esiste
+      /* // (Opzionale) Toast riutilizzando quello globale se esiste
       const tb = document.getElementById("scoreToastBody");
       const te = document.getElementById("scoreToast");
       if (tb && te && window.bootstrap){
@@ -949,6 +949,7 @@ document.addEventListener("click", (e)=>{
         tb.textContent = `🧮 ${player} ${pretty} (Punteggio)`;
         new bootstrap.Toast(te).show();
       }
+      */
     }
 
     // Reset DEV (solo se hai il pulsante nella pagina di Lorenzo)
