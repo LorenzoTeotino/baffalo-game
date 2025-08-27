@@ -948,7 +948,7 @@ document.addEventListener("click", (e)=>{
       const pretty = delta > 0 ? `+${delta}` : `${delta}`;
       tb.textContent = `🧮 ${player} ${pretty} (Punteggio)`;
       new bootstrap.Toast(te).show();
-}
+    }
 
     return; // evita che scatti il blocco DEV sotto
   }
