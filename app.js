@@ -942,6 +942,14 @@ document.addEventListener("click", (e)=>{
     lpApplyDelta(player, delta);
     tapFX(btn);
 
+    const tb = document.getElementById("scoreToastBody");
+    const te = document.getElementById("scoreToast");
+    if (tb && te && window.bootstrap){
+      const pretty = delta > 0 ? `+${delta}` : `${delta}`;
+      tb.textContent = `🧮 ${player} ${pretty} (Punteggio)`;
+      new bootstrap.Toast(te).show();
+}
+
     return; // evita che scatti il blocco DEV sotto
   }
 
