@@ -1,4 +1,4 @@
-/* =========================================================
+((/* =========================================================
    Firebase
 ========================================================= */
 const firebaseConfig = {
@@ -942,13 +942,6 @@ document.addEventListener("click", (e)=>{
     lpApplyDelta(player, delta);
     tapFX(btn);
 
-    // (opzionale) toast riusando quello globale
-    const te = document.getElementById("scoreToast");
-    const tb = document.getElementById("scoreToastBody");
-    if (te && tb && window.bootstrap){
-      tb.textContent = `🧮 ${player} ${delta>0?`+${delta}`:delta} (Punteggio)`;
-      new bootstrap.Toast(te).show();
-    }
     return; // evita che scatti il blocco DEV sotto
   }
 
