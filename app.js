@@ -907,7 +907,7 @@ document.addEventListener("click", (e)=>{
   // Render classifica STATICO: usa l’ordine di LP_PLAYERS, non sort
   function renderLpBoard(map) {
     const html = LP_PLAYERS.map((p, i) => {
-      const val = (map && map[p] != null) ? Number(map[p]) : 0;
+      const val = Number(map?.[p] ?? 0);
       return `
         <div class="lp-row">
           <span class="name">${i+1}. ${p}</span>
@@ -942,13 +942,14 @@ document.addEventListener("click", (e)=>{
     lpApplyDelta(player, delta);
     tapFX(btn);
 
-    // (opzionale) toast riusando quello globale
-    const te = document.getElementById("scoreToast");
     const tb = document.getElementById("scoreToastBody");
-    if (te && tb && window.bootstrap){
-      tb.textContent = `🧮 ${player} ${delta>0?`+${delta}`:delta} (Punteggio)`;
+    const te = document.getElementById("scoreToast");
+    if (tb && te && window.bootstrap){
+      const pretty = delta > 0 ? `+${delta}` : `${delta}`;
+      tb.textContent = `🧮 ${player} ${pretty} (Punteggio)`;
       new bootstrap.Toast(te).show();
-    }
+}
+
     return; // evita che scatti il blocco DEV sotto
   }
 
