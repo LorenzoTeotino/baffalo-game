@@ -358,4 +358,35 @@ a.tile, a.tile:visited{
 }
 .lp-dev-btn:active{ transform:scale(.995); }
 
+/* ===== PUNTEGGIO: feedback click forte sui bottoni (.score-btn) ===== */
+.score-btn.fx-press{
+  transform: scale(.96);
+  filter: saturate(1.2) brightness(1.05);
+}
+.score-btn.fx-press::after{
+  /* ripple centrale che si espande */
+  content:"";
+  position:absolute; inset:0; border-radius:inherit;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.28), rgba(255,255,255,0) 60%);
+  animation:rippleOut .28s ease-out forwards;
+  pointer-events:none;
+}
+.score-btn.fx-press::before{
+  /* glow anulare che “esplode” */
+  content:"";
+  position:absolute; inset:-6px; border-radius:inherit;
+  box-shadow:0 0 0 0 rgba(255,255,255,.25);
+  animation:glowPulse .32s ease-out forwards;
+  pointer-events:none;
+}
+
+@keyframes rippleOut{
+  from{ opacity:.35; transform:scale(.92); }
+  to  { opacity:0;   transform:scale(1.12); }
+}
+@keyframes glowPulse{
+  from{ box-shadow:0 0 0 0 rgba(255,255,255,.25); }
+  to  { box-shadow:0 0 0 14px rgba(255,255,255,0); }
+}
+
 
