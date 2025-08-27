@@ -907,7 +907,7 @@ document.addEventListener("click", (e)=>{
   // Render classifica STATICO: usa l’ordine di LP_PLAYERS, non sort
   function renderLpBoard(map) {
     const html = LP_PLAYERS.map((p, i) => {
-      const val = Number(map?.[p] ?? 0);
+      const val = (map && map[p] != null) ? Number(map[p]) : 0;
       return `
         <div class="lp-row">
           <span class="name">${i+1}. ${p}</span>
