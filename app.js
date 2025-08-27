@@ -932,7 +932,8 @@ document.addEventListener("click", (e)=>{
   }
 
   // Click handler SOLO per i bottoni del tile Punteggio
-  document.addEventListener("click", (e)=>{
+document.addEventListener("click", (e)=>{
+  // bottoni +10/+20/-10/-20
   const btn = e.target.closest('.score-btn[data-lp-player]');
   if (btn){
     const player = btn.dataset.lpPlayer;
@@ -941,26 +942,25 @@ document.addEventListener("click", (e)=>{
     lpApplyDelta(player, delta);
     tapFX(btn);
 
-    // (Opzionale) Toast riutilizzando quello globale se esiste
-    const tb = document.getElementById("scoreToastBody");
+    // (opzionale) toast riusando quello globale
     const te = document.getElementById("scoreToast");
-    if (tb && te && window.bootstrap){
-      const pretty = delta > 0 ? `+${delta}` : `${delta}`;
-      tb.textContent = `🧮 ${player} ${pretty} (Punteggio)`;
+    const tb = document.getElementById("scoreToastBody");
+    if (te && tb && window.bootstrap){
+      tb.textContent = `🧮 ${player} ${delta>0?`+${delta}`:delta} (Punteggio)`;
       new bootstrap.Toast(te).show();
     }
+    return; // evita che scatti il blocco DEV sotto
   }
-  ...
-});
 
-    // Reset DEV (solo se hai il pulsante nella pagina di Lorenzo)
-    if (e.target && e.target.id === "lp-reset"){
-      if (confirm("Azzerare i punteggi del tile Punteggio per tutti?")){
-        const zero = {}; LP_PLAYERS.forEach(p=>zero[p]=0);
-        firebase.database().ref(LP_DB_PATH).set(zero);
-      }
+  // Reset DEV (solo se hai il pulsante)
+  if (e.target && e.target.id === "lp-reset"){
+    if (confirm("Azzerare i punteggi del tile Punteggio per tutti?")){
+      const zero = {}; LP_PLAYERS.forEach(p=>zero[p]=0);
+      firebase.database().ref(LP_DB_PATH).set(zero);
     }
-  });
+  }
+});
+  
 
   // Realtime listener: aggiorna tutte le board del tile
   firebase.database().ref(LP_DB_PATH).on("value", snap=>{
