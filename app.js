@@ -875,78 +875,97 @@ document.addEventListener("click", (e)=>{
 });
 
 /* ==========================================================
-   TILE "Punteggio" (lp) — CONDIVISO su Firebase
+   TILE "Punteggio" (lp) — CONDIVISO su Firebase (compat Safari vecchi)
    - Percorso dedicato: lpScores (separato da Baffalo/Spritz/storico)
    - Bottoni stile Baffalo (.score-btn) ma senza toast
    - Classifica STATICA (ordine fisso dei 4 nomi)
 ========================================================== */
 (function(){
-  const LP_PLAYERS = (window.PLAYERS && Array.isArray(window.PLAYERS))
+  var LP_PLAYERS = (window.PLAYERS && Array.isArray(window.PLAYERS))
     ? window.PLAYERS
     : ["Lorenzo","Matteo","Ilaria","Sara"];
 
-  const LP_DB_PATH = "lpScores";
+  var LP_DB_PATH = "lpScores";
 
-  async function ensureLpScores(){
-    const ref = firebase.database().ref(LP_DB_PATH);
-    const snap = await ref.get();
-    if(!snap.exists()){
-      const init={}; LP_PLAYERS.forEach(p=>init[p]=0);
-      await ref.set(init);
-      return init;
-    }else{
-      const cur=snap.val()||{};
-      let changed=false;
-      LP_PLAYERS.forEach(p=>{ if(!(p in cur)){ cur[p]=0; changed=true; }});
-      if(changed) await ref.set(cur);
-      return cur;
-    }
+  function ensureLpScores(){
+    var ref = firebase.database().ref(LP_DB_PATH);
+    return ref.get().then(function(snap){
+      if(!snap.exists()){
+        var init = {}; LP_PLAYERS.forEach(function(p){ init[p]=0; });
+        return ref.set(init).then(function(){ return init; });
+      }else{
+        var cur = snap.val() || {};
+        var changed = false;
+        LP_PLAYERS.forEach(function(p){
+          if(!(p in cur)){ cur[p]=0; changed=true; }
+        });
+        if(changed){ return ref.set(cur).then(function(){ return cur; }); }
+        return cur;
+      }
+    });
   }
 
   function renderLpBoard(map){
-    const html = LP_PLAYERS.map((p,i)=>`
-      <div class="lp-row">
-        <span class="name">${i+1}. ${p}</span>
-        <span class="val">${Number(map?.[p] ?? 0)}</span>
-      </div>`).join("");
-    document.querySelectorAll(".lp-board").forEach(el=>el.innerHTML=html);
+    var html = LP_PLAYERS.map(function(p,i){
+      var val = (map && map[p] != null) ? Number(map[p]) : 0;
+      return '' +
+        '<div class="lp-row">' +
+          '<span class="name">'+(i+1)+'. '+p+'</span>' +
+          '<span class="val">'+ val +'</span>' +
+        '</div>';
+    }).join("");
+    var nodes = document.querySelectorAll(".lp-board");
+    for (var k=0; k<nodes.length; k++){ nodes[k].innerHTML = html; }
   }
 
   function lpApplyDelta(player, delta){
-    const ref = firebase.database().ref(`${LP_DB_PATH}/${player}`);
-    ref.transaction(cur => (Number(cur)||0) + (parseInt(delta,10)||0));
+    var ref = firebase.database().ref(LP_DB_PATH + "/" + player);
+    ref.transaction(function(cur){ 
+      var n = Number(cur); if(!isFinite(n)) n = 0;
+      var d = parseInt(delta,10); if(!isFinite(d)) d = 0;
+      return n + d; 
+    });
   }
 
   function tapFX(btn){
     if(!btn) return;
     btn.classList.add("flash");
-    setTimeout(()=>btn.classList.remove("flash"), 200);
-    if(navigator.vibrate) navigator.vibrate(15);
+    setTimeout(function(){ btn.classList.remove("flash"); }, 200);
+    if (navigator.vibrate) navigator.vibrate(15);
   }
 
   // SOLO bottoni del tile Punteggio (identificati da data-lp-player)
-  document.addEventListener("click", (e)=>{
-    const btn = e.target.closest('.score-btn[data-lp-player]');
+  document.addEventListener("click", function(e){
+    var btn = e.target && e.target.closest('.score-btn[data-lp-player]');
     if(!btn) return;
-    const player = btn.dataset.lpPlayer;
-    const delta  = parseInt(btn.dataset.lpDelta, 10) || 0;
+    var player = btn.getAttribute('data-lp-player');
+    var delta  = parseInt(btn.getAttribute('data-lp-delta'), 10) || 0;
     if(!player) return;
     lpApplyDelta(player, delta);
     tapFX(btn);
   });
 
   // Realtime classifica del tile
-  firebase.database().ref(LP_DB_PATH).on("value", snap=>{
-    renderLpBoard(snap.val()||{});
+  firebase.database().ref(LP_DB_PATH).on("value", function(snap){
+    renderLpBoard(snap.val() || {});
   });
 
   // Primo ingresso nelle pagine #lp-*
-  async function initLpIfVisible(){
-    if(location.hash && location.hash.startsWith("#lp-")){
-      const map = await ensureLpScores();
-      renderLpBoard(map);
-      [["#lp-current","Lorenzo"],["#lp-current-m","Matteo"],["#lp-current-i","Ilaria"],["#lp-current-s","Sara"]]
-        .forEach(([sel,name])=>{ const el=document.querySelector(sel); if(el) el.textContent=name; });
+  function initLpIfVisible(){
+    if(location.hash && location.hash.indexOf("#lp-") === 0){
+      ensureLpScores().then(function(map){
+        renderLpBoard(map);
+        var ids = [
+          ["#lp-current","Lorenzo"],
+          ["#lp-current-m","Matteo"],
+          ["#lp-current-i","Ilaria"],
+          ["#lp-current-s","Sara"]
+        ];
+        ids.forEach(function(pair){
+          var el = document.querySelector(pair[0]);
+          if(el) el.textContent = pair[1];
+        });
+      });
     }
   }
   window.addEventListener("hashchange", initLpIfVisible);
