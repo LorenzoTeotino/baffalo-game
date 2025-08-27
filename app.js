@@ -938,30 +938,19 @@ document.addEventListener("click", (e)=>{
     const player = btn.dataset.lpPlayer;
     const delta  = parseInt(btn.dataset.lpDelta, 10) || 0;
     if (!player) return;
-
-    // aggiorna punteggi condivisi
     lpApplyDelta(player, delta);
+    tapFX(btn);
 
-    // feedback forte (visivo + aptico + opzionale suono)
-    btn.classList.add('fx-press');
-    setTimeout(()=>btn.classList.remove('fx-press'), 320);
-
-    // haptics: pattern più “forte” (Android); su iPhone fallback audio
-    if (navigator.vibrate) {
-      navigator.vibrate([14, 40, 14]); // vibrazione a impulsi
-    } else {
-      const a = document.getElementById('fx-press');
-      if (a){ try{ a.currentTime = 0; a.play(); }catch{} }
+    // (Opzionale) Toast riutilizzando quello globale se esiste
+    const tb = document.getElementById("scoreToastBody");
+    const te = document.getElementById("scoreToast");
+    if (tb && te && window.bootstrap){
+      const pretty = delta > 0 ? `+${delta}` : `${delta}`;
+      tb.textContent = `🧮 ${player} ${pretty} (Punteggio)`;
+      new bootstrap.Toast(te).show();
     }
   }
-
-  // Reset DEV invariato (se lo usi)
-  if (e.target && e.target.id === "lp-reset"){
-    if (confirm("Azzerare i punteggi del tile Punteggio per tutti?")){
-      const zero = {}; LP_PLAYERS.forEach(p=>zero[p]=0);
-      firebase.database().ref(LP_DB_PATH).set(zero);
-    }
-  }
+  ...
 });
 
     // Reset DEV (solo se hai il pulsante nella pagina di Lorenzo)
